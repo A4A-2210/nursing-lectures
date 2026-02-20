@@ -3,39 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lectures Index</title>
+    <title>Psychiatric Nursing - Lectures Index</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 p-8">
+<body class="bg-slate-50 font-sans text-slate-800">
 
-    <div class="max-w-4xl mx-auto">
-        <div class="flex justify-between items-center mb-10 border-b pb-4">
-            <h1 class="text-3xl font-extrabold text-indigo-800">Lectures Index</h1>
-            <a href="index.html" class="text-indigo-600 hover:text-indigo-800 font-medium font-bold flex items-center gap-2">
-                &larr; Back to Home
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <h1 class="font-bold text-lg text-indigo-800 flex items-center gap-2">
+                <i data-lucide="brain" class="text-indigo-600"></i> Course Modules
+            </h1>
+            <a href="index.html" class="text-sm font-bold text-slate-500 hover:text-indigo-600 flex items-center gap-1 transition">
+                <i data-lucide="home" class="w-4 h-4"></i> Home
             </a>
         </div>
+    </nav>
 
-        <div class="grid gap-6">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition flex justify-between items-center">
-                <div>
-                    <span class="text-xs font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded mb-2 inline-block">Somatic Therapy</span>
-                    <h2 class="text-xl font-bold text-slate-800">Electroconvulsive Therapy (ECT)</h2>
-                    <p class="text-slate-500 text-sm mt-1">Definition, mechanism, types, and nursing management.</p>
-                </div>
-                <a href="pages/ect-lecture.html" class="bg-indigo-50 text-indigo-700 font-bold py-2 px-6 rounded-lg border border-indigo-200 hover:bg-indigo-600 hover:text-white transition">
-                    Start Lecture
-                </a>
-            </div>
-
-            <div class="bg-slate-100 p-6 rounded-xl border border-slate-200 border-dashed flex justify-between items-center opacity-60">
-                <div>
-                    <h2 class="text-xl font-bold text-slate-600">Schizophrenia Spectrum Disorders</h2>
-                    <p class="text-slate-500 text-sm mt-1">Coming soon...</p>
-                </div>
-            </div>
+    <main class="max-w-6xl mx-auto px-4 py-10">
+        <div class="mb-8">
+            <h2 class="text-3xl font-extrabold text-slate-800">Lectures Index</h2>
+            <p class="text-slate-500 mt-2">Select a module to begin your interactive learning session.</p>
         </div>
-    </div>
 
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            
+            <div id="lectures-container" class="contents"></div>
+
+        </div>
+    </main>
+
+    <script>
+        // تفعيل الأيقونات
+        lucide.createIcons();
+
+        // قائمة المحاضرات
+        const lectures = [
+            "Introduction to Psychiatric and Mental Health Nursing",
+            "General Principles of Psychiatric Nursing",
+            "General Symptomatology",
+            "Psychiatric Mental Health Nursing Theoretical Framework",
+            "Anxiety and Defense Mechanisms",
+            "Ethical and Legal Aspects of Psychiatric Care",
+            "Therapeutic Communication",
+            "Therapeutic Nurse-Client Relationship",
+            "Nursing Process in Psychiatric Mental Health Nursing",
+            "Schizophrenia Spectrum and Other Psychotic Disorders",
+            "Delusional Disorder",
+            "Mood Disorders",
+            "Anxiety, Obsessive-Compulsive, and Trauma-Related Disorders",
+            "Somatic Symptom and Related Disorders",
+            "Dissociative Disorders",
+            "Personality Disorders",
+            "Substance-Related and Addictive Disorders",
+            "Anti-Psychotics",
+            "Anti-Depressants/Lithium/Anti-Anxiety",
+            "ECT",
+            "Psychotherapy",
+            "Milieu Therapy",
+            "Community Mental Health Services (C.M.H.S)"
+        ];
+
+        const container = document.getElementById('lectures-container');
+
+        lectures.forEach((title, index) => {
+            const lectureNumber = index + 1;
+            // محاضرة الـ ECT هي رقم 20
+            const isReady = title === "ECT"; 
+            
+            const card = document.createElement('div');
+            card.className = `p-5 rounded-xl border transition-all duration-300 flex flex-col justify-between ${
+                isReady 
+                ? 'bg-white border-indigo-200 shadow-sm hover:shadow-md hover:border-indigo-400' 
+                : 'bg-slate-100/50 border-slate-200 opacity-75'
+            }`;
+
+            card.innerHTML = `
+                <div>
+                    <span class="text-xs font-bold px-2 py-1 rounded mb-3 inline-block ${isReady ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-200 text-slate-600'}">
+                        Lecture ${lectureNumber}
+                    </span>
+                    <h3 class="text-lg font-bold text-slate-800 leading-tight mb-4">${title}</h3>
+                </div>
+                <div>
+                    ${isReady 
+                        ? `<a href="pages/ect-lecture.html" class="w-full block text-center bg-indigo-600 text-white font-bold py-2.5 rounded-lg hover:bg-indigo-700 transition shadow-sm">Start Lecture</a>` 
+                        : `<button disabled class="w-full text-center bg-slate-200 text-slate-400 font-bold py-2.5 rounded-lg cursor-not-allowed">Coming Soon</button>`
+                    }
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    </script>
 </body>
 </html>
