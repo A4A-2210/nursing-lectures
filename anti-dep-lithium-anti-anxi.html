@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psychotropic Medications</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX compilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Lucide Icons (Vanilla) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;700&display=swap');
+        .font-arabic { font-family: 'Noto Kufi Arabic', sans-serif; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useLayoutEffect } = React;
+
+        // --- ICON SYSTEM SETUP ---
+        const IconWrapper = ({ name, ...props }) => {
+            const ref = useRef(null);
+            
+            useLayoutEffect(() => {
+                if (ref.current && window.lucide && window.lucide.icons[name]) {
+                    const iconElement = window.lucide.createElement(window.lucide.icons[name]);
+                    if (props.className) {
+                        const existingClass = iconElement.getAttribute('class') || '';
+                        iconElement.setAttribute('class', `${existingClass} ${props.className}`);
+                    }
+                    if (props.size) {
+                        iconElement.setAttribute('width', props.size);
+                        iconElement.setAttribute('height', props.size);
+                    }
+                    ref.current.innerHTML = '';
+                    ref.current.appendChild(iconElement);
+                }
+            }, [name, props.className, props.size]);
+
+            return <span ref={ref} style={{ display: 'inline-flex', verticalAlign: 'middle' }} />;
+        };
+
+        const createIconComponent = (name) => (props) => <IconWrapper name={name} {...props} />;
+
+        // Initialize required icons
+        const Brain = createIconComponent('Brain');
+        const Heart = createIconComponent('Heart');
+        const Activity = createIconComponent('Activity');
+        const BookOpen = createIconComponent('BookOpen');
+        const ChevronDown = createIconComponent('ChevronDown');
+        const ChevronUp = createIconComponent('ChevronUp');
+        const AlertCircle = createIconComponent('AlertCircle');
+        const Scale = createIconComponent('Scale');
+        const Lightbulb = createIconComponent('Lightbulb');
+        const ShieldAlert = createIconComponent('ShieldAlert');
+        const Zap = createIconComponent('Zap');
+        const CheckCircle = createIconComponent('CheckCircle');
+        const Pill = createIconComponent('Pill');
+        const Droplets = createIconComponent('Droplets');
+        const User = createIconComponent('User');
+        const AlertTriangle = createIconComponent('TriangleAlert'); // Changed from AlertTriangle to TriangleAlert
+
+        // --- DEPARTMENT LOGO (UNCHANGED) ---
+        const DepartmentLogo = ({ className = "w-10 h-10" }) => (
+            <svg viewBox="0 0 100 120" className={className} xmlns="http://www.w3.org/2000/svg">
+                <path d="M 5 80 C 15 100 40 110 60 105 C 80 100 95 85 95 75 C 95 70 85 65 75 75 C 65 85 50 90 35 85 C 25 80 15 75 5 80 Z" fill="#004a8f" />
+                <path d="M 30 85 C 45 92 60 90 75 80" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                <path d="M 40 78 C 55 85 70 80 85 70" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                <path d="M 50 65 L 53 72 L 58 67 L 58 57 C 58 52 64 50 64 45 C 64 43 60 41 60 39 L 68 37 C 70 36 70 34 68 32 C 65 31 62 32 60 29 C 60 15 48 5 35 10" stroke="#004a8f" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                <g stroke="#1e1b4b" strokeWidth="1.5" fill="none">
+                    <circle cx="35" cy="22" r="9" />
+                    <circle cx="28" cy="35" r="9" />
+                    <circle cx="42" cy="35" r="9" />
+                </g>
+                <text x="35" y="24.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">C</text>
+                <text x="28" y="37.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">C</text>
+                <text x="42" y="37.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">A</text>
+            </svg>
+        );
+
+        // --- FACULTY LOGO (SVG REPLICA) ---
+        const FacultyLogo = ({ className = "w-24 h-28" }) => (
+            <svg viewBox="0 0 100 130" className={className} xmlns="http://www.w3.org/2000/svg">
+                {/* Outer Borders */}
+                <path d="M 2 2 L 98 2 L 98 65 C 98 110 50 128 50 128 C 50 128 2 110 2 65 Z" fill="#24335c" />
+                <path d="M 4 4 L 96 4 L 96 65 C 96 108 50 125 50 125 C 50 125 4 108 4 65 Z" fill="#ffffff" />
+                
+                {/* Sky & Sea */}
+                <path d="M 6 6 L 94 6 L 94 65 C 94 106 50 122 50 122 C 50 122 6 106 6 65 Z" fill="#66c5f4" />
+                <path d="M 6 75 L 94 75 C 94 106 50 122 50 122 C 50 122 6 106 6 75 Z" fill="#1da2d8" />
+                
+                {/* Beams */}
+                <g stroke="#1a2f57" strokeWidth="0.8">
+                    <line x1="50" y1="18" x2="15" y2="12" />
+                    <line x1="50" y1="18" x2="10" y2="20" />
+                    <line x1="50" y1="18" x2="10" y2="28" />
+                    <line x1="50" y1="18" x2="15" y2="35" />
+                    
+                    <line x1="50" y1="18" x2="85" y2="12" />
+                    <line x1="50" y1="18" x2="90" y2="20" />
+                    <line x1="50" y1="18" x2="90" y2="28" />
+                    <line x1="50" y1="18" x2="85" y2="35" />
+                </g>
+                
+                {/* Fortress & Lighthouse */}
+                <g fill="#c49341" stroke="#1a2f57" strokeWidth="1.2" strokeLinejoin="round">
+                    {/* Left Tower */}
+                    <polygon points="12,60 10,75 22,75 20,60" />
+                    <rect x="10" y="56" width="12" height="4" />
+                    <rect x="11" y="53" width="10" height="3" />
+                    {/* Left Wall */}
+                    <rect x="20" y="63" width="18" height="12" />
+                    
+                    {/* Right Tower */}
+                    <polygon points="80,60 78,75 90,75 88,60" />
+                    <rect x="78" y="56" width="12" height="4" />
+                    <rect x="79" y="53" width="10" height="3" />
+                    {/* Right Wall */}
+                    <rect x="62" y="63" width="18" height="12" />
+                    
+                    {/* Main Lighthouse Base */}
+                    <polygon points="40,40 33,75 67,75 60,40" />
+                    <rect x="38" y="38" width="24" height="4" />
+                    {/* Mid Tier */}
+                    <rect x="42" y="24" width="16" height="14" />
+                    <rect x="40" y="22" width="20" height="3" />
+                    {/* Top Tier */}
+                    <rect x="45" y="14" width="10" height="8" />
+                    <rect x="44" y="12" width="12" height="2" />
+                    {/* Lantern */}
+                    <polygon points="47,12 48,7 52,7 53,12" />
+                </g>
+                
+                {/* Details (Windows/Doors) */}
+                <g fill="none" stroke="#1a2f57" strokeWidth="1.2">
+                    {/* Left Wall Windows */}
+                    <rect x="22" y="66" width="3" height="4" />
+                    <rect x="27" y="66" width="3" height="4" />
+                    <rect x="32" y="66" width="3" height="4" />
+                    
+                    {/* Right Wall Windows */}
+                    <rect x="65" y="66" width="3" height="4" />
+                    <rect x="70" y="66" width="3" height="4" />
+                    <rect x="75" y="66" width="3" height="4" />
+                    
+                    {/* Main Tower Door & Windows */}
+                    <rect x="47" y="64" width="6" height="11" />
+                    <rect x="48" y="54" width="4" height="5" />
+                    <rect x="48" y="46" width="4" height="5" />
+                    
+                    {/* Mid Tier Windows */}
+                    <rect x="44" y="27" width="4" height="4" />
+                    <rect x="52" y="27" width="4" height="4" />
+                </g>
+                
+                {/* Wave styling */}
+                <g fill="#1a2f57" stroke="none">
+                    <path d="M 12 85 Q 16 87 20 85 L 20 87 Q 16 89 12 87 Z" />
+                    <path d="M 28 85 Q 32 87 36 85 L 36 87 Q 32 89 28 87 Z" />
+                    <path d="M 44 85 Q 48 87 52 85 L 52 87 Q 48 89 44 87 Z" />
+                    <path d="M 60 85 Q 64 87 68 85 L 68 87 Q 64 89 60 87 Z" />
+                    <path d="M 76 85 Q 80 87 84 85 L 84 87 Q 80 89 76 87 Z" />
+                    
+                    <path d="M 20 95 Q 24 97 28 95 L 28 97 Q 24 99 20 97 Z" />
+                    <path d="M 36 95 Q 40 97 44 95 L 44 97 Q 40 99 36 97 Z" />
+                    <path d="M 52 95 Q 56 97 60 95 L 60 97 Q 56 99 52 97 Z" />
+                    <path d="M 68 95 Q 72 97 76 95 L 76 97 Q 72 99 68 97 Z" />
+
+                    <path d="M 28 105 Q 32 107 36 105 L 36 107 Q 32 109 28 107 Z" />
+                    <path d="M 44 105 Q 48 107 52 105 L 52 107 Q 48 109 44 107 Z" />
+                    <path d="M 60 105 Q 64 107 68 105 L 68 107 Q 64 109 60 107 Z" />
+                    
+                    <path d="M 40 115 Q 44 117 48 115 L 48 117 Q 44 119 40 117 Z" />
+                    <path d="M 52 115 Q 56 117 60 115 L 60 117 Q 56 119 52 117 Z" />
+                </g>
+            </svg>
+        );
+
+        // --- 15+ NEW EDUCATIONAL CUSTOM SVGS ---
+
+        // 1. Brain Amines Balance (MAOI context)
+        const BrainAminesSVG = () => (
+            <svg viewBox="0 0 100 100" className="w-16 h-16 inline-block">
+                <circle cx="50" cy="50" r="45" fill="#e0f2fe" stroke="#0284c7" strokeWidth="2"/>
+                <path d="M 30 70 Q 50 30 70 70" fill="none" stroke="#0ea5e9" strokeWidth="4" strokeLinecap="round"/>
+                <circle cx="30" cy="70" r="8" fill="#f59e0b"/>
+                <circle cx="50" cy="50" r="8" fill="#10b981"/>
+                <circle cx="70" cy="70" r="8" fill="#8b5cf6"/>
+                <text x="50" y="90" fontSize="8" textAnchor="middle" fill="#0369a1" fontWeight="bold">NE - 5HT - DA</text>
+            </svg>
+        );
+
+        // 2. Tyramine Foods Warning
+        const TyramineFoodsSVG = () => (
+            <svg viewBox="0 0 100 100" className="w-16 h-16 inline-block">
+                <circle cx="50" cy="50" r="45" fill="#fee2e2" />
+                {/* Cheese */}
+                <path d="M 30 60 L 70 60 L 70 40 L 30 60 Z" fill="#fcd34d" stroke="#d97706" strokeWidth="2"/>
+                <circle cx="45" cy="53" r="3" fill="#d97706"/>
+                <circle cx="55" cy="48" r="2" fill="#d97706"/>
+                <circle cx="62" cy="55" r="2.5" fill="#d97706"/>
+                {/* Cross */}
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#ef4444" strokeWidth="6"/>
+                <line x1="25" y1="25" x2="75" y2="75" stroke="#ef4444" strokeWidth="6"/>
+            </svg>
+        );
+
+        // 3. Hypertensive Crisis
+        const HypertensiveCrisisSVG = () => (
+            <svg viewBox="0 0 100 100" className="w-16 h-16 inline-block">
+                <rect x="20" y="20" width="60" height="60" rx="10" fill="#f87171" stroke="#b91c1c" strokeWidth="3"/>
+                <polyline points="25,50 40,50 50,25 60,75 70,50 85,50" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinejoin="round"/>
+                <path d="M 40 10 L 60 10 L 55 20 L 45 20 Z" fill="#b91c1c"/>
+            </svg>
+        );
+
+        // 4. Time Wait (TCAs)
+        const TimeWaitSVG = () => (
+            <svg viewBox="0 0 100 100" className="w-16 h-16 inline-block">
+                <circle cx="50" cy="50" r="40" fill="#fef3c7" stroke="#d97706" strokeWidth="4"/>
+                <line x1="50" y1="50" x2="50" y2="25" stroke="#d97706" strokeWidth="4" strokeLinecap="round"/>
+                <line x1="50" y1="50" x2="70" y2="60" stroke="#d97706" strokeWidth="4" strokeLinecap="round"/>
+                <text x="50" y="80" fontSize="12" textAnchor="middle" fill="#b45309" fontWeight="bold">2-4 WKS</text>
+            </svg>
+        );
+
+        // 5. Anticholinergic Effects
+        const AnticholinergicSVG = () => (
+            <svg viewBox="0 0 100 100" className="w-16 h-16 inline-block">
+                {/* Eye */}
+                <path d="M 20 50 Q 50 20 80 50 Q 50 80 20 50" fill="none" stroke="#64748b" strokeWidth="3"/>
+                <circle cx="50" cy="50" r="10" fill="#cbd5e1"/>
+                {/* Dry/Crack lines */}
+                <path d="M 45 40 L 55 50 L 45 60 L 50 65" fill="none" stroke="#475569" strokeWidth="2"/>
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#ef4444" strokeWidth="2" strokeDasharray="4 4"/>
+            </svg>
+        );
+
+        // 6. Cardiac Effects
+        const CardiacEffectsSVG = () => (
+            <svg viewBox="0 0 100 100" className="w-16 h-16 inline-block">
+                <path d="M 50 85 C 50 85 15 55 15 35 C 15 20 30 15 40 25 L 50 35 L 60 25 C 70 15 85 20 85 35 C 85 55 50 85 50 85 Z" fill="#fca5a5" stroke="#dc2626" strokeWidth="3"/>
+                <polyline points="20,50 35,50 45,20 60,80 70,50 80,50" fill="none" stroke="#b91c1c" strokeWidth="3" strokeLinejoin="round"/>
+            </svg>
+        );
+
+        // 7. Weight Gain
+        const WeightGainSVG = () => (
+            <svg viewBox="0 0 100 100" className="w-16 h-16 inline-block">
+                <rect x="20" y="40" width="60" height="40" rx="5" fill="#e2e8f0" stroke="#475569" strokeWidth="3"/>
+                <path d="M 30 40 L 40 20 L 60 20 L 70 40" fill="none" stroke="#475569" strokeWidth="3"/>
+                <circle cx="50" cy="50" r="10" fill="#ffffff" stroke="#475569" strokeWidth="2"/>
+                <line x1="50" y1="50" x2="58" y2="45" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M 40 20 Q 50 10 60 20" fill="none" stroke="#475569" strokeWidth="2" strokeDasharray="2 2"/>
+            </svg>
+        );
+
+        // 8. SSRI First Line
+        const SSRIFirstLineSVG = () => (
+            <svg viewBox="0 0 100 100" className="w-16 h-16 inline-block">
+                <circle cx="50" cy="40" r="25" fill="#fde047" stroke="#ca8a04" strokeWidth="3"/>
+                <path d="M 35 60 L 30 90 L 50 80 L 70 90 L 65 60 Z" fill="#60a5fa" stroke="#2563eb" strokeWidth="2"/>
+                <text x="50" y="45" fontSize="16" textAnchor="middle" fill="#ca8a04" fontWeight="bold">1st</text>
+            </svg>
+        );
+
+        // 9. Serotonin Blockade
+        const SerotoninBlockadeSVG = () => (
+            <svg viewBox="0 0 100 100" className="w-16 h-16 inline-block">
+                <path d="M 20 80 C 20 40 80 40 80 80" fill="none" stroke="#cbd5e1" strokeWidth="6"/>
+                <circle cx="50" cy="30" r="6" fill="#3b82f6"/>
+                <circle cx="35" cy="45" r="6" fill="#3b82f6"/>
+                <circle cx="65" cy="45" r="6" fill="#3b82f6"/>
+                <rect x="40" y="60" width="20" height="8" fill="#ef4444" transform="rotate(-15 50 64)"/>
+            </svg>
+        );
+
+        // 10. Atypical Receptors
+        const AtypicalReceptorsSVG = () => (
+            <svg viewBox="0 0 100 100" className="w-16 h-16 inline-block">
+                <polygon points="50,15 80,80 20,80" fill="#e0e7ff" stroke="#4f46e5" strokeWidth="3"/>
+                <circle cx="50" cy="40" r="8" fill="#ec4899"/>
+                <circle cx="35" cy="65" r="8" fill="#06b6d4"/>
+                <circle cx="65" cy="65" r="8" fill="#f59e0b"/>
+                <text x="50" y="95" fontSize="10" textAnchor="middle" fill="#312e81" fontWeight="bold">SNRI / NDRI</text>
+            </svg>
+        );
+
+        // 11. Bipolar Cycle
+        const BipolarCycleSVG = () => (
+            <svg viewBox="0 0 100 100" className="w-16 h-16 inline-block">
+                <path d="M 10 50 Q 30 10 50 50 T 90 50" fill="none" stroke="#8b5cf6" strokeWidth="4"/>
+                {/* Sun for Mania */}
+                <circle cx="30" cy="25" r="6" fill="#fbbf24"/>
+                <line x1="30" y1="12" x2="30" y2="15" stroke="#fbbf24" strokeWidth="2"/>
+                <line x1="30" y1="35" x2="30" y2="38" stroke="#fbbf24" strokeWidth="2"/>
+                <line x1="17" y1="25" x2="20" y2="25" stroke="#fbbf24" strokeWidth="2"/>
+                <line x1="40" y1="25" x2="43" y2="25" stroke="#fbbf24" strokeWidth="2"/>
+                {/* Cloud for Depression */}
+                <path d="M 65 75 Q 65 65 75 65 Q 85 65 85 75 Z" fill="#94a3b8"/>
+                <line x1="70" y1="80" x2="68" y2="85" stroke="#64748b" strokeWidth="2"/>
+                <line x1="75" y1="80" x2="73" y2="85" stroke="#64748b" strokeWidth="2"/>
+                <line x1="80" y1="80" x2="78" y2="85" stroke="#64748b" strokeWidth="2"/>
+            </svg>
+        );
+
+        // 12. Kidney Sodium Lithium Competition
+        const KidneyExcretionSVG = () => (
+            <svg viewBox="0 0 100 100" className="w-16 h-16 inline-block">
+                <path d="M 40 20 C 70 20 80 50 70 80 C 50 90 30 70 40 50 C 45 40 30 30 40 20 Z" fill="#fbcfe8" stroke="#db2777" strokeWidth="3"/>
+                <text x="25" y="45" fontSize="12" fill="#2563eb" fontWeight="bold">Na+</text>
+                <text x="75" y="45" fontSize="12" fill="#ea580c" fontWeight="bold">Li+</text>
+                <path d="M 35 40 L 45 45" fill="none" stroke="#2563eb" strokeWidth="2" markerEnd="url(#arrow)"/>
+                <path d="M 65 40 L 55 45" fill="none" stroke="#ea580c" strokeWidth="2" markerEnd="url(#arrow)"/>
+            </svg>
+        );
+
+        // 13. Tremor (Early Toxicity)
+        const HandTremorSVG = () => (
+            <svg viewBox="0 0 100 100" className="w-16 h-16 inline-block">
+                <path d="M 40 80 L 40 40 C 40 35 48 35 48 40 L 48 60 L 52 60 L 52 30 C 52 25 60 25 60 30 L 60 60 L 64 60 L 64 35 C 64 30 72 30 72 35 L 72 65 C 72 75 60 85 50 85 Z" fill="#ffedd5" stroke="#c2410c" strokeWidth="2"/>
+                <path d="M 25 50 Q 30 40 25 30" fill="none" stroke="#94a3b8" strokeWidth="2"/>
+                <path d="M 20 55 Q 25 45 20 35" fill="none" stroke="#94a3b8" strokeWidth="2"/>
+                <path d="M 85 50 Q 80 40 85 30" fill="none" stroke="#94a3b8" strokeWidth="2"/>
+                <path d="M 90 55 Q 85 45 90 35" fill="none" stroke="#94a3b8" strokeWidth="2"/>
+            </svg>
+        );
+
+        // 14. GABA Receptor
+        const GABAReceptorSVG = () => (
+            <svg viewBox="0 0 100 100" className="w-16 h-16 inline-block">
+                <path d="M 20 20 L 20 50 C 20 70 40 80 50 80 C 60 80 80 70 80 50 L 80 20" fill="none" stroke="#a7f3d0" strokeWidth="15" strokeLinecap="round"/>
+                <circle cx="35" cy="40" r="6" fill="#10b981"/>
+                <text x="35" y="43" fontSize="8" fill="white" textAnchor="middle">G</text>
+                <circle cx="65" cy="40" r="6" fill="#3b82f6"/>
+                <text x="65" y="43" fontSize="8" fill="white" textAnchor="middle">B</text>
+                <path d="M 50 20 L 50 60" fill="none" stroke="#64748b" strokeWidth="4" strokeDasharray="4 4"/>
+                <text x="50" y="15" fontSize="10" fill="#64748b" textAnchor="middle">Cl-</text>
+            </svg>
+        );
+
+        // 15. Tolerance Graph
+        const ToleranceGraphSVG = () => (
+            <svg viewBox="0 0 100 100" className="w-16 h-16 inline-block">
+                <line x1="20" y1="80" x2="80" y2="80" stroke="#475569" strokeWidth="3"/>
+                <line x1="20" y1="80" x2="20" y2="20" stroke="#475569" strokeWidth="3"/>
+                <path d="M 20 70 Q 50 70 80 30" fill="none" stroke="#ef4444" strokeWidth="3"/>
+                <circle cx="50" cy="58" r="3" fill="#ef4444"/>
+                <text x="50" y="95" fontSize="8" fill="#475569" textAnchor="middle">&gt; 4 Months</text>
+            </svg>
+        );
+
+        // 16. Pregnancy Warning
+        const PregnancyWarningSVG = () => (
+            <svg viewBox="0 0 100 100" className="w-16 h-16 inline-block">
+                <path d="M 40 20 C 40 10 60 10 60 20 C 60 30 55 35 55 45 C 55 60 70 65 70 80 L 30 80 C 30 60 40 55 40 45 C 40 35 40 30 40 20 Z" fill="#e2e8f0" stroke="#475569" strokeWidth="2"/>
+                <circle cx="60" cy="65" r="5" fill="#f472b6"/>
+                <line x1="20" y1="20" x2="80" y2="80" stroke="#ef4444" strokeWidth="4"/>
+            </svg>
+        );
+
+        const SynapseIllustration = () => (
+            <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex flex-col items-center my-4">
+                <h5 className="font-bold text-slate-700 mb-2">Mechanism of Action (Simplified)</h5>
+                <svg width="240" height="120" viewBox="0 0 240 120" className="w-full max-w-sm">
+                    {/* Presynaptic */}
+                    <path d="M 40 10 L 40 60 C 40 80 60 100 80 100 L 100 100" fill="none" stroke="#94a3b8" strokeWidth="4" />
+                    <path d="M 40 60 C 20 80 20 100 40 120" fill="none" stroke="#94a3b8" strokeWidth="4" />
+                    <circle cx="60" cy="80" r="15" fill="#f1f5f9" stroke="#94a3b8" strokeWidth="2" strokeDasharray="2 2"/>
+                    
+                    {/* Neurotransmitters */}
+                    <circle cx="100" cy="50" r="4" fill="#3b82f6" />
+                    <circle cx="115" cy="65" r="4" fill="#3b82f6" />
+                    <circle cx="95" cy="80" r="4" fill="#3b82f6" />
+                    <circle cx="125" cy="45" r="4" fill="#3b82f6" />
+                    <circle cx="130" cy="85" r="4" fill="#3b82f6" />
+                    
+                    {/* Postsynaptic */}
+                    <path d="M 180 20 C 150 20 140 50 140 70 C 140 90 150 120 180 120" fill="none" stroke="#cbd5e1" strokeWidth="6" strokeLinecap="round" />
+                    <path d="M 140 40 L 130 40" fill="none" stroke="#cbd5e1" strokeWidth="4" strokeLinecap="round" />
+                    <path d="M 135 70 L 125 70" fill="none" stroke="#cbd5e1" strokeWidth="4" strokeLinecap="round" />
+                    <path d="M 140 100 L 130 100" fill="none" stroke="#cbd5e1" strokeWidth="4" strokeLinecap="round" />
+
+                    {/* Blockade (e.g., SSRI) */}
+                    <rect x="70" y="30" width="8" height="20" fill="#ef4444" transform="rotate(45 74 40)" />
+                    <text x="50" y="25" fontSize="10" fill="#ef4444" fontWeight="bold">Reuptake Blocked</text>
+
+                    <text x="100" y="115" fontSize="10" fill="#64748b" textAnchor="middle">More NTs available in synapse</text>
+                </svg>
+            </div>
+        );
+
+        const ToxicityLevelBar = () => (
+            <div className="w-full bg-slate-100 rounded-full h-8 mb-4 relative overflow-hidden flex border border-slate-300">
+                <div className="bg-green-400 h-full flex items-center justify-center text-xs font-bold text-green-900" style={{width: '40%'}}>
+                    Therapeutic (0.7-1.2)
+                </div>
+                <div className="bg-yellow-400 h-full flex items-center justify-center text-xs font-bold text-yellow-900" style={{width: '20%'}}>
+                    Early (1.2-1.5)
+                </div>
+                <div className="bg-orange-500 h-full flex items-center justify-center text-xs font-bold text-white" style={{width: '20%'}}>
+                    Adv (1.5-2.0)
+                </div>
+                <div className="bg-red-600 h-full flex items-center justify-center text-xs font-bold text-white" style={{width: '20%'}}>
+                    Severe (>2.0)
+                </div>
+            </div>
+        );
+
+
+        // --- APPLICATION DATA ---
+        // Verbatim extracted from user prompt
+
+        const SECTIONS = {
+            INTRO: 'intro',
+            ANTIDEPRESSANTS: 'antidepressants',
+            LITHIUM: 'lithium',
+            ANTIANXIETY: 'antianxiety',
+            QUIZ: 'quiz'
+        };
+
+        const ANTIDEPRESSANTS_DATA = {
+            intro: {
+                definition: "Antidepressants are groups of medications prescribed to treat depression.",
+                action: "Antidepressant drugs can positively alter poor self-concept, degree of withdrawal, vegetative signs of depression, and activity level. Thus, they elevate mood, improve sleep, increase appetite, increase activity, help the patient to become more sociable, and decrease anxiety.",
+                classification: [
+                    "I. Monoamine Oxidase Inhibitors (MAOIs).",
+                    "II. Tricyclic Antidepressants (TCAs).",
+                    "III. Selective Serotonin Reuptake Inhibitors (SSRIs).",
+                    "IV. Novel or atypical antidepressants."
+                ]
+            },
+            maoi: {
+                title: "I. Monoamine Oxidase Inhibitors (MAOIs):",
+                desc: "Monoamine Oxidase Inhibitors (MAOIs) group is the first generation of antidepressants.",
+                tables: [
+                    {
+                        title: "1- Hydrazine group:",
+                        headers: ["Generic name", "Trade name", "Therapeutic dosage (mg/day)"],
+                        rows: [
+                            ["Phenelzine", "Nardil", "45-90"],
+                            ["Isocarboxazid", "Marplan", "30-50"]
+                        ]
+                    },
+                    {
+                        title: "2- Non-hydrazine group:",
+                        headers: ["Generic name", "Trade name", "Therapeutic dosage (mg/day)"],
+                        rows: [
+                            ["Tranylcypromine", "Parnate", "30-60"]
+                        ]
+                    }
+                ],
+                mechanism: [
+                    "The enzyme monoamine oxidase is responsible for the breakdown of certain brain amines such as norepinephrine, serotonin, and dopamine.",
+                    "Thus, MAOIS prevent or inhibit such destruction, which leads to an increase of these amines available for synaptic release in the brain and consequently improves the mood of depressed persons."
+                ],
+                indications: [
+                    "Treatment of depressive disorders.",
+                    "Treatment of atypical depression, which is manifested by overeating, hypersomnia, phobic anxiety...etc.",
+                    "Treatment of anxiety disorders in combination with antianxiety drugs (panic disorder, social phobia, generalized anxiety disorder, and post-traumatic stress disorder).",
+                    "Treatment of obsessive-compulsive disorder.",
+                    "Treatment of bulimia nervosa and Parkinson's disease."
+                ],
+                sideEffects: [
+                    { term: "Anticholinergic side effects:", def: "Dry mouth, blurred vision, postural hypotension, dry eyes, nasal congestion, Urinary retention, and severe constipation." },
+                    { term: "Other side effects:", def: "Weight gain, edema. Change in cardiac rate and rhythm. Orthostatic hypotension. Peripheral neuropathy." }
+                ],
+                contraindications: [
+                    { 
+                        term: "Tyramine & Hypertensive Crisis", 
+                        def: "Foods and medications that contain tyramine should be contraindicated to avoid a life-threatening adverse reaction called hypertensive crisis.",
+                        details: [
+                            "MAO enzyme is responsible for the metabolism of tyramine.",
+                            "When MAO is inhibited by MAOI, dietary tyramine can enter the circulation and trigger the release of norepinephrine from the sympathetic nerve ending, which is a vasoconstrictor, leading to a life-threatening hypertensive crisis.",
+                            "N.B. The use of MAOIs is now very limited because the dietary precautions may not be realistic. That is why MAOIs are not often given as a first treatment.",
+                            "Symptoms of hypertensive crisis are: Severe headache. Stiff neck. Flushing cold, clammy skin. Tachycardia. Severe nosebleeds. Pupils dilated. Chest pain, coma, and death."
+                        ],
+                        isPathology: true,
+                        icon: <AlertTriangle className="w-5 h-5 text-red-500" />
+                    },
+                    { term: "Contraindicated foods/drugs (tyramine):", def: "milk and milk products such as well-ripened cheese, cheddar, mozzarella, bananas, chicken liver, chocolate, coffee, colas, and caffeinated beverages. In addition, narcotics, amphetamines, nasal and sinus decongestants, and asthma remedies should be avoided." },
+                    { term: "Combining with TCAs", def: "The use of MAOI along with TCAs is contraindicated since it can lead to a toxic reaction. Its symptoms are characterized by agitation, tremors, muscle twitching, convulsion, hyperpyrexia, coma, and death." },
+                    { term: "Other contraindications:", def: "Cerebrovascular diseases. Hypertension and congestive heart failure. Liver diseases. Recurrent or severe headache. Patient with enlarged prostate and glaucoma." }
+                ],
+                nurseRole: [
+                    "Instruct the patient and the patient's family to avoid certain foods that contain tyramine.",
+                    "Instruct the patient to go to the emergency room right away if he or she develops a severe headache.",
+                    "Blood pressure should be monitored regularly during the first six weeks of treatment.",
+                    "After stopping the MAOIs, the patient should maintain dietary and drug restrictions for 14 days."
+                ]
+            },
+            tca: {
+                title: "II. Tricyclic Antidepressants (TCAS):",
+                desc: "This group of antidepressant medications takes two or four weeks to leave any significant antidepressant effect.",
+                tables: [
+                    {
+                        headers: ["Generic name", "Trade name", "Therapeutic dosage range (mg/day)"],
+                        rows: [
+                            ["Amitriptyline", "Tryptizol, Elavil", "150-300"],
+                            ["Imipramine", "Tofranil", "150-300"],
+                            ["Clompiramine", "Anafranil, Anapramine", "130-250"],
+                            ["Protriptyline", "Vivactil", "15-60"],
+                            ["Trimpiramine", "Surmontil", "150-300"],
+                            ["Maprotiline", "Ludiomil", "150-230"]
+                        ]
+                    }
+                ],
+                mechanism: [
+                    "Tricyclic antidepressants (TCAs) inhibit the reuptake of norepinephrine and serotonin by the presynaptic neurons in the CNS.",
+                    "Therefore, the amount of time that norepinephrine and serotonin are available to the postsynaptic receptors is increased.",
+                    "This increase in norepinephrine and serotonin in the brain is believed to be responsible for mood elevations when TCAs are given to depressed persons."
+                ],
+                indications: [
+                    "Treatment and prophylaxis of major depressive disorder.",
+                    "Secondary depression such as depression associated with a general medical condition, e.g., AIDS, and cognitive disorders e.g., dementia.",
+                    "Panic disorder with agoraphobia.",
+                    "Generalized anxiety disorder.",
+                    "Obsessive-compulsive disorder.",
+                    "Eating disorders, both anorexia nervosa and bulimia nervosa.",
+                    "Chronic pain disorder, e.g. migraine.",
+                    "Attention deficit disorder and enuresis in children and adolescents.",
+                    "Sleep apnea."
+                ],
+                sideEffects: [
+                    { term: "Anticholinergic side effects:", def: "Dry mouth, blurred vision, postural hypotension, dry eyes, and nasal congestion. Urinary retention and severe constipation." },
+                    { term: "Cardiac effects:", def: "Orthostatic hypotension with dizziness. Tachycardia and arrhythmias." },
+                    { term: "Central nervous system effects:", def: "A fine rapid tremor. Sedation (especially during the first 2 weeks). Memory impairment, especially in elderly clients." },
+                    { term: "Endocrine and sexual effects:", def: "Appetite stimulation, weight gain, carbohydrate cravings. Impotence, delayed ejaculation. Breast enlargement in men and gynecomastia in women. Hyperprolactinemia. Galactorrhea." },
+                    { term: "Allergic and hematological effects:", def: "Skin rashes. Agranulocytosis (rare)." }
+                ],
+                contraindications: [
+                    { term: "MAOI Use", def: "The use of MAOIs along with TCAs is contraindicated. Thus, patients who received MAOIs should wait for 2-3 weeks before starting TCAS because MAOIs are slowly excreted from the body." },
+                    { term: "Other contraindications:", def: "Enlarged prostate. Glaucoma. Cardiovascular disorders. Epileptic client. Pregnancy and lactation." }
+                ],
+                nurseRole: [
+                    "Teaching patients and their families about tricyclic antidepressants:",
+                    "Tell the patient and the patient's family that mood elevation may take from seven to 25 days.",
+                    "It may take up to 6-8 weeks for the full effect to take place and for major depression symptoms to subside.",
+                    "Reassure the patient that drowsiness, dizziness, and hypotension usually subside after the first few weeks.",
+                    "When the patient starts taking TCAs, the patient should be careful while working around machines, driving cars, and crossing streets because of possible altered reflexes, drowsiness or dizziness.",
+                    "Alcohol can block the effects of antidepressants. Tell the patient to refrain from drinking.",
+                    "If the patient forgets the bedtime dose (or the once-a-day dose), the patient should take the dose within three hours; otherwise, the patient should wait for the next day. The patient should not double the dose.",
+                    "Avoid sudden stopping of TCAs. It can cause nausea, altered heartbeats, nightmares, and cold sweats in two to four days."
+                ]
+            },
+            ssri: {
+                title: "III. Selective Serotonin Reuptake Inhibitors (SSRIs):",
+                desc: "Selective Serotonin Reuptake Inhibitors (SSRIs) are the third generation of antidepressant drugs. SSRIs are recommended as first-line therapy for most types of depression. It has a lower incidence of anticholinergic side effects, less cardio-toxicity, sedation, and faster onset of action (one to three weeks) than other classes of antidepressants. Accordingly, patients are more likely to comply with SSRIs than the other classes of antidepressants.",
+                tables: [
+                    {
+                        title: "Classification of SSRIs:",
+                        headers: ["Generic name", "Trade name", "Range of therapeutic dosage (mg/day)"],
+                        rows: [
+                            ["Fluoxetine", "Prozac, Philozac, Fluoxetine, Moodapex", "20-80"],
+                            ["Fluvoxamine", "Luvox, Faverin", "50-300"],
+                            ["Sertraline", "Zoloft, Lustral", "50-200"],
+                            ["Citalopram", "Cipram, Cipralex, Cipramax", "20-50"],
+                            ["Paroxetine", "Seroxat, Paroxetine, Paxil", "10-50"]
+                        ]
+                    }
+                ],
+                mechanism: [
+                    "Selective Serotonin Reuptake Inhibitors inhibit the reuptake of serotonin at the presynaptic membrane.",
+                    "This results in an increase of available serotonin in the synapse and therefore at receptors, which promotes serotonin neurotransmission."
+                ],
+                indications: [
+                    "The major indication for SSRIs use is a major depressive disorder.",
+                    "Effective in the treatment of obsessive-compulsive disorder, bulimia nervosa, obesity, dysthymic disorder, borderline personality disorder, and panic disorder.",
+                    "It seems to be effective in depressions with anxious features as well as in clients with psychomotor agitation.",
+                    "Effective in old age because it has no cognitive side effects."
+                ],
+                sideEffects: [
+                    { term: "Central nervous system:", def: "Headache, nervousness, insomnia, drowsiness, and tremors." },
+                    { term: "Gastrointestinal system:", def: "Nausea, diarrhea, dry mouth, anorexia, and stomach upset." }
+                ],
+                nurseRole: [
+                    "Patient and family teaching for the use of SSRIs:",
+                    "Because of the potential for drowsiness and dizziness, the patient should not drive or operate machinery until these side effects are ruled out.",
+                    "Avoid alcohol.",
+                    "Do not discontinue the medication abruptly. Abrupt stoppage can lead to a serotonin withdrawal syndrome which is characterized by restlessness, fever, hypertension, delirium, and seizure."
+                ]
+            },
+            atypical: {
+                title: "IV. Novel (Atypical) Antidepressants:",
+                desc: "A growing number of other newer antidepressant drugs differ chemically from each other and the other classes. They have the same efficacy as the other antidepressants and like SSRIs; they are safer than TCAs and MAOIs in side-effects profile.",
+                classes: [
+                    { term: "Serotonin and Norepinephrine Reuptake Inhibitors (SNRIs):", def: "Examples: venlafaxine (Effexor) and duloxetine (Cymbalta)." },
+                    { term: "Norepinephrine and Dopamine Reuptake Inhibitors (NDRIs):", def: "Examples: bupropion (Wellbutrin and Zyban)." },
+                    { term: "Selective Norepinephrine Reuptake Inhibitors (SNRIs):", def: "Examples: reboxetine (Edronax and Vestra)." }
+                ]
+            }
+        };
+
+        const LITHIUM_DATA = {
+            intro: {
+                title: "3. Lithium Carbonate (LiCO3):",
+                desc: "It is the drug of choice for treating the manic phase of bipolar disorder. It is a mood stabilizer and is often referred to as an anti-manic drug. Generic name: Lithium Carbonate. Trade name: Prianil, Priadel, Lithane, Lithonate, Eskalith.",
+                others: "Other mood stabilizers include: Carbamazepine (Tegretol and Tegral). Valproic acid (Depakine, Depakote). They are anticonvulsants and the most common alternatives to lithium for the treatment and prophylaxis of mania."
+            },
+            admin: {
+                title: "Route of administration and doses:",
+                doses: "Initially, 300-600 mg by mouth is given 3 times/day to reach a therapeutic lithium level of 0.7 to 1.2 mEq/L (milliequivalents per liter).",
+                monitoring: [
+                    "Toxicity often occurred at serum levels higher than 1.2 mEq/L, so blood levels should be monitored as follows:",
+                    "Initially, blood level should be monitored weekly or biweekly until the therapeutic level is reached.",
+                    "After the therapeutic level has been reached, blood level must be measured every month.",
+                    "After 3 months to a year of stability, blood level should be monitored every 6 months.",
+                    "Blood samples should be taken 8-12 hours after the last dose of LiCO3."
+                ]
+            },
+            action: {
+                phases: [
+                    { term: "Prophylactic action:", def: "In the manic-depressive phase, it prevents the recurrence, which is common in this disorder; thus, the drug should be given for an average period of 5 years." },
+                    { term: "Therapeutic action:", def: "During the manic phase." }
+                ],
+                mechanism: "Mechanism of action: It is not known. It is thought that lithium-ion substitutes for the sodium ion in neurons, so reducing the efficiency of the excitatory transmitters of brain- mainly, norepinephrine, and serotonin.",
+                note: "N.B. Lithium is excreted almost entirely by the kidneys. Thus effective regulation of lithium depends in part on the sodium and fluid balance of the body, i.e., it competes with sodium for elimination from the body through the kidneys. A normal level of sodium should be maintained."
+            },
+            indications: [
+                "Lithium is an effective treatment for a bipolar mood disorder, especially in treating the manic phase.",
+                "Maintenance treatment with lithium markedly decreases the frequency, severity, and duration of manic and depressive episodes in bipolar I disorder patients.",
+                "Schizophrenic disorders: for some treatment-resistant patients, the combination of lithium and antipsychotics may be helpful.",
+                "It can also be useful in decreasing angry outbursts.",
+                "It can help patients who demonstrate overactivity, insomnia, irritability, and other symptoms during an exciting episode.",
+                "Impulse control disorders: effective in the treatment of some patients with violence or self-destructive behaviors, especially when the violence consists of repetitive impulsive attacks."
+            ],
+            sideEffects: {
+                expected: "Expected side effects occur at a therapeutic lithium level of 0.7-1.2 mEq/L. They include fine hand tremors, polyuria, mild thirst, mild nausea, general discomfort, and weight gain. The patient can be reassured that these side effects usually subside with treatment."
+            },
+            toxicity: [
+                {
+                    term: "Early toxicity (lithium level is above 1.2 to 1.5 mEq/L):",
+                    def: "Hand tremors become more severe, Nausea, Vomiting, Diarrhea, Thirst, Polyuria, slurred speech, muscle weakness",
+                    isPathology: true
+                },
+                {
+                    term: "Advanced toxicity (lithium level is above 1.5 to 2.0 mEq/L):",
+                    def: "Coarse hand tremors, persistent gastrointestinal upset, mental confusion, impaired coordination.",
+                    isPathology: true
+                },
+                {
+                    term: "Severe toxicity (lithium level is above 2.0 mEq/L):",
+                    def: "Ataxia, Blurred vision, Hypotension, Disorientation, Seizures, Stupor, Cardiac arrhythmias, Oliguria, Acute renal failure, Coma, Death",
+                    isPathology: true
+                }
+            ],
+            toxicityCauses: [
+                "Decreased renal functioning.",
+                "Decreased sodium intake, e.g., a low salt diet.",
+                "Use of diuretic therapy.",
+                "Fluid and electrolyte loss, sweating, vomiting, diarrhea, fever, and dehydration.",
+                "Overdose of lithium."
+            ],
+            contraindications: [
+                "Renal disease.",
+                "Dehydration.",
+                "Severe cardiac disease.",
+                "Pregnancy and lactating women.",
+                "Thyroid diseases."
+            ],
+            nurseRole: [
+                "The patient and the family should be instructed that: Lithium can treat the current problem and will also help prevent relapse, so it is important to continue with the drug after the current episode is resolved.",
+                "Level of lithium should be monitored as mentioned before.",
+                "Lithium is irritating to the gastric mucosa, so take it should be taken with meals.",
+                "Periodic monitoring of kidney and thyroid functions is indicated with long-term use.",
+                "Maintaining a normal salt and fluid intake (2500-3000 ml/ day).",
+                "Lithium decreases Sodium re-absorption by the renal tubules which could cause Sodium depletion. A low sodium intake causes a relative increase in lithium retention, which could lead to toxicity.",
+                "Instruct about the early sign of toxicity (tremor).",
+                "Withhold the drug if there is excessive diarrhea, vomiting, or dehydration.",
+                "Diuretics are contraindicated"
+            ],
+            management: [
+                "Management of lithium toxicity:",
+                "Lithium should be discontinued.",
+                "Lithium level, serum electrolytes, renal function tests, and electrocardiogram should be obtained as soon as possible.",
+                "Ensure adequate intake of sodium chloride to promote the excretion of lithium.",
+                "Vigorously hydrate: 5 to 6 liters/day; keep electrolytes balanced; IV line and indwelling urinary catheter.",
+                "Implement peritoneal or hemodialysis in the most severe cases. These are characterized by serum lithium levels between 2.0 and 4.0 mEq/L."
+            ]
+        };
+
+        const ANTIANXIETY_DATA = {
+            intro: {
+                title: "4. Anti-anxiety Drugs",
+                desc: "Antianxiety drugs are also called Anxiolytics and minor tranquilizers. Anxiolytic is the name given to those compounds which are effective in alleviating symptoms of anxiety."
+            },
+            classification: "Classification: Non-Benzodiazepines (less addictive), Benzodiazepines.",
+            tables: [
+                {
+                    title: "I. Non-Benzodiazepines:",
+                    headers: ["Generic name", "Trade name", "Usual adult dose (mg/day)"],
+                    rows: [
+                        ["1- Barbiturates: Secobarbital", "Seconal", "100-200"],
+                        ["Amobarbitalal", "Amytal", "10-200"],
+                        ["Phenobarbital", "Luminal", "100-300"],
+                        ["2. Meprobamate", "Miltown, Equinil", "1200-1600"],
+                        ["3. Hydroxyzine (antihistaminic)", "Atarax, Vistaril", "50-100"],
+                        ["4- Beta-adrenergic blocker: Propranolol", "Inderal", "10"],
+                        ["5. Buspirone", "Buspar", "15-60"]
+                    ]
+                },
+                {
+                    title: "I. Benzodiazepines. Benzodiazepines are the most common and widely used. They are classified according to the duration of action into short-acting and long-acting.",
+                    headers: ["Generic name", "Trade name", "Usual adult dose (mg/day)"],
+                    rows: [
+                        ["Short Acting benzodiazepines: Triazolam", "Halcion", "0.125-0.250"],
+                        ["Long-acting benzodiazepines (more addictive): Chlordiazepoxide", "Librium", "10-100"],
+                        ["Diazepam", "Valium", "2.5-40"]
+                    ]
+                }
+            ],
+            action: {
+                main: "The action of antianxiety drugs: The main action of this group of psychotropic drugs is to relieve anxiety symptoms (anti-anxiety). In addition, it has:",
+                additional: [
+                    "Hypnotic and sedative effects: induce sleep and emotional calmness.",
+                    "Antispasmodic effect: muscle relaxation.",
+                    "Anticonvulsant effect: antiepileptic."
+                ],
+                mechanism: "Mechanism of action: Antianxiety drugs depress the subcortical level of the central nervous system (CNS), particularly the limbic system and reticular formation. They are powerful potentiators (receptor agonists) of the inhibitory neurotransmitter GABA at the GABA A receptor site; thereby, producing a calmative effect."
+            },
+            indications: {
+                benzos: [
+                    "Benzodiazepines group:",
+                    "The primary indication for the use of benzodiazepines is anxiety, especially generalized anxiety disorder.",
+                    "Panic disorder with or without agoraphobia and in the treatment of social phobia.",
+                    "Agitation, restlessness, excitability, and irritability.",
+                    "Useful in the treatment of anxiety accompanied by depression (Xanax).",
+                    "Insomnia (Ativan).",
+                    "Muscle spasm and convulsion.",
+                    "Status epileptics (Valium).",
+                    "Alcohol withdrawal syndrome.",
+                    "Severe catatonia (Ativan).",
+                    "Treating akathisia"
+                ],
+                nonBenzos: [
+                    "Non-benzodiazepines group:",
+                    "Inderal: may be given to alleviate lithium-induced tremors. Also, certain physical symptoms of anxiety, especially tachycardia and useful in the treatment of social phobia.",
+                    "Buspar: appears useful in the treatment of generalized anxiety disorder."
+                ]
+            },
+            sideEffects: [
+                { term: "Central nervous system:", def: "Drowsiness. Muscle weakness, blurring of vision, slurred speech. Dizziness. Anterograde amnesia. Ataxia. Impairment in intellectual function and confusion when doses are increased." },
+                { term: "Paradoxical reaction", def: "Paradoxical reaction most common in elderly. It consists of unexpected agitation, hostility, aggressiveness, and emotional lability. It usually appears in the first two weeks.", isPathology: true },
+                { term: "Rebound anxiety", def: "Rebound anxiety and insomnia especially if the drug is discontinued abruptly.", isPathology: true },
+                { term: "Other Systems:", def: "Gastrointestinal system: Nausea, vomiting, and constipation. Cardiovascular system: Orthostatic hypotension. Respiratory system: Little respiratory depression. Skin rashes: Allergic reaction (very rare). Anticholinergic side-effects: Dry mouth, urinary retention,..etc." }
+            ],
+            withdrawal: {
+                desc: "Tolerance, dependence, and withdrawal: When benzodiazepines are used for a short period (one or two weeks), and in moderate dosage, they usually cause no significant tolerance, dependence, or withdrawal effect. However, many patients taking benzodiazepines for more than four months may experience withdrawal symptoms. This physical dependence may occur at a therapeutic dose level. It becomes more severe with short-acting compounds. After abrupt stoppage of the short-acting drug, withdrawal symptoms may appear within 24 hours, and three to ten days after withdrawal of long-acting compounds.",
+                mild: "Mild symptoms: Anxiety, dizziness, irritability, insomnia, anorexia, nausea, tremor, and blurring of vision.",
+                severe: "Severe symptoms: Severe anxiety, severe tremors, orthostatic hypotension, hyperthermia, convulsion, delirium, psychoses, and death. In severe symptoms, anxiety level may reach a panic level."
+            },
+            contraindications: [
+                "Renal, hepatic, and lung diseases.",
+                "During pregnancy and lactation. It has been associated with multiple congenital deformities.",
+                "Coma can be exacerbated by the depressant effects of the drugs",
+                "Elderly"
+            ],
+            nurseRole: [
+                "Nurse's role:",
+                "Observe any change in behaviors such as ataxia or drowsiness.",
+                "Liver functions test should be done every 2 weeks as recommended by the psychiatrist.",
+                "Measure blood pressure frequently.",
+                "Not consume other C.N.S. depressants including alcohol.",
+                "Instruct the patient not to drive or operate dangerous machinery, drowsiness and dizziness may occur.",
+                "N.B.",
+                "Instruct the patient not to stop taking the drug abruptly. It can produce serious withdrawal symptoms.",
+                "Rise slowly from a sitting or lying position to prevent a sudden drop in blood pressure.",
+                "Report symptoms of sore throat, fever, malaise, easy bruising, unusual bleeding, or motor restlessness.",
+                "Never give diazepam I.M. because of poor absorption. Diazepam should not be diluted with other solutions or mixed in the same syringe or bottle with other drugs and I.V. should be given slowly and directed carefully to the vein."
+            ]
+        };
+
+        const QUIZ_QUESTIONS = [
+            {
+                q: "Which of the following foods contains tyramine and is contraindicated with MAOIs?",
+                options: ["Apples and Oranges", "Well-ripened cheese and Chicken liver", "Rice and Beans", "Fresh milk and Butter"],
+                correct: 1
+            },
+            {
+                q: "How long does it take for Tricyclic Antidepressants (TCAs) to leave any significant antidepressant effect?",
+                options: ["Immediately after dose", "One or two days", "Two or four weeks", "Six months"],
+                correct: 2
+            },
+            {
+                q: "What is the expected therapeutic lithium level?",
+                options: ["0.1 to 0.5 mEq/L", "0.7 to 1.2 mEq/L", "1.5 to 2.0 mEq/L", "2.0 to 4.0 mEq/L"],
+                correct: 1
+            },
+            {
+                q: "Which early toxicity symptom occurs when lithium level is above 1.2 to 1.5 mEq/L?",
+                options: ["Ataxia and seizures", "Coarse hand tremors and mental confusion", "Hand tremors become more severe, Nausea, Vomiting", "Coma and Death"],
+                correct: 2
+            },
+            {
+                q: "What may happen if a patient abruptly stops taking short-acting Benzodiazepines?",
+                options: ["Hypertensive crisis", "Withdrawal symptoms appearing within 24 hours", "Agranulocytosis", "Galactorrhea"],
+                correct: 1
+            }
+        ];
+
+        // --- COMPONENTS ---
+
+        const Card = ({ children, className = "" }) => (
+            <div className={`bg-white rounded-xl shadow-sm border border-slate-200 p-5 ${className}`}>
+                {children}
+            </div>
+        );
+
+        const SectionHeader = ({ title, icon, color }) => (
+            <div className={`flex items-center gap-3 mb-6 p-4 rounded-lg ${color} bg-opacity-10 border ${color.replace('text-', 'border-').replace('bg-', 'border-')}`}>
+                <div className={`p-2 rounded-full bg-white shadow-sm ${color.replace('bg-', 'text-')}`}>
+                    {icon}
+                </div>
+                <h2 className="text-2xl font-bold text-slate-800">{title}</h2>
+            </div>
+        );
+
+        const TermItem = ({ term, def, details, isPathology, icon }) => {
+            const [isOpen, setIsOpen] = useState(false);
+            const hasDetails = details && details.length > 0;
+            
+            return (
+                <div className={`mb-3 border-l-4 ${isPathology ? 'border-red-400' : 'border-blue-400'} bg-slate-50 rounded-r-lg overflow-hidden transition-all duration-300`}>
+                    <div 
+                        className={`p-3 flex justify-between items-start ${hasDetails ? 'cursor-pointer hover:bg-slate-100' : ''}`}
+                        onClick={() => hasDetails && setIsOpen(!isOpen)}
+                    >
+                        <div className="flex items-start gap-3">
+                            {icon && <span className="mt-1">{icon}</span>}
+                            <div>
+                                <h4 className="font-bold text-slate-800">{term}</h4>
+                                <p className="text-slate-600 text-sm leading-relaxed mt-1">{def}</p>
+                                {hasDetails && !isOpen && <p className="text-xs text-blue-500 mt-2 font-medium">Click to view details...</p>}
+                            </div>
+                        </div>
+                        {hasDetails && (
+                            <button className="text-slate-400 hover:text-blue-600 mt-1">
+                                {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                            </button>
+                        )}
+                    </div>
+                    
+                    {isOpen && hasDetails && (
+                        <div className="bg-white p-4 border-t border-slate-200 text-sm animate-in fade-in slide-in-from-top-1">
+                            <ul className="list-disc list-inside space-y-1.5 text-slate-700 marker:text-slate-400">
+                                {details.map((item, i) => <li key={i}>{item}</li>)}
+                            </ul>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const DrugTable = ({ title, headers, rows }) => (
+            <div className="mb-6 overflow-hidden rounded-lg border border-slate-200 shadow-sm">
+                {title && <div className="bg-slate-100 px-4 py-2 border-b border-slate-200 font-bold text-slate-700">{title}</div>}
+                <div className="overflow-x-auto">
+                    <table className="min-w-full bg-white text-sm">
+                        <thead className="bg-slate-50 border-b border-slate-200">
+                            <tr>
+                                {headers.map((h, i) => <th key={i} className="text-left p-3 font-semibold text-slate-600 whitespace-nowrap">{h}</th>)}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rows.map((row, i) => (
+                                <tr key={i} className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
+                                    {row.map((cell, j) => <td key={j} className="p-3 text-slate-700">{cell}</td>)}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
+
+        const ListSection = ({ title, items, icon, colorClass = "text-blue-600" }) => (
+            <div className="mb-6">
+                {title && <h4 className={`text-md font-bold mb-3 flex items-center gap-2 ${colorClass}`}>{icon} {title}</h4>}
+                <ul className="space-y-2 pl-2">
+                    {items.map((item, idx) => (
+                        <li key={idx} className="flex items-start gap-2 text-slate-700 text-sm">
+                            <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                            <span>{item}</span>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        );
+
+        // --- MAIN APP COMPONENT ---
+
+        function PsychotropicApp() {
+            const [activeSection, setActiveSection] = useState(SECTIONS.INTRO);
+            const [quizScore, setQuizScore] = useState(0);
+            const [quizSubmitted, setQuizSubmitted] = useState(false);
+            const [quizAnswers, setQuizAnswers] = useState({});
+
+            const handleNavClick = (section) => {
+                setActiveSection(section);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const handleQuizOption = (qIndex, optIndex) => {
+                if (quizSubmitted) return;
+                setQuizAnswers(prev => ({ ...prev, [qIndex]: optIndex }));
+            };
+
+            const submitQuiz = () => {
+                let score = 0;
+                QUIZ_QUESTIONS.forEach((q, i) => {
+                    if (quizAnswers[i] === q.correct) score++;
+                });
+                setQuizScore(score);
+                setQuizSubmitted(true);
+            };
+
+            const resetQuiz = () => {
+                setQuizAnswers({});
+                setQuizSubmitted(false);
+                setQuizScore(0);
+            };
+
+            // --- Views ---
+
+            const IntroView = () => (
+                <div className="space-y-8 animate-in fade-in duration-500">
+                    <div className="bg-gradient-to-r from-blue-700 to-indigo-800 text-white p-8 md:p-12 rounded-2xl shadow-xl relative overflow-hidden">
+                        <div className="relative z-10">
+                            <h1 className="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">Psychotropic Medications</h1>
+                            <p className="text-blue-100 text-lg max-w-2xl mb-8 leading-relaxed">
+                                A comprehensive guide to Antidepressants, Lithium Carbonate, and Anti-anxiety drugs based on psychiatric nursing principles.
+                            </p>
+                            <div className="flex flex-wrap gap-3">
+                                <button onClick={() => handleNavClick(SECTIONS.ANTIDEPRESSANTS)} className="bg-white text-blue-800 px-6 py-3 rounded-full font-bold hover:bg-blue-50 transition shadow-md flex items-center gap-2">
+                                    <Zap size={18}/> Start Module
+                                </button>
+                                <button onClick={() => handleNavClick(SECTIONS.QUIZ)} className="bg-blue-900 bg-opacity-40 text-white border border-blue-400 px-6 py-3 rounded-full font-bold hover:bg-blue-800 transition flex items-center gap-2">
+                                    <Lightbulb size={18}/> Jump to Quiz
+                                </button>
+                            </div>
+                        </div>
+                        {/* Decorative Background Elements */}
+                        <Pill className="absolute top-10 right-10 text-white opacity-10 w-48 h-48 rotate-45" />
+                        <Brain className="absolute -bottom-10 right-40 text-white opacity-10 w-32 h-32" />
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-6">
+                        <Card className="border-t-4 border-t-blue-500 hover:-translate-y-1 transition-transform cursor-pointer" onClick={() => handleNavClick(SECTIONS.ANTIDEPRESSANTS)}>
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="p-2 bg-blue-100 text-blue-600 rounded-lg"><Zap size={24}/></div>
+                                <h3 className="text-xl font-bold text-slate-800">Antidepressants</h3>
+                            </div>
+                            <p className="text-sm text-slate-600">MAOIs, TCAs, SSRIs, and Atypical drugs used to treat depression.</p>
+                        </Card>
+                        
+                        <Card className="border-t-4 border-t-purple-500 hover:-translate-y-1 transition-transform cursor-pointer" onClick={() => handleNavClick(SECTIONS.LITHIUM)}>
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="p-2 bg-purple-100 text-purple-600 rounded-lg"><Scale size={24}/></div>
+                                <h3 className="text-xl font-bold text-slate-800">Lithium Carbonate</h3>
+                            </div>
+                            <p className="text-sm text-slate-600">The primary mood stabilizer for Bipolar Disorder.</p>
+                        </Card>
+
+                        <Card className="border-t-4 border-t-emerald-500 hover:-translate-y-1 transition-transform cursor-pointer" onClick={() => handleNavClick(SECTIONS.ANTIANXIETY)}>
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg"><Heart size={24}/></div>
+                                <h3 className="text-xl font-bold text-slate-800">Anti-anxiety Drugs</h3>
+                            </div>
+                            <p className="text-sm text-slate-600">Benzodiazepines and non-benzodiazepines.</p>
+                        </Card>
+                    </div>
+                </div>
+            );
+
+            const AntidepressantsView = () => (
+                <div className="animate-in slide-in-from-right-4 duration-500 space-y-8">
+                    <SectionHeader title="2. Antidepressants" icon={<Zap size={32} />} color="bg-blue-100 text-blue-700" />
+                    
+                    <Card className="bg-blue-50 border-blue-200">
+                        <p className="text-blue-900 mb-2"><strong>{ANTIDEPRESSANTS_DATA.intro.definition}</strong></p>
+                        <p className="text-blue-900 mb-4"><strong>Action:</strong> {ANTIDEPRESSANTS_DATA.intro.action}</p>
+                        <ul className="text-blue-800 text-sm font-semibold space-y-1 ml-4">
+                            {ANTIDEPRESSANTS_DATA.intro.classification.map((item, i) => <li key={i}>{item}</li>)}
+                        </ul>
+                    </Card>
+
+                    <SynapseIllustration />
+
+                    {/* MAOIs */}
+                    <section>
+                        <h3 className="text-2xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-slate-200 flex items-center gap-3">
+                            <BrainAminesSVG /> {ANTIDEPRESSANTS_DATA.maoi.title}
+                        </h3>
+                        <p className="mb-6 text-slate-600 italic">{ANTIDEPRESSANTS_DATA.maoi.desc}</p>
+                        
+                        <div className="grid lg:grid-cols-2 gap-6">
+                            <div>
+                                {ANTIDEPRESSANTS_DATA.maoi.tables.map((t, i) => <DrugTable key={i} {...t} />)}
+                                <Card className="mb-6 shadow-sm">
+                                    <ListSection title="Mechanism of action:" items={ANTIDEPRESSANTS_DATA.maoi.mechanism} icon={<Zap />} />
+                                </Card>
+                            </div>
+                            <div className="space-y-6">
+                                <Card>
+                                    <ListSection title="Therapeutic indications of MAOIS:" items={ANTIDEPRESSANTS_DATA.maoi.indications} icon={<CheckCircle />} colorClass="text-emerald-600" />
+                                </Card>
+                                <div>
+                                    <h4 className="font-bold text-slate-700 mb-3 flex items-center gap-2"><ShieldAlert className="text-red-500 w-5 h-5"/> Contraindications of MAOIS:</h4>
+                                    <div className="flex gap-2 mb-4">
+                                        <TyramineFoodsSVG />
+                                        <HypertensiveCrisisSVG />
+                                    </div>
+                                    {ANTIDEPRESSANTS_DATA.maoi.contraindications.map((c, i) => <TermItem key={i} {...c} />)}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 className="font-bold text-slate-700 mb-3 flex items-center gap-2"><Activity className="text-orange-500 w-5 h-5"/> Side effects of MAOIS:</h4>
+                                <div className="flex gap-2 mb-4">
+                                    <AnticholinergicSVG />
+                                    <CardiacEffectsSVG />
+                                </div>
+                                {ANTIDEPRESSANTS_DATA.maoi.sideEffects.map((s, i) => <TermItem key={i} {...s} />)}
+                            </div>
+                            <Card className="bg-amber-50 border-amber-200">
+                                <ListSection title="Nurse's role:" items={ANTIDEPRESSANTS_DATA.maoi.nurseRole} icon={<User />} colorClass="text-amber-700" />
+                            </Card>
+                        </div>
+                    </section>
+
+                    {/* TCAs */}
+                    <section className="pt-8 border-t border-slate-200">
+                        <h3 className="text-2xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-slate-200 flex items-center gap-3">
+                            <TimeWaitSVG /> {ANTIDEPRESSANTS_DATA.tca.title}
+                        </h3>
+                        <p className="mb-6 text-slate-600 italic">{ANTIDEPRESSANTS_DATA.tca.desc}</p>
+
+                        <div className="grid lg:grid-cols-2 gap-6">
+                            <div>
+                                {ANTIDEPRESSANTS_DATA.tca.tables.map((t, i) => <DrugTable key={i} {...t} />)}
+                                <Card className="mb-6">
+                                    <ListSection title="Mechanism of action:" items={ANTIDEPRESSANTS_DATA.tca.mechanism} icon={<Zap />} />
+                                </Card>
+                            </div>
+                            <div>
+                                <Card>
+                                    <ListSection title="Therapeutic indications of TCAS:" items={ANTIDEPRESSANTS_DATA.tca.indications} icon={<CheckCircle />} colorClass="text-emerald-600" />
+                                </Card>
+                            </div>
+                        </div>
+
+                        <div className="grid lg:grid-cols-3 gap-6 mt-6">
+                            <div className="lg:col-span-1">
+                                <h4 className="font-bold text-slate-700 mb-3 flex items-center gap-2">Side-effects:</h4>
+                                <div className="flex gap-2 mb-4">
+                                    <WeightGainSVG />
+                                </div>
+                                {ANTIDEPRESSANTS_DATA.tca.sideEffects.map((s, i) => <TermItem key={i} {...s} />)}
+                                
+                                <h4 className="font-bold text-slate-700 mb-3 mt-6">Contraindications of TCAS:</h4>
+                                {ANTIDEPRESSANTS_DATA.tca.contraindications.map((c, i) => <TermItem key={i} {...c} isPathology={true} />)}
+                            </div>
+                            <div className="lg:col-span-2">
+                                <Card className="bg-amber-50 border-amber-200 h-full">
+                                    <ListSection title="Nurse's role:" items={ANTIDEPRESSANTS_DATA.tca.nurseRole} icon={<User />} colorClass="text-amber-700" />
+                                </Card>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* SSRIs */}
+                    <section className="pt-8 border-t border-slate-200">
+                        <h3 className="text-2xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-slate-200 flex items-center gap-3">
+                            <SSRIFirstLineSVG /> {ANTIDEPRESSANTS_DATA.ssri.title}
+                        </h3>
+                        <p className="mb-6 text-slate-600 italic">{ANTIDEPRESSANTS_DATA.ssri.desc}</p>
+
+                        <div className="grid lg:grid-cols-2 gap-6">
+                            <div>
+                                {ANTIDEPRESSANTS_DATA.ssri.tables.map((t, i) => <DrugTable key={i} {...t} />)}
+                                <Card>
+                                    <div className="mb-4">
+                                        <SerotoninBlockadeSVG />
+                                    </div>
+                                    <ListSection title="Mechanism of action:" items={ANTIDEPRESSANTS_DATA.ssri.mechanism} icon={<Brain />} />
+                                    <ListSection title="Therapeutic indications of SSRIs:" items={ANTIDEPRESSANTS_DATA.ssri.indications} icon={<CheckCircle />} colorClass="text-emerald-600"/>
+                                </Card>
+                            </div>
+                            <div className="space-y-6">
+                                <div>
+                                    <h4 className="font-bold text-slate-700 mb-3">Side-effects of SSRIs:</h4>
+                                    {ANTIDEPRESSANTS_DATA.ssri.sideEffects.map((s, i) => <TermItem key={i} {...s} />)}
+                                </div>
+                                <Card className="bg-amber-50 border-amber-200">
+                                    <ListSection title="Nurse's role:" items={ANTIDEPRESSANTS_DATA.ssri.nurseRole} icon={<User />} colorClass="text-amber-700" />
+                                </Card>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Atypical */}
+                    <section className="pt-8 border-t border-slate-200">
+                        <h3 className="text-2xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-slate-200 flex items-center gap-3">
+                            <AtypicalReceptorsSVG /> {ANTIDEPRESSANTS_DATA.atypical.title}
+                        </h3>
+                        <p className="mb-6 text-slate-600 italic">{ANTIDEPRESSANTS_DATA.atypical.desc}</p>
+                        <p className="font-bold mb-4">They are classified as follows:</p>
+                        
+                        <div className="grid md:grid-cols-3 gap-4">
+                            {ANTIDEPRESSANTS_DATA.atypical.classes.map((c, i) => (
+                                <Card key={i} className="border-t-4 border-t-blue-400">
+                                    <h5 className="font-bold text-blue-800 mb-2">{c.term}</h5>
+                                    <p className="text-sm text-slate-600">{c.def}</p>
+                                </Card>
+                            ))}
+                        </div>
+                    </section>
+
+                </div>
+            );
+
+            const LithiumView = () => (
+                <div className="animate-in slide-in-from-right-4 duration-500 space-y-8">
+                    <SectionHeader title="3. Lithium Carbonate" icon={<Scale size={32} />} color="bg-purple-100 text-purple-700" />
+                    
+                    <Card className="bg-purple-50 border-purple-200">
+                        <h3 className="text-lg font-bold text-purple-900 mb-2 flex items-center gap-3">
+                            <BipolarCycleSVG /> {LITHIUM_DATA.intro.title}
+                        </h3>
+                        <p className="text-purple-800 mb-3">{LITHIUM_DATA.intro.desc}</p>
+                        <p className="text-sm text-purple-700 bg-purple-100 p-2 rounded">{LITHIUM_DATA.intro.others}</p>
+                    </Card>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <Card>
+                            <ListSection title={LITHIUM_DATA.admin.title} items={LITHIUM_DATA.admin.monitoring} icon={<Droplets />} colorClass="text-purple-600" />
+                            <div className="mt-4 p-3 bg-slate-50 border border-slate-200 rounded text-sm text-slate-700">
+                                <strong>Dose:</strong> {LITHIUM_DATA.admin.doses}
+                            </div>
+                        </Card>
+                        
+                        <div className="space-y-6">
+                            <Card>
+                                <h4 className="font-bold text-slate-700 mb-3 flex items-center gap-2"><Activity className="text-purple-500 w-5 h-5"/> Action</h4>
+                                {LITHIUM_DATA.action.phases.map((p, i) => <TermItem key={i} {...p} />)}
+                                <p className="text-sm text-slate-600 mt-3 font-semibold">{LITHIUM_DATA.action.mechanism}</p>
+                                <div className="flex justify-center my-2">
+                                    <KidneyExcretionSVG />
+                                </div>
+                                <div className="mt-3 p-2 bg-yellow-50 text-yellow-800 border border-yellow-200 rounded text-xs font-bold flex items-start gap-2">
+                                    <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                                    {LITHIUM_DATA.action.note}
+                                </div>
+                            </Card>
+                        </div>
+                    </div>
+
+                    <Card>
+                        <ListSection title="Therapeutic indications:" items={LITHIUM_DATA.indications} icon={<CheckCircle />} colorClass="text-emerald-600" />
+                    </Card>
+
+                    {/* Toxicity Section */}
+                    <section className="bg-white p-6 rounded-xl border border-red-200 shadow-sm relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4 opacity-5">
+                            <ShieldAlert size={150} />
+                        </div>
+                        <div className="relative z-10">
+                            <h3 className="text-2xl font-bold text-red-800 mb-2">Signs of lithium toxicity:</h3>
+                            <p className="text-sm text-slate-600 mb-4">{LITHIUM_DATA.sideEffects.expected}</p>
+                            <p className="text-sm text-slate-800 font-bold mb-6">It depends on serum lithium concentration. It is classified into:</p>
+                            
+                            <div className="flex items-center gap-4 mb-4">
+                                <HandTremorSVG />
+                                <div className="flex-1"><ToxicityLevelBar /></div>
+                            </div>
+
+                            <div className="grid md:grid-cols-3 gap-4 mb-6">
+                                {LITHIUM_DATA.toxicity.map((t, i) => (
+                                    <div key={i} className={`p-4 rounded-lg border ${i===0 ? 'bg-yellow-50 border-yellow-200' : i===1 ? 'bg-orange-50 border-orange-200' : 'bg-red-50 border-red-200'}`}>
+                                        <h5 className={`font-bold mb-2 ${i===0 ? 'text-yellow-800' : i===1 ? 'text-orange-800' : 'text-red-800'}`}>{t.term}</h5>
+                                        <p className="text-sm text-slate-700">{t.def}</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <ListSection title="Causes of lithium toxicity:" items={LITHIUM_DATA.toxicityCauses} icon={<AlertTriangle />} colorClass="text-red-600" />
+                                    <h4 className="font-bold text-slate-700 mb-2 mt-4 flex items-center gap-2">
+                                        Contraindications:
+                                    </h4>
+                                    <div className="flex gap-2 mb-2">
+                                        <PregnancyWarningSVG />
+                                    </div>
+                                    <ul className="list-disc list-inside text-sm text-slate-600">
+                                        {LITHIUM_DATA.contraindications.map((c, i) => <li key={i}>{c}</li>)}
+                                    </ul>
+                                </div>
+                                <div className="bg-red-50 p-4 rounded-lg border border-red-100">
+                                    <ListSection title="Management of lithium toxicity:" items={LITHIUM_DATA.management} icon={<Activity />} colorClass="text-red-700" />
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <Card className="bg-amber-50 border-amber-200">
+                        <ListSection title="Nurse's role:" items={LITHIUM_DATA.nurseRole} icon={<User />} colorClass="text-amber-700" />
+                    </Card>
+
+                </div>
+            );
+
+            const AntianxietyView = () => (
+                <div className="animate-in slide-in-from-right-4 duration-500 space-y-8">
+                    <SectionHeader title={ANTIANXIETY_DATA.intro.title} icon={<Heart size={32} />} color="bg-emerald-100 text-emerald-700" />
+                    
+                    <p className="text-slate-600 text-lg mb-2">{ANTIANXIETY_DATA.intro.desc}</p>
+                    <p className="font-bold text-slate-800">{ANTIANXIETY_DATA.classification}</p>
+
+                    <div className="grid lg:grid-cols-2 gap-6 mt-4">
+                        <div>
+                            {ANTIANXIETY_DATA.tables.map((t, i) => <DrugTable key={i} {...t} />)}
+                        </div>
+                        <div className="space-y-6">
+                            <Card className="bg-emerald-50 border-emerald-200">
+                                <h4 className="font-bold text-emerald-800 mb-2">The action of antianxiety drugs:</h4>
+                                <p className="text-sm text-emerald-900 font-medium mb-3">{ANTIANXIETY_DATA.action.main}</p>
+                                <ul className="list-disc list-inside text-sm text-emerald-800 space-y-1 mb-4">
+                                    {ANTIANXIETY_DATA.action.additional.map((item, i) => <li key={i}>{item}</li>)}
+                                </ul>
+                                <div className="flex justify-center mb-4">
+                                    <GABAReceptorSVG />
+                                </div>
+                                <p className="text-sm text-emerald-900 font-semibold">{ANTIANXIETY_DATA.action.mechanism}</p>
+                            </Card>
+
+                            <Card>
+                                <h4 className="font-bold text-slate-700 mb-3 flex items-center gap-2"><CheckCircle className="text-emerald-500 w-5 h-5"/> Therapeutic indications:</h4>
+                                <div className="mb-3">
+                                    <span className="text-sm font-bold text-slate-800 block mb-2">{ANTIANXIETY_DATA.indications.benzos[0]}</span>
+                                    <ul className="space-y-1">
+                                        {ANTIANXIETY_DATA.indications.benzos.slice(1).map((item, i) => <li key={i} className="text-sm text-slate-700 flex gap-2"><span className="text-emerald-500">•</span> {item}</li>)}
+                                    </ul>
+                                </div>
+                                <div>
+                                    <span className="text-sm font-bold text-slate-800 block mb-2">{ANTIANXIETY_DATA.indications.nonBenzos[0]}</span>
+                                    <ul className="space-y-1">
+                                        {ANTIANXIETY_DATA.indications.nonBenzos.slice(1).map((item, i) => <li key={i} className="text-sm text-slate-700 flex gap-2"><span className="text-emerald-500">•</span> {item}</li>)}
+                                    </ul>
+                                </div>
+                            </Card>
+                        </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 className="font-bold text-slate-700 mb-3 flex items-center gap-2"><Activity className="text-orange-500 w-5 h-5"/> Side-effects of anti-anxiety drugs:</h4>
+                            {ANTIANXIETY_DATA.sideEffects.map((s, i) => <TermItem key={i} {...s} />)}
+                            
+                            <h4 className="font-bold text-slate-700 mb-3 mt-6">Contraindications of anti-anxiety drugs:</h4>
+                            <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+                                {ANTIANXIETY_DATA.contraindications.map((c, i) => <li key={i}>{c}</li>)}
+                            </ul>
+                        </div>
+                        
+                        <div className="space-y-6">
+                            <Card className="border-l-4 border-l-red-500">
+                                <h4 className="font-bold text-red-800 mb-3">Tolerance, dependence, and withdrawal</h4>
+                                <div className="flex justify-center mb-4">
+                                    <ToleranceGraphSVG />
+                                </div>
+                                <p className="text-sm text-slate-600 mb-4">{ANTIANXIETY_DATA.withdrawal.desc}</p>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
+                                        <p className="text-xs text-slate-700">{ANTIANXIETY_DATA.withdrawal.mild}</p>
+                                    </div>
+                                    <div className="bg-red-50 p-3 rounded border border-red-200">
+                                        <p className="text-xs text-slate-700">{ANTIANXIETY_DATA.withdrawal.severe}</p>
+                                    </div>
+                                </div>
+                            </Card>
+
+                            <Card className="bg-amber-50 border-amber-200">
+                                <ListSection title="" items={ANTIANXIETY_DATA.nurseRole} icon={<User />} colorClass="text-amber-700" />
+                            </Card>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            const QuizView = () => (
+                <div className="animate-in slide-in-from-right-4 duration-500 max-w-2xl mx-auto">
+                    <SectionHeader title="Knowledge Check" icon={<Lightbulb size={32} />} color="bg-yellow-100 text-yellow-600" />
+                    
+                    {!quizSubmitted ? (
+                        <div className="space-y-6">
+                            {QUIZ_QUESTIONS.map((q, qIndex) => (
+                                <Card key={qIndex} className="p-6">
+                                    <h4 className="font-bold text-lg mb-4 text-slate-800">{qIndex + 1}. {q.q}</h4>
+                                    <div className="space-y-2">
+                                        {q.options.map((opt, optIndex) => (
+                                            <button
+                                                key={optIndex}
+                                                onClick={() => handleQuizOption(qIndex, optIndex)}
+                                                className={`w-full text-left p-3 rounded border transition-colors ${
+                                                    quizAnswers[qIndex] === optIndex 
+                                                        ? 'bg-blue-100 border-blue-500 text-blue-800 font-medium' 
+                                                        : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                                                }`}
+                                            >
+                                                {opt}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </Card>
+                            ))}
+                            <button 
+                                onClick={submitQuiz}
+                                disabled={Object.keys(quizAnswers).length < QUIZ_QUESTIONS.length}
+                                className="w-full py-3 bg-blue-600 text-white rounded-lg font-bold disabled:opacity-50 hover:bg-blue-700 transition"
+                            >
+                                Submit Answers
+                            </button>
+                        </div>
+                    ) : (
+                        <Card className="text-center p-8">
+                            <div className="text-5xl mb-4">{quizScore >= 4 ? '🎉' : '📚'}</div>
+                            <h2 className="text-3xl font-bold mb-2 text-slate-800">You scored {quizScore} / {QUIZ_QUESTIONS.length}</h2>
+                            <p className="text-slate-600 mb-8 text-lg">
+                                {quizScore === 5 ? "Perfect! You've mastered psychotropic medications." : "Good effort! Review the modules to strengthen your knowledge."}
+                            </p>
+                            
+                            <div className="text-left space-y-4 mb-8">
+                                <h3 className="font-bold text-slate-700 border-b pb-2">Review:</h3>
+                                {QUIZ_QUESTIONS.map((q, i) => (
+                                    <div key={i} className={`p-3 rounded-lg border ${quizAnswers[i] === q.correct ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                                        <p className="font-medium text-sm text-slate-800 mb-1">{q.q}</p>
+                                        <p className="text-xs text-slate-600">
+                                            Your answer: <span className={quizAnswers[i] === q.correct ? 'text-green-700 font-bold' : 'text-red-700 font-bold'}>{q.options[quizAnswers[i]]}</span>
+                                        </p>
+                                        {quizAnswers[i] !== q.correct && (
+                                            <p className="text-xs text-green-700 font-bold mt-1">Correct answer: {q.options[q.correct]}</p>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+
+                            <button onClick={resetQuiz} className="bg-slate-800 text-white px-8 py-3 rounded-full font-bold hover:bg-slate-700 transition">Try Again</button>
+                        </Card>
+                    )}
+                </div>
+            );
+
+            return (
+                <div className="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col">
+                    {/* Top Navigation */}
+                    <nav className="bg-white shadow-sm sticky top-0 z-50">
+                        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+                            <div className="flex items-center gap-2 font-bold text-sm md:text-lg text-blue-800 cursor-pointer" onClick={() => handleNavClick(SECTIONS.INTRO)}>
+                                <DepartmentLogo className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 drop-shadow-sm" />
+                                <span className="hidden sm:inline">Psychiatric and Mental Health Nursing</span>
+                                <span className="sm:hidden">Psych Nursing</span>
+                            </div>
+                            
+                            <div className="hidden md:flex gap-1">
+                                {[
+                                    { id: SECTIONS.INTRO, label: 'Intro', icon: <BookOpen size={16}/> },
+                                    { id: SECTIONS.ANTIDEPRESSANTS, label: 'Antidepressants', icon: <Zap size={16}/> },
+                                    { id: SECTIONS.LITHIUM, label: 'Lithium', icon: <Scale size={16}/> },
+                                    { id: SECTIONS.ANTIANXIETY, label: 'Anti-anxiety', icon: <Heart size={16}/> },
+                                    { id: SECTIONS.QUIZ, label: 'Quiz', icon: <Lightbulb size={16}/> },
+                                ].map(nav => (
+                                    <button
+                                        key={nav.id}
+                                        onClick={() => handleNavClick(nav.id)}
+                                        className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
+                                            activeSection === nav.id 
+                                                ? 'bg-blue-100 text-blue-700' 
+                                                : 'text-slate-600 hover:bg-slate-100'
+                                        }`}
+                                    >
+                                        {nav.icon} {nav.label}
+                                    </button>
+                                ))}
+                            </div>
+                            
+                            {/* Mobile menu simple toggle (just icons) */}
+                            <div className="md:hidden flex gap-1">
+                                {[
+                                    { id: SECTIONS.INTRO, icon: <BookOpen size={20}/> },
+                                    { id: SECTIONS.ANTIDEPRESSANTS, icon: <Zap size={20}/> },
+                                    { id: SECTIONS.LITHIUM, icon: <Scale size={20}/> },
+                                    { id: SECTIONS.ANTIANXIETY, icon: <Heart size={20}/> },
+                                    { id: SECTIONS.QUIZ, icon: <Lightbulb size={20}/> },
+                                ].map(nav => (
+                                    <button
+                                        key={nav.id}
+                                        onClick={() => handleNavClick(nav.id)}
+                                        className={`p-2 rounded-full transition-colors ${
+                                            activeSection === nav.id 
+                                                ? 'bg-blue-100 text-blue-700' 
+                                                : 'text-slate-600 hover:bg-slate-100'
+                                        }`}
+                                    >
+                                        {nav.icon}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </nav>
+
+                    {/* Main Content Area */}
+                    <main className="max-w-6xl mx-auto px-4 py-8 flex-grow w-full">
+                        {activeSection === SECTIONS.INTRO && <IntroView />}
+                        {activeSection === SECTIONS.ANTIDEPRESSANTS && <AntidepressantsView />}
+                        {activeSection === SECTIONS.LITHIUM && <LithiumView />}
+                        {activeSection === SECTIONS.ANTIANXIETY && <AntianxietyView />}
+                        {activeSection === SECTIONS.QUIZ && <QuizView />}
+                    </main>
+
+                    {/* Footer */}
+                    <footer className="bg-slate-900 text-slate-300 py-10 mt-12 border-t-4 border-indigo-600">
+                        <div className="max-w-5xl mx-auto px-6 flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
+                                <FacultyLogo className="w-24 h-28 flex-shrink-0 drop-shadow-md" />
+                                <div className="mt-2">
+                                    <p className="mb-1 text-lg font-bold text-white">Psychiatric Nursing & Mental Health</p>
+                                    <p className="text-sm text-slate-400 max-w-xs">Introduction to Psychiatric and Mental Health Nursing • Educational Material</p>
+                                </div>
+                            </div>
+                            
+                            <div className="text-center md:text-right space-y-2 text-sm border-t md:border-t-0 border-slate-700 pt-6 md:pt-0 w-full md:w-auto">
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Dean of The Faculty:</span> <span className="text-slate-200">Prof. Dr. Hanan Hosny El-Sherbiny</span></p>
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Acting Head of Department:</span> <span className="text-slate-200">Asst. Prof. Dr. Mayar Ezz-Eldin El-Naqeeb</span></p>
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Created by:</span> <span className="font-semibold text-white">M.Abdallah Abozaid</span></p>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<PsychotropicApp />);
+    </script>
+</body>
+</html>

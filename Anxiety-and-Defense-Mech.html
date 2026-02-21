@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anxiety and Defense Mechanisms</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX compilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Lucide Icons (Vanilla) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;700&display=swap');
+        .font-arabic { font-family: 'Noto Kufi Arabic', sans-serif; }
+        
+        /* Smooth scrolling for the whole page */
+        html { scroll-behavior: smooth; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useLayoutEffect } = React;
+
+        // --- ICON SYSTEM SETUP ---
+        const IconWrapper = ({ name, ...props }) => {
+            const ref = useRef(null);
+            
+            useLayoutEffect(() => {
+                if (ref.current && window.lucide && window.lucide.icons[name]) {
+                    const iconElement = window.lucide.createElement(window.lucide.icons[name]);
+                    if (props.className) {
+                        const existingClass = iconElement.getAttribute('class') || '';
+                        iconElement.setAttribute('class', `${existingClass} ${props.className}`);
+                    }
+                    if (props.size) {
+                        iconElement.setAttribute('width', props.size);
+                        iconElement.setAttribute('height', props.size);
+                    }
+                    ref.current.innerHTML = '';
+                    ref.current.appendChild(iconElement);
+                }
+            }, [name, props.className, props.size]);
+
+            return <span ref={ref} style={{ display: 'inline-flex', verticalAlign: 'middle' }} />;
+        };
+
+        const createIconComponent = (name) => (props) => <IconWrapper name={name} {...props} />;
+
+        const Shield = createIconComponent('Shield');
+        const AlertTriangle = createIconComponent('AlertTriangle');
+        const Activity = createIconComponent('Activity');
+        const Brain = createIconComponent('Brain');
+        const BookOpen = createIconComponent('BookOpen');
+        const Lightbulb = createIconComponent('Lightbulb');
+        const ChevronDown = createIconComponent('ChevronDown');
+        const ChevronUp = createIconComponent('ChevronUp');
+        const Eye = createIconComponent('Eye');
+        const Target = createIconComponent('Target');
+        const Zap = createIconComponent('Zap');
+        const HeartPulse = createIconComponent('HeartPulse');
+        const ArrowRight = createIconComponent('ArrowRight');
+        const Umbrella = createIconComponent('Umbrella');
+        const Layers = createIconComponent('Layers');
+        const Users = createIconComponent('Users');
+        const GitBranch = createIconComponent('GitBranch');
+
+        // --- DEPARTMENT LOGO (SVG REPLICA) ---
+        const DepartmentLogo = ({ className = "w-10 h-10" }) => (
+            <svg viewBox="0 0 100 120" className={className} xmlns="http://www.w3.org/2000/svg">
+                <path d="M 5 80 C 15 100 40 110 60 105 C 80 100 95 85 95 75 C 95 70 85 65 75 75 C 65 85 50 90 35 85 C 25 80 15 75 5 80 Z" fill="#004a8f" />
+                <path d="M 30 85 C 45 92 60 90 75 80" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                <path d="M 40 78 C 55 85 70 80 85 70" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                <path d="M 50 65 L 53 72 L 58 67 L 58 57 C 58 52 64 50 64 45 C 64 43 60 41 60 39 L 68 37 C 70 36 70 34 68 32 C 65 31 62 32 60 29 C 60 15 48 5 35 10" stroke="#004a8f" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                <g stroke="#1e1b4b" strokeWidth="1.5" fill="none">
+                    <circle cx="35" cy="22" r="9" />
+                    <circle cx="28" cy="35" r="9" />
+                    <circle cx="42" cy="35" r="9" />
+                </g>
+                <text x="35" y="24.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">C</text>
+                <text x="28" y="37.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">C</text>
+                <text x="42" y="37.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">A</text>
+            </svg>
+        );
+
+        // --- FACULTY LOGO (SVG REPLICA) ---
+        const FacultyLogo = ({ className = "w-24 h-28" }) => (
+            <svg viewBox="0 0 100 130" className={className} xmlns="http://www.w3.org/2000/svg">
+                {/* Outer Borders */}
+                <path d="M 2 2 L 98 2 L 98 65 C 98 110 50 128 50 128 C 50 128 2 110 2 65 Z" fill="#24335c" />
+                <path d="M 4 4 L 96 4 L 96 65 C 96 108 50 125 50 125 C 50 125 4 108 4 65 Z" fill="#ffffff" />
+                
+                {/* Sky & Sea */}
+                <path d="M 6 6 L 94 6 L 94 65 C 94 106 50 122 50 122 C 50 122 6 106 6 65 Z" fill="#66c5f4" />
+                <path d="M 6 75 L 94 75 C 94 106 50 122 50 122 C 50 122 6 106 6 75 Z" fill="#1da2d8" />
+                
+                {/* Beams */}
+                <g stroke="#1a2f57" strokeWidth="0.8">
+                    <line x1="50" y1="18" x2="15" y2="12" />
+                    <line x1="50" y1="18" x2="10" y2="20" />
+                    <line x1="50" y1="18" x2="10" y2="28" />
+                    <line x1="50" y1="18" x2="15" y2="35" />
+                    
+                    <line x1="50" y1="18" x2="85" y2="12" />
+                    <line x1="50" y1="18" x2="90" y2="20" />
+                    <line x1="50" y1="18" x2="90" y2="28" />
+                    <line x1="50" y1="18" x2="85" y2="35" />
+                </g>
+                
+                {/* Fortress & Lighthouse */}
+                <g fill="#c49341" stroke="#1a2f57" strokeWidth="1.2" strokeLinejoin="round">
+                    {/* Left Tower */}
+                    <polygon points="12,60 10,75 22,75 20,60" />
+                    <rect x="10" y="56" width="12" height="4" />
+                    <rect x="11" y="53" width="10" height="3" />
+                    {/* Left Wall */}
+                    <rect x="20" y="63" width="18" height="12" />
+                    
+                    {/* Right Tower */}
+                    <polygon points="80,60 78,75 90,75 88,60" />
+                    <rect x="78" y="56" width="12" height="4" />
+                    <rect x="79" y="53" width="10" height="3" />
+                    {/* Right Wall */}
+                    <rect x="62" y="63" width="18" height="12" />
+                    
+                    {/* Main Lighthouse Base */}
+                    <polygon points="40,40 33,75 67,75 60,40" />
+                    <rect x="38" y="38" width="24" height="4" />
+                    {/* Mid Tier */}
+                    <rect x="42" y="24" width="16" height="14" />
+                    <rect x="40" y="22" width="20" height="3" />
+                    {/* Top Tier */}
+                    <rect x="45" y="14" width="10" height="8" />
+                    <rect x="44" y="12" width="12" height="2" />
+                    {/* Lantern */}
+                    <polygon points="47,12 48,7 52,7 53,12" />
+                </g>
+                
+                {/* Details (Windows/Doors) */}
+                <g fill="none" stroke="#1a2f57" strokeWidth="1.2">
+                    {/* Left Wall Windows */}
+                    <rect x="22" y="66" width="3" height="4" />
+                    <rect x="27" y="66" width="3" height="4" />
+                    <rect x="32" y="66" width="3" height="4" />
+                    
+                    {/* Right Wall Windows */}
+                    <rect x="65" y="66" width="3" height="4" />
+                    <rect x="70" y="66" width="3" height="4" />
+                    <rect x="75" y="66" width="3" height="4" />
+                    
+                    {/* Main Tower Door & Windows */}
+                    <rect x="47" y="64" width="6" height="11" />
+                    <rect x="48" y="54" width="4" height="5" />
+                    <rect x="48" y="46" width="4" height="5" />
+                    
+                    {/* Mid Tier Windows */}
+                    <rect x="44" y="27" width="4" height="4" />
+                    <rect x="52" y="27" width="4" height="4" />
+                </g>
+                
+                {/* Wave styling */}
+                <g fill="#1a2f57" stroke="none">
+                    <path d="M 12 85 Q 16 87 20 85 L 20 87 Q 16 89 12 87 Z" />
+                    <path d="M 28 85 Q 32 87 36 85 L 36 87 Q 32 89 28 87 Z" />
+                    <path d="M 44 85 Q 48 87 52 85 L 52 87 Q 48 89 44 87 Z" />
+                    <path d="M 60 85 Q 64 87 68 85 L 68 87 Q 64 89 60 87 Z" />
+                    <path d="M 76 85 Q 80 87 84 85 L 84 87 Q 80 89 76 87 Z" />
+                    
+                    <path d="M 20 95 Q 24 97 28 95 L 28 97 Q 24 99 20 97 Z" />
+                    <path d="M 36 95 Q 40 97 44 95 L 44 97 Q 40 99 36 97 Z" />
+                    <path d="M 52 95 Q 56 97 60 95 L 60 97 Q 56 99 52 97 Z" />
+                    <path d="M 68 95 Q 72 97 76 95 L 76 97 Q 72 99 68 97 Z" />
+
+                    <path d="M 28 105 Q 32 107 36 105 L 36 107 Q 32 109 28 107 Z" />
+                    <path d="M 44 105 Q 48 107 52 105 L 52 107 Q 48 109 44 107 Z" />
+                    <path d="M 60 105 Q 64 107 68 105 L 68 107 Q 64 109 60 107 Z" />
+                    
+                    <path d="M 40 115 Q 44 117 48 115 L 48 117 Q 44 119 40 117 Z" />
+                    <path d="M 52 115 Q 56 117 60 115 L 60 117 Q 56 119 52 117 Z" />
+                </g>
+            </svg>
+        );
+
+        // --- ILLUSTRATION COMPONENTS ---
+
+        const PerceptualFieldIllustration = () => (
+            <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm my-6 flex flex-col items-center">
+                <h5 className="font-bold text-slate-700 mb-6 text-xl text-center">Levels of Anxiety: The Perceptual Field</h5>
+                <svg viewBox="0 0 400 200" className="w-full max-w-3xl mx-auto drop-shadow-sm">
+                    {/* Mild */}
+                    <path d="M 20 20 L 380 20 L 340 60 L 60 60 Z" fill="#bbf7d0" stroke="#22c55e" strokeWidth="2"/>
+                    <text x="200" y="45" textAnchor="middle" fill="#166534" fontWeight="bold" fontSize="16">Mild (Wide Field)</text>
+                    {/* Moderate */}
+                    <path d="M 60 60 L 340 60 L 280 110 L 120 110 Z" fill="#fef08a" stroke="#eab308" strokeWidth="2"/>
+                    <text x="200" y="90" textAnchor="middle" fill="#854d0e" fontWeight="bold" fontSize="16">Moderate (Narrowing)</text>
+                    {/* Severe */}
+                    <path d="M 120 110 L 280 110 L 230 160 L 170 160 Z" fill="#fed7aa" stroke="#f97316" strokeWidth="2"/>
+                    <text x="200" y="140" textAnchor="middle" fill="#9a3412" fontWeight="bold" fontSize="16">Severe (Greatly Diminished)</text>
+                    {/* Panic */}
+                    <path d="M 170 160 L 230 160 L 210 190 L 190 190 Z" fill="#fecaca" stroke="#ef4444" strokeWidth="2"/>
+                    <text x="200" y="180" textAnchor="middle" fill="#991b1b" fontWeight="bold" fontSize="14">Panic</text>
+                    {/* Arrows */}
+                    <path d="M 390 20 L 390 180" stroke="#94a3b8" strokeWidth="3" strokeDasharray="5,5" markerEnd="url(#arrow)" />
+                    <text x="395" y="100" writingMode="vertical-rl" fill="#64748b" fontSize="14" fontWeight="bold">Increasing Anxiety</text>
+                    <defs>
+                        <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
+                        </marker>
+                    </defs>
+                </svg>
+            </div>
+        );
+
+        // --- SVGs FOR DEFENSE MECHANISMS ---
+        
+        const HumorSvg = () => (
+            <svg viewBox="0 0 200 100" className="w-full max-w-xs mx-auto drop-shadow-sm h-32">
+                <circle cx="70" cy="50" r="30" fill="#cbd5e1" />
+                <path d="M 60 60 Q 70 45 80 60" fill="none" stroke="#64748b" strokeWidth="3" strokeLinecap="round" />
+                <circle cx="62" cy="45" r="3" fill="#64748b" /> <circle cx="78" cy="45" r="3" fill="#64748b" />
+                <circle cx="130" cy="50" r="35" fill="#fef08a" stroke="#eab308" strokeWidth="2"/>
+                <path d="M 115 55 Q 130 75 145 55" fill="none" stroke="#ca8a04" strokeWidth="3" strokeLinecap="round"/>
+                <path d="M 115 40 Q 120 35 125 40 M 135 40 Q 140 35 145 40" fill="none" stroke="#ca8a04" strokeWidth="3" strokeLinecap="round"/>
+                <text x="130" y="98" textAnchor="middle" fill="#ca8a04" fontSize="12" fontWeight="bold">Laughing at Pain</text>
+            </svg>
+        );
+
+        const SublimationSvg = () => (
+            <svg viewBox="0 0 300 100" className="w-full max-w-md mx-auto drop-shadow-sm h-32">
+                <path d="M 10 50 L 30 30 L 50 60 L 70 40 L 90 50" fill="none" stroke="#ef4444" strokeWidth="4" />
+                <text x="50" y="85" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="bold">Aggressive Impulse</text>
+                <rect x="100" y="20" width="100" height="60" rx="10" fill="#cbd5e1" stroke="#64748b" strokeWidth="2" />
+                <text x="150" y="55" textAnchor="middle" fill="#334155" fontSize="12" fontWeight="bold">Sublimation</text>
+                <path d="M 210 50 Q 240 20 280 50" fill="none" stroke="#10b981" strokeWidth="4" />
+                <text x="250" y="85" textAnchor="middle" fill="#10b981" fontSize="10" fontWeight="bold">Creative Outlet (e.g. Painting)</text>
+                <path d="M 90 50 L 95 50" stroke="#ef4444" strokeWidth="4" markerEnd="url(#red-arrow-sub)"/>
+                <path d="M 205 50 L 210 50" stroke="#10b981" strokeWidth="4" markerEnd="url(#green-arrow-sub)"/>
+                <defs>
+                    <marker id="red-arrow-sub" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" /></marker>
+                    <marker id="green-arrow-sub" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" /></marker>
+                </defs>
+            </svg>
+        );
+
+        const CompensationSvg = () => (
+            <svg viewBox="0 0 200 100" className="w-full max-w-xs mx-auto drop-shadow-sm h-32">
+                <line x1="20" y1="80" x2="180" y2="80" stroke="#475569" strokeWidth="3" />
+                <rect x="50" y="60" width="30" height="20" fill="#fca5a5" />
+                <text x="65" y="95" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="bold">Weakness</text>
+                <rect x="120" y="20" width="30" height="60" fill="#86efac" />
+                <text x="135" y="95" textAnchor="middle" fill="#10b981" fontSize="10" fontWeight="bold">Overachievement</text>
+                <path d="M 65 50 Q 100 10 135 15" fill="none" stroke="#3b82f6" strokeWidth="2" strokeDasharray="4 4" markerEnd="url(#blue-arrow-comp)"/>
+                <defs>
+                    <marker id="blue-arrow-comp" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" /></marker>
+                </defs>
+            </svg>
+        );
+
+        const SubstitutionSvg = () => (
+            <svg viewBox="0 0 250 100" className="w-full max-w-sm mx-auto drop-shadow-sm h-32">
+                <rect x="40" y="30" width="40" height="40" rx="5" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="2" />
+                <text x="60" y="55" textAnchor="middle" fill="#64748b" fontSize="24" fontWeight="bold">✕</text>
+                <text x="60" y="85" textAnchor="middle" fill="#64748b" fontSize="10">Unattainable</text>
+                <path d="M 90 50 L 150 50" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#blue-arrow-subst)"/>
+                <polygon points="190,20 196,40 215,40 200,52 205,72 190,60 175,72 180,52 165,40 184,40" fill="#fde047" stroke="#eab308" strokeWidth="2" />
+                <text x="190" y="85" textAnchor="middle" fill="#ca8a04" fontSize="10">New Goal (Desirable)</text>
+                <defs>
+                    <marker id="blue-arrow-subst" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" /></marker>
+                </defs>
+            </svg>
+        );
+
+        const SuppressionSvg = () => (
+            <svg viewBox="0 0 200 100" className="w-full max-w-xs mx-auto drop-shadow-sm h-32">
+                <ellipse cx="60" cy="40" rx="30" ry="20" fill="#f1f5f9" stroke="#94a3b8" strokeWidth="2"/>
+                <text x="60" y="44" textAnchor="middle" fill="#64748b" fontSize="10">Annoying Thought</text>
+                <path d="M 90 40 L 130 40" stroke="#ef4444" strokeWidth="3" markerEnd="url(#red-arrow-supp)"/>
+                <text x="110" y="30" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="bold">CONSCIOUS</text>
+                <rect x="140" y="20" width="40" height="60" rx="2" fill="#d1d5db" />
+                <line x1="140" y1="30" x2="180" y2="30" stroke="#94a3b8" strokeWidth="2" />
+                <text x="160" y="60" textAnchor="middle" fill="#475569" fontSize="12" fontWeight="bold">LATER</text>
+                <defs>
+                    <marker id="red-arrow-supp" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" /></marker>
+                </defs>
+            </svg>
+        );
+
+        const AltruismSvg = () => (
+            <svg viewBox="0 0 200 100" className="w-full max-w-xs mx-auto drop-shadow-sm h-32">
+                {/* Hands */}
+                <path d="M 40 60 Q 60 70 80 80 Q 90 85 100 85 Q 110 85 120 80 Q 140 70 160 60" fill="none" stroke="#fcd34d" strokeWidth="12" strokeLinecap="round" />
+                <path d="M 45 55 Q 70 65 95 75 M 155 55 Q 130 65 105 75" fill="none" stroke="#fcd34d" strokeWidth="6" strokeLinecap="round" />
+                {/* Heart */}
+                <path d="M 100 65 C 100 65 80 40 100 30 C 120 40 100 65 100 65 Z" fill="#ef4444" />
+                <text x="100" y="98" textAnchor="middle" fill="#ca8a04" fontSize="10" fontWeight="bold">Meeting Needs of Others</text>
+            </svg>
+        );
+
+        const IdentificationSvg = () => (
+            <svg viewBox="0 0 200 120" className="w-full max-w-xs mx-auto drop-shadow-sm h-36">
+                <circle cx="60" cy="80" r="10" fill="#94a3b8" />
+                <line x1="60" y1="90" x2="60" y2="110" stroke="#94a3b8" strokeWidth="4" />
+                <line x1="50" y1="100" x2="70" y2="100" stroke="#94a3b8" strokeWidth="4" />
+                <text x="60" y="120" textAnchor="middle" fill="#64748b" fontSize="10">Self</text>
+                
+                <path d="M 80 80 L 120 50" stroke="#3b82f6" strokeWidth="2" strokeDasharray="4 4" markerEnd="url(#blue-arrow-id)"/>
+                
+                <circle cx="150" cy="30" r="15" fill="#fca5a5" />
+                <rect x="135" y="45" width="30" height="40" fill="#3b82f6" />
+                <path d="M 135 45 L 120 80 L 180 80 L 165 45 Z" fill="#ef4444" opacity="0.5"/> {/* Cape */}
+                <text x="150" y="100" textAnchor="middle" fill="#1e3a8a" fontSize="10" fontWeight="bold">Admired Person</text>
+                <defs>
+                    <marker id="blue-arrow-id" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" /></marker>
+                </defs>
+            </svg>
+        );
+
+        const DisplacementSvg = () => (
+            <svg viewBox="0 0 300 100" className="w-full max-w-md mx-auto drop-shadow-sm h-32">
+                <circle cx="40" cy="40" r="20" fill="#fecaca" stroke="#ef4444" strokeWidth="2"/>
+                <text x="40" y="45" textAnchor="middle" fontSize="10" fill="#991b1b" fontWeight="bold">Boss</text>
+                <path d="M 70 40 Q 110 20 130 40" fill="none" stroke="#ef4444" strokeWidth="3" markerEnd="url(#red-arrow-disp)"/>
+                <text x="100" y="25" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="bold">Yells at</text>
+                
+                <circle cx="150" cy="50" r="20" fill="#bfdbfe" stroke="#3b82f6" strokeWidth="2"/>
+                <text x="150" y="55" textAnchor="middle" fontSize="10" fill="#1e3a8a" fontWeight="bold">Worker</text>
+                
+                <path d="M 180 50 Q 220 30 240 50" fill="none" stroke="#ef4444" strokeWidth="3" markerEnd="url(#red-arrow-disp)"/>
+                <text x="210" y="35" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="bold">Yells at</text>
+                
+                <ellipse cx="260" cy="70" rx="15" ry="10" fill="#fde68a" stroke="#d97706" strokeWidth="2"/>
+                <circle cx="280" cy="60" r="8" fill="#fde68a" stroke="#d97706" strokeWidth="2"/>
+                <text x="260" y="100" textAnchor="middle" fontSize="10" fill="#92400e" fontWeight="bold">Dog</text>
+                <defs>
+                    <marker id="red-arrow-disp" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" /></marker>
+                </defs>
+            </svg>
+        );
+
+        const DissociationSvg = () => (
+            <svg viewBox="0 0 200 120" className="w-full max-w-xs mx-auto drop-shadow-sm h-36">
+                <path d="M 60 100 Q 60 60 100 60 Q 140 60 140 100 Z" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="2" />
+                <path d="M 50 60 L 150 60" stroke="#94a3b8" strokeWidth="2" strokeDasharray="5 5" />
+                <path d="M 80 40 Q 90 20 110 30 Q 130 10 140 40 Q 150 50 120 50 Q 90 50 80 40 Z" fill="#bae6fd" stroke="#3b82f6" strokeWidth="2" />
+                <text x="110" y="40" textAnchor="middle" fill="#1e3a8a" fontSize="10" fontWeight="bold">Detached Mind</text>
+                <text x="100" y="85" textAnchor="middle" fill="#64748b" fontSize="10" fontWeight="bold">Body / Present</text>
+            </svg>
+        );
+
+        const IntellectualizationSvg = () => (
+            <svg viewBox="0 0 250 100" className="w-full max-w-sm mx-auto drop-shadow-sm h-32">
+                <circle cx="60" cy="50" r="25" fill="#fca5a5" />
+                <path d="M 50 45 L 70 45" stroke="#b91c1c" strokeWidth="3" />
+                <path d="M 60 55 Q 65 65 70 55" fill="none" stroke="#b91c1c" strokeWidth="2" />
+                <text x="60" y="90" textAnchor="middle" fill="#ef4444" fontSize="10">Painful Feelings</text>
+                
+                <line x1="95" y1="50" x2="145" y2="50" stroke="#94a3b8" strokeWidth="3" markerEnd="url(#gray-arrow-int)"/>
+                
+                <path d="M 170 60 Q 190 30 210 60 Q 230 50 210 70 Q 170 70 170 60 Z" fill="#d8b4fe" stroke="#0284c7" strokeWidth="2" />
+                <text x="190" y="55" textAnchor="middle" fill="#0369a1" fontSize="10" fontWeight="bold">Logic & Facts</text>
+                <text x="190" y="90" textAnchor="middle" fill="#0284c7" fontSize="10">Distancing via Intellect</text>
+                <defs>
+                    <marker id="gray-arrow-int" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" /></marker>
+                </defs>
+            </svg>
+        );
+
+        const IsolationSvg = () => (
+            <svg viewBox="0 0 200 120" className="w-full max-w-xs mx-auto drop-shadow-sm h-36">
+                <path d="M 100 70 C 100 70 70 40 100 20 C 130 40 100 70 100 70 Z" fill="#ef4444" />
+                <rect x="60" y="10" width="80" height="80" fill="none" stroke="#94a3b8" strokeWidth="4" />
+                <line x1="80" y1="10" x2="80" y2="90" stroke="#94a3b8" strokeWidth="4" />
+                <line x1="120" y1="10" x2="120" y2="90" stroke="#94a3b8" strokeWidth="4" />
+                <line x1="60" y1="36" x2="140" y2="36" stroke="#94a3b8" strokeWidth="4" />
+                <line x1="60" y1="62" x2="140" y2="62" stroke="#94a3b8" strokeWidth="4" />
+                <text x="100" y="110" textAnchor="middle" fill="#475569" fontSize="10" fontWeight="bold">Separating Emotion from Thought</text>
+            </svg>
+        );
+
+        const RationalizationSvg = () => (
+            <svg viewBox="0 0 250 100" className="w-full max-w-sm mx-auto drop-shadow-sm h-32">
+                {/* Arrow that landed */}
+                <line x1="20" y1="50" x2="120" y2="50" stroke="#1e293b" strokeWidth="4" />
+                <polygon points="120,45 130,50 120,55" fill="#1e293b" />
+                
+                {/* Painting the target around it */}
+                <circle cx="140" cy="50" r="30" fill="none" stroke="#ef4444" strokeWidth="3" strokeDasharray="4 4" />
+                <circle cx="140" cy="50" r="15" fill="none" stroke="#ef4444" strokeWidth="3" strokeDasharray="4 4" />
+                <circle cx="140" cy="50" r="5" fill="#ef4444" />
+                
+                <path d="M 180 80 Q 160 80 150 70" fill="none" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#blue-arrow-rat)"/>
+                <text x="210" y="85" textAnchor="middle" fill="#1d4ed8" fontSize="10" fontWeight="bold">Making Excuses</text>
+                <text x="210" y="97" textAnchor="middle" fill="#64748b" fontSize="8">(Justifying after the fact)</text>
+                <defs>
+                    <marker id="blue-arrow-rat" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" /></marker>
+                </defs>
+            </svg>
+        );
+
+        const ReactionFormationSvg = () => (
+            <svg viewBox="0 0 250 100" className="w-full max-w-sm mx-auto drop-shadow-sm h-32">
+                <circle cx="60" cy="50" r="25" fill="#fecaca" stroke="#ef4444" strokeWidth="2" />
+                <path d="M 50 40 L 55 45 M 70 40 L 65 45" stroke="#b91c1c" strokeWidth="2" />
+                <text x="60" y="90" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="bold">Unconscious Hostility</text>
+                
+                <path d="M 95 50 L 155 50" stroke="#64748b" strokeWidth="3" markerEnd="url(#gray-arrow-rf)"/>
+                
+                <circle cx="190" cy="50" r="25" fill="#bbf7d0" stroke="#22c55e" strokeWidth="2" />
+                <path d="M 180 35 Q 185 30 190 40 Q 195 30 200 35 Q 195 45 190 50 Q 185 45 180 35" fill="#ef4444" /> 
+                <path d="M 175 60 Q 190 75 205 60" fill="none" stroke="#166534" strokeWidth="3" />
+                <text x="190" y="90" textAnchor="middle" fill="#166534" fontSize="10" fontWeight="bold">Overprotective</text>
+                <defs>
+                    <marker id="gray-arrow-rf" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" /></marker>
+                </defs>
+            </svg>
+        );
+
+        const RegressionSvg = () => (
+            <svg viewBox="0 0 250 100" className="w-full max-w-sm mx-auto drop-shadow-sm h-32">
+                {/* Adult */}
+                <rect x="180" y="30" width="20" height="40" rx="4" fill="#3b82f6" />
+                <circle cx="190" cy="20" r="10" fill="#94a3b8" />
+                <text x="190" y="90" textAnchor="middle" fill="#1e3a8a" fontSize="10">Adult Level</text>
+                
+                <path d="M 160 50 L 90 50" stroke="#ef4444" strokeWidth="4" strokeDasharray="5 5" markerEnd="url(#red-arrow-reg)"/>
+                <text x="125" y="40" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="bold">Retreats</text>
+                
+                {/* Baby/Pacifier */}
+                <circle cx="50" cy="60" r="15" fill="#fca5a5" />
+                <path d="M 65 60 L 70 55 M 65 60 L 70 65" stroke="#0ea5e9" strokeWidth="3" />
+                <circle cx="72" cy="60" r="4" fill="#0ea5e9" />
+                <text x="50" y="90" textAnchor="middle" fill="#991b1b" fontSize="10">Past Level (Dependent)</text>
+                <defs>
+                    <marker id="red-arrow-reg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" /></marker>
+                </defs>
+            </svg>
+        );
+
+        const RepressionSvg = () => (
+            <svg viewBox="0 0 200 120" className="w-full max-w-xs mx-auto drop-shadow-sm h-36">
+                <ellipse cx="100" cy="40" rx="40" ry="25" fill="#f1f5f9" stroke="#94a3b8" strokeWidth="2" />
+                <text x="100" y="45" textAnchor="middle" fill="#64748b" fontSize="12" fontWeight="bold">Conscious</text>
+                
+                <rect x="50" y="70" width="100" height="40" rx="5" fill="#334155" />
+                <circle cx="100" cy="90" r="8" fill="#e2e8f0" />
+                <rect x="98" y="90" width="4" height="8" fill="#e2e8f0" />
+                <text x="100" y="125" textAnchor="middle" fill="#1e293b" fontSize="10" fontWeight="bold">Unconscious (Locked away)</text>
+                
+                <path d="M 100 45 L 100 65" stroke="#ef4444" strokeWidth="4" markerEnd="url(#red-arrow-rep)"/>
+                <defs>
+                    <marker id="red-arrow-rep" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" /></marker>
+                </defs>
+            </svg>
+        );
+
+        const UndoingSvg = () => (
+            <svg viewBox="0 0 250 100" className="w-full max-w-sm mx-auto drop-shadow-sm h-32">
+                <path d="M 50 70 C 50 70 30 40 50 30 C 60 40 50 70 50 70 Z" fill="#ef4444" />
+                <path d="M 50 30 L 45 45 L 55 55 L 50 70" stroke="#ffffff" strokeWidth="2" fill="none" />
+                <text x="50" y="90" textAnchor="middle" fill="#ef4444" fontSize="10">Guilt / Quarrel</text>
+                
+                <path d="M 90 40 Q 125 10 160 40" fill="none" stroke="#10b981" strokeWidth="3" markerEnd="url(#green-arrow-undo)"/>
+                <text x="125" y="25" textAnchor="middle" fill="#10b981" fontSize="10" fontWeight="bold">Symbolic Negation</text>
+                
+                <rect x="180" y="40" width="40" height="30" fill="#fde047" stroke="#ca8a04" strokeWidth="2" />
+                <line x1="200" y1="40" x2="200" y2="70" stroke="#ca8a04" strokeWidth="2" />
+                <line x1="180" y1="55" x2="220" y2="55" stroke="#ca8a04" strokeWidth="2" />
+                <path d="M 195 40 Q 200 30 205 40 Z" fill="#ef4444" />
+                <text x="200" y="90" textAnchor="middle" fill="#ca8a04" fontSize="10">Gift / Restitution</text>
+                <defs>
+                    <marker id="green-arrow-undo" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" /></marker>
+                </defs>
+            </svg>
+        );
+
+        const SymbolizationSvg = () => (
+            <svg viewBox="0 0 250 100" className="w-full max-w-sm mx-auto drop-shadow-sm h-32">
+                {/* Ring representing love */}
+                <ellipse cx="50" cy="50" rx="15" ry="5" fill="none" stroke="#eab308" strokeWidth="3" />
+                <polygon points="50,40 45,45 55,45" fill="#60a5fa" />
+                <text x="50" y="80" textAnchor="middle" fill="#ca8a04" fontSize="10" fontWeight="bold">Object/Act</text>
+                
+                <text x="125" y="55" textAnchor="middle" fill="#64748b" fontSize="24">=</text>
+                <text x="125" y="80" textAnchor="middle" fill="#64748b" fontSize="10">Represents</text>
+                
+                <path d="M 200 65 C 200 65 180 40 200 30 C 220 40 200 65 200 65 Z" fill="#ef4444" />
+                <text x="200" y="80" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="bold">Idea/Feeling</text>
+            </svg>
+        );
+
+        const FantasySvg = () => (
+            <svg viewBox="0 0 250 120" className="w-full max-w-sm mx-auto drop-shadow-sm h-36">
+                <circle cx="40" cy="80" r="20" fill="#94a3b8" />
+                <text x="40" y="115" textAnchor="middle" fill="#64748b" fontSize="10">Anxious Self</text>
+                
+                <circle cx="75" cy="65" r="4" fill="#cbd5e1" />
+                <circle cx="95" cy="55" r="6" fill="#cbd5e1" />
+                
+                <ellipse cx="160" cy="45" rx="60" ry="35" fill="#f1f5f9" stroke="#cbd5e1" strokeWidth="2" />
+                <polygon points="140,40 145,25 150,40 160,20 170,40 175,25 180,40 180,55 140,55" fill="#fde047" stroke="#ca8a04" strokeWidth="2" />
+                <text x="160" y="95" textAnchor="middle" fill="#ca8a04" fontSize="10" fontWeight="bold">Daydream / Future Event</text>
+            </svg>
+        );
+
+        const IntrojectionSvg = () => (
+            <svg viewBox="0 0 250 120" className="w-full max-w-sm mx-auto drop-shadow-sm h-36">
+                <text x="40" y="40" textAnchor="middle" fill="#ef4444" fontSize="12" fontWeight="bold">"You are bad"</text>
+                <text x="40" y="60" textAnchor="middle" fill="#ef4444" fontSize="12" fontWeight="bold">"Don't cheat"</text>
+                <text x="40" y="100" textAnchor="middle" fill="#b91c1c" fontSize="10">External Voices</text>
+                
+                <path d="M 90 50 L 140 50" stroke="#3b82f6" strokeWidth="4" markerEnd="url(#blue-arrow-intro)"/>
+                
+                <path d="M 200 90 Q 160 90 160 50 Q 160 10 200 10 Q 240 10 240 50 Q 240 90 200 90 Z" fill="#e0f2fe" stroke="#0ea5e9" strokeWidth="2" />
+                <text x="200" y="45" textAnchor="middle" fill="#0284c7" fontSize="10" fontWeight="bold">Internalized</text>
+                <text x="200" y="60" textAnchor="middle" fill="#0284c7" fontSize="10" fontWeight="bold">as Self-Image</text>
+                <defs>
+                    <marker id="blue-arrow-intro" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" /></marker>
+                </defs>
+            </svg>
+        );
+
+        const PassiveAggressionSvg = () => (
+            <svg viewBox="0 0 200 120" className="w-full max-w-xs mx-auto drop-shadow-sm h-36">
+                <circle cx="100" cy="50" r="30" fill="#fef08a" stroke="#eab308" strokeWidth="2" />
+                <path d="M 85 45 Q 90 40 95 45 M 105 45 Q 110 40 115 45" fill="none" stroke="#ca8a04" strokeWidth="2" />
+                <path d="M 85 60 Q 100 70 115 60" fill="none" stroke="#ca8a04" strokeWidth="2" />
+                <text x="100" y="15" textAnchor="middle" fill="#ca8a04" fontSize="12" fontWeight="bold">Indirect Expression</text>
+                
+                {/* Dagger behind back */}
+                <path d="M 130 50 L 160 50 L 155 80 L 135 80 Z" fill="#94a3b8" />
+                <rect x="140" y="80" width="10" height="20" fill="#b45309" />
+                <text x="100" y="110" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="bold">Hidden Hostility / Intentional Mistakes</text>
+            </svg>
+        );
+
+        const ProjectionSvg = () => (
+            <svg viewBox="0 0 250 100" className="w-full max-w-sm mx-auto drop-shadow-sm h-32">
+                <circle cx="50" cy="40" r="20" fill="#fca5a5" stroke="#ef4444" strokeWidth="2" />
+                <circle cx="45" cy="35" r="2" fill="#b91c1c" />
+                <text x="50" y="85" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="bold">Unacceptable</text>
+                <text x="50" y="98" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="bold">Thoughts</text>
+                
+                <path d="M 80 40 L 160 40" stroke="#ef4444" strokeWidth="4" strokeDasharray="5 5" markerEnd="url(#red-arrow-proj)"/>
+                <text x="120" y="30" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="bold">Attributes to</text>
+                
+                <circle cx="200" cy="40" r="20" fill="#bbf7d0" stroke="#22c55e" strokeWidth="2" />
+                <text x="200" y="85" textAnchor="middle" fill="#166534" fontSize="10">Another Person</text>
+                <defs>
+                    <marker id="red-arrow-proj" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" /></marker>
+                </defs>
+            </svg>
+        );
+
+        const ConversionSvg = () => (
+            <svg viewBox="0 0 250 120" className="w-full max-w-sm mx-auto drop-shadow-sm h-36">
+                <circle cx="60" cy="40" r="25" fill="#e2e8f0" stroke="#64748b" strokeWidth="2" />
+                <polygon points="55,20 65,20 60,35 70,35 50,60 55,45 45,45" fill="#eab308" />
+                <text x="60" y="85" textAnchor="middle" fill="#64748b" fontSize="10" fontWeight="bold">Mental Conflict</text>
+                
+                <path d="M 95 40 L 155 40" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#blue-arrow-conv)"/>
+                <text x="125" y="30" textAnchor="middle" fill="#2563eb" fontSize="10">Transfers to</text>
+                
+                {/* Bandaged Arm */}
+                <path d="M 180 20 L 220 60 L 200 80 L 160 40 Z" fill="#fca5a5" />
+                <line x1="170" y1="30" x2="210" y2="70" stroke="#ffffff" strokeWidth="4" />
+                <line x1="180" y1="40" x2="200" y2="60" stroke="#ffffff" strokeWidth="4" />
+                <text x="190" y="100" textAnchor="middle" fill="#b91c1c" fontSize="10" fontWeight="bold">Physical Symptom</text>
+                <defs>
+                    <marker id="blue-arrow-conv" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" /></marker>
+                </defs>
+            </svg>
+        );
+
+        const DelusionalProjectionSvg = () => (
+            <svg viewBox="0 0 250 120" className="w-full max-w-sm mx-auto drop-shadow-sm h-36">
+                <circle cx="125" cy="50" r="20" fill="#fca5a5" stroke="#ef4444" strokeWidth="2" />
+                <text x="125" y="55" textAnchor="middle" fill="#991b1b" fontSize="12" fontWeight="bold">Self</text>
+                
+                <path d="M 60 20 Q 125 -10 190 20" fill="none" stroke="#ef4444" strokeWidth="2" strokeDasharray="4 4" markerEnd="url(#red-arrow-del)"/>
+                <path d="M 190 80 Q 125 110 60 80" fill="none" stroke="#ef4444" strokeWidth="2" strokeDasharray="4 4" markerEnd="url(#red-arrow-del)"/>
+                
+                <text x="125" y="20" textAnchor="middle" fill="#b91c1c" fontSize="10" fontWeight="bold">"They are out to get me"</text>
+                <text x="125" y="105" textAnchor="middle" fill="#b91c1c" fontSize="10" fontWeight="bold">Severe Paranoia</text>
+                <defs>
+                    <marker id="red-arrow-del" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" /></marker>
+                </defs>
+            </svg>
+        );
+
+        const DenialSvg = () => (
+            <svg viewBox="0 0 250 100" className="w-full max-w-sm mx-auto drop-shadow-sm h-32">
+                <polygon points="50,20 80,80 20,80" fill="#ef4444" />
+                <text x="50" y="65" textAnchor="middle" fill="#ffffff" fontSize="30" fontWeight="bold">!</text>
+                <text x="50" y="95" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="bold">Threatening Reality</text>
+                
+                <line x1="100" y1="50" x2="150" y2="50" stroke="#94a3b8" strokeWidth="4" />
+                <line x1="120" y1="30" x2="100" y2="50" stroke="#94a3b8" strokeWidth="4" />
+                <line x1="120" y1="70" x2="100" y2="50" stroke="#94a3b8" strokeWidth="4" />
+                
+                <circle cx="200" cy="50" r="25" fill="#e2e8f0" stroke="#64748b" strokeWidth="2" />
+                <rect x="180" y="40" width="40" height="10" fill="#64748b" /> {/* Hands over eyes */}
+                <text x="200" y="95" textAnchor="middle" fill="#475569" fontSize="10" fontWeight="bold">Refusal to Accept</text>
+            </svg>
+        );
+
+        const SplittingSvg = () => (
+            <svg viewBox="0 0 250 100" className="w-full max-w-sm mx-auto drop-shadow-sm h-32">
+                {/* Left Side: All Good */}
+                <path d="M 125 10 A 40 40 0 0 0 125 90 Z" fill="#fef08a" stroke="#eab308" strokeWidth="2" />
+                <ellipse cx="105" cy="15" rx="10" ry="3" fill="none" stroke="#eab308" strokeWidth="2" />
+                <path d="M 100 50 Q 110 60 120 50" fill="none" stroke="#ca8a04" strokeWidth="2" />
+                
+                {/* Right Side: All Bad */}
+                <path d="M 125 10 A 40 40 0 0 1 125 90 Z" fill="#fecaca" stroke="#ef4444" strokeWidth="2" />
+                <path d="M 135 25 L 145 10 L 148 28" fill="#ef4444" />
+                <path d="M 130 55 Q 140 45 150 55" fill="none" stroke="#b91c1c" strokeWidth="2" />
+                
+                {/* Separation Line */}
+                <line x1="125" y1="0" x2="125" y2="100" stroke="#1e293b" strokeWidth="3" strokeDasharray="4 4" />
+                
+                <text x="60" y="55" textAnchor="middle" fill="#ca8a04" fontSize="12" fontWeight="bold">ALL GOOD</text>
+                <text x="190" y="55" textAnchor="middle" fill="#b91c1c" fontSize="12" fontWeight="bold">ALL BAD</text>
+            </svg>
+        );
+
+
+        // --- APPLICATION CODE ---
+
+        const SECTIONS = {
+            INTRO: 'intro',
+            ANXIETY: 'anxiety',
+            DEFENSES: 'defenses',
+            QUIZ: 'quiz'
+        };
+
+        const ANXIETY_DATA = {
+            intro: "Anxiety is an integral part of the universal human experience. For most people, most of the time. It is a form of energy that arises out of an intra-psychic threat to an individual’s self-concept and security. It is not only confined to ‘mental clients’ but can be experienced by ‘normal people’ throughout different situation in their lives. Experiences provoking anxiety begin in infancy since birth and continue throughout life. It is provoked by the unknown and precedes all new experiences (e.g., entering school, starting a new job, giving birth, ...etc) and concluding with the fear of the greatest unknown, death.",
+            definition: [
+                "It is a diffuse apprehension that is a vague, subjective, and nonspecific feeling of uneasiness with no identifiable objects, resulting from an external threat to one's integrity. Anxiety is a diffuse or overwhelming sense of apprehension that is vague in nature and associated with feelings of uncertainty, helplessness, insecurity and impending danger. The person perceives that the core of his personality is being threatened.",
+                "The function of anxiety is to warn the individual of impending threat, conflict, or danger. When an individual receives a signal of approaching danger, he or she is motivated to act; either to flee the threatening situation, control dangerous impulses or to fight against it.",
+                "People need a balance between courage and anxiety to preserve themselves, fulfill their beings and affine their existence. Self-realization and positive self-esteem develop as the individual confronts, moves through and overcomes anxiety provoking situations."
+            ],
+            vsFear: [
+                { term: "Fear", def: "Fear is a reaction to an objective specific danger (external danger) that is recognized by the person and others, e.g., fear of dogs, fire, earthquakes. The experience of fear is on a conscious discriminating level.", icon: <Eye className="text-blue-500 w-5 h-5"/> },
+                { term: "Anxiety", def: "On the other hand, anxiety is a vague sense of dread related to a subjective nonspecific danger (internal danger) that is unrecognized by the others. The experience of anxiety is on unconscious indiscriminating level. Anxiety attacks individuals on deeper level than does fear. It invades the central core of the Personality erodes the individual's feeling of self-esteem and personal worth.", icon: <Brain className="text-purple-500 w-5 h-5"/> }
+            ],
+            levelsIntro: "There are four levels of anxiety these are mild, moderate, severe and panic. It is important for nurses to be able to recognize the symptoms associated with each level in order to plan for appropriate interventions with anxious individuals.",
+            levels: [
+                { term: "Mild anxiety: (normal anxiety)", def: "It is associated with the tension experienced in response to the events of day-to-day living. It prepares people for action, sharpens their senses, perceptual field awareness of the environment is increased more than previously, motivation for productivity increased, and ability to learn increases and the individual is able to function at his or her optimal level." },
+                { term: "Moderate anxiety:", def: "As level of anxiety increases, the extent of the perceptual field diminishes. The person focuses on only one specific thing and blocks out other things. The attention span and ability to concentrate decreased. The individual still attend to needs with direction. Assistance may be required. Increased muscular tension and restlessness are evident." },
+                { term: "Severe anxiety:", def: "The perceptual field is so greatly diminished that concentration centers on one particular detail only or on many extraneous details. The attention span is extremely limited. Simple task is difficult to be completed. Inappropriate verbalization or inability to communicate clearly due to increased anxiety and decreased intellectual thought process. The individual lacks the ability to perform, as he experiences feelings of purposelessness. Physiological changes at their highest levels." },
+                { term: "Panic anxiety:", def: "It is a state of terror a client is unable to do anything even with direction. The ability to perceive is very disturbed. Disintegration of personality occurs, the client is immobilized, cannot verbalize and unable to focus on reality and lose control. This is a frightening and paralyzing experience for the individual. Prolonged panic anxiety can lead to physical & emotional exhaustion and can be a life threatening situation." }
+            ],
+            manifestationsIntro: "An individual's response to anxiety provoking situations influenced by his or her personal perception of the event, as well as a variety of predisposing factors, such as heredity, temperament, learned response patterns, developmental maturity, existing coping strategies, and support systems of caring others. As well, anxiety manifestations also differ according to the level of anxiety.",
+            manifestations: [
+                {
+                    category: "Usually due to sympathetic reaction preparing the body for either \"fight\" or \"flight\"\nReaction -> secretion of epinephrine from the adrenal gland:",
+                    items: [
+                        "Increase heart rate and palpitation.",
+                        "Increase blood pressure.",
+                        "Muscular tension.",
+                        "Deepen, difficult respiration and hyperventilation.",
+                        "Increase perspiration, cold clammy skin.",
+                        "Weaknesses and fatigability.",
+                        "Dilatation of pupils and facial paleness.",
+                        "Constipation, dry mouth, anorexia.",
+                        "Increase blood sugar."
+                    ]
+                },
+                {
+                    category: "If parasympathetic was activated will lead to:",
+                    items: [
+                        "Urinary frequency.",
+                        "Diarrhea.",
+                        "Decrease blood pressure and Heart rate."
+                    ]
+                },
+                {
+                    category: "Other physiological reactions:",
+                    items: [
+                        "Headache, Blurring vision.",
+                        "Nausea, vomiting.",
+                        "sleep disturbances.",
+                        "Interference with sexual function.",
+                        "Abdominal discomfort."
+                    ]
+                },
+                {
+                    category: "Psychomotor manifestation:",
+                    items: [
+                        "Restlessness aggravated to agitation.",
+                        "Physical tension.",
+                        "Tremors.",
+                        "Rapid speech.",
+                        "Lack of coordination.",
+                        "Accident proneness."
+                    ]
+                },
+                {
+                    category: "Mental manifestation:",
+                    items: [
+                        "Impaired attention.",
+                        "Poor concentration",
+                        "Forgetfulness",
+                        "Poor judgment",
+                        "Preoccupation",
+                        "Blocking of thoughts",
+                        "Very decreased of perceptual field",
+                        "Reduced creativity",
+                        "Very decreased of productivity",
+                        "Confusion"
+                    ]
+                }
+            ],
+            coping: "When feeling anxious, an individual tries to cope and deal with that state. The best way of coping is deal directly with the situation, and problems solve it. This process leads to growth, learning, and freedom from anxiety. However, this is not always the case. In most of cases, people defined themselves against anxiety using simple coping mechanisms, ego defenses, and psycho-physiological responses, psychoneurotic or psychotic responses. The following table presents this different ways of coping according to the levels of anxiety as related to the mental health – mental illness continuum.",
+            copingFigure: "Mental health <----------------------------------------------------> Mental Illness\nFIGURE 1: Conceptualization of anxiety responses along the mental health/mental illness continuum.",
+            staffIntro: "Nurses have to know that client’s anxiety can be transferred to nurses and vice visa. This could be helped by:",
+            staff: [
+                "Discussion with a more experienced person.",
+                "Discuss with colleagues.",
+                "Self-awareness and understanding of own fears and areas of anxiety."
+            ]
+        };
+
+        const DEFENSES_DATA = {
+            intro: [
+                "Defense mechanisms are sometimes termed ego-defenses, adjustment mechanisms, and/or coping methods. In the face of threat, the ego uses a number of defenses to relieve anxiety. Some of these defenses are more adaptive than others. Defense mechanisms become maladaptive when they are used to such an extreme degree that they distort reality, interfere with interpersonal relationships, limit the ability to work productively, and promote ego disintegration instead of self-integrity. Most defense mechanisms are used unconsciously.",
+                "The way and degree in which the person uses defense mechanisms and the result they produce in behavior may be judged as healthy or unhealthy/ adaptive or maladaptive. The healthy use of coping mechanism is determined by how successful it is in relieving anxiety and promoting satisfaction of needs in a socially accepted way.",
+                "The system of defense mechanisms used by each person is characteristic of his own personality. Development of this system starts during the early stages of personality development and is well established around the age of ten years. With age, the defense mechanisms are either reinforced or changed.",
+                "The study of defense mechanisms is essential for nurses as it helps them understand the client's behavior and their anxieties, make proper intervention and consequently better management of their patients.",
+                "Defense mechanisms are classified into four categories; mature, neurotic, immature, and pathological:"
+            ],
+            categories: [
+                {
+                    category: "Mature defenses",
+                    desc: "These are commonly found among emotionally healthy. The use of these defenses enhances pleasure and feelings of control. Mature defenses include:",
+                    color: "green",
+                    items: [
+                        { term: "Humor", def: "The individual deals with emotional conflicts or stressors by emphasizing the amusing or the ironic aspects of the conflict or stressors.", examples: ["A person's treatment for cancer makes him lose his hair so he makes jokes about being bald.", "A teacher makes an error on the test and says to the class, “Oh, my God, you all are smarter than me! I can’t even make a test,” and laughs about it with the students."], illustration: <HumorSvg /> },
+                        { term: "Sublimation", def: "Is an unconscious process of changing strong impulses that are not acceptable into constructive and socially acceptable activities? Often these impulses are sexual or aggressive in nature.", examples: ["A person who is unable to experience his sexual activities may channel this energy into something creative such as painting or writing love stories.", "A man with strong hostile feelings may choose to become a butcher or may be involved in rough contact sports as boxing or wrestling."], illustration: <SublimationSvg /> },
+                        { term: "Compensation", def: "Overachievement in one area to offset real or perceived weakness in that area. It is a process of psychologically counterbalancing perceived weaknesses by working hard on that weakness. It helps reinforce a person's self-esteem and self-image.", examples: ["A physically handicapped student works very hard to overcome his handicap by excelling academically.", "A young man, who is the shortest among his peers, compensates by being aggressive."], illustration: <CompensationSvg /> },
+                        { term: "Substitution:", def: "Covering up a real or perceived weakness by emphasizing a trait one consider desirable.", examples: ["A physically handicapped young boy would substitute his weakness by becoming a great scholar.", "A divorced woman rushes into remarriage.", "A student, who was unable to join medical school, decides to pursue a career in nursing."], illustration: <SubstitutionSvg /> },
+                        { term: "Suppression:", def: "It is the conscious exclusion of unacceptable or annoying thoughts or feelings from awareness or conscious mind.", examples: ["The person says \"I don't want to think about that now\", \"I will think about this tomorrow\"."], illustration: <SuppressionSvg /> },
+                        { term: "Altruism", def: "Emotional conflicts and stressors are dealt with by meeting the needs of others.", examples: ["After losing her husband, a female started spending one day a week helping others who had lost a loved one in their grief and work through their pain."], illustration: <AltruismSvg /> }
+                    ]
+                },
+                {
+                    category: "2- Neurotic Defenses:",
+                    desc: "These mechanisms are considered neurotic and are fairly common in adults. Such defenses have short-term advantages in coping, but can often cause long-term problems in relationships, work and in life enjoyment when used as a primary style of coping with the world. They include:",
+                    color: "blue",
+                    items: [
+                        { term: "Identification:", def: "An unconscious attempt to increase self-worth by acquiring certain attributes behaviors, attitudes and values of another person, which the person admires. It actually begins in early childhood (ages 3 to 6 years) when identification with the parent of the same sex is a critical developmental task. It is also apparent during adolescence when one does identify with peers. It promotes acceptance and security that provide the adolescent with a strong sense of self-esteem necessary for the difficult tasks of adulthood.", examples: ["A teenage girl adopts the mannerisms and style of dress of her beloved teacher.", "A teenager who required lengthy rehabilitation after an accident decides to become a physical therapist as the one who was treating him."], illustration: <IdentificationSvg /> },
+                        { term: "Displacement:", def: "Transfer of emotions associated with a particular person, object or situation to another person, object or situation that is less threatening.", examples: ["A mother may yell at her child after being angry with her husband.", "The boss yells at a worker, who feels he cannot yell back, so the worker goes home and yells at his wife and kicks the family dog."], illustration: <DisplacementSvg /> },
+                        { term: "Dissociation:", def: "Dealing with emotional conflict by temporary alteration in consciousness or identity. It is the separation of any group of mental or behavioral process from the rest of the person consciousness or identity.", examples: ["A person remembers nothing of childhood abuse.", "In the emergency room a man is unable to explain who he is, where he lives or works."], illustration: <DissociationSvg /> },
+                        { term: "Intellectualization:", def: "It is a defense mechanism in which an individual transfers emotions and feelings into the intellectual domain. The person uses reasoning and logic, to distance the self from painful feelings and emotions.", examples: ["Survivors in the early stages of grief proceed to give funeral instructions in a calm, logical manner, to avoid the devastating pain of reality.", "A patient diagnosed with terminal cancer answers the question, “How are you feeling?” by describing what she has had to eat, the amount of weight she has lost, and how many injections of medication she has had."], illustration: <IntellectualizationSvg /> },
+                        { term: "Isolation:", def: "It is the separation of feeling from one's thought processes, also known as emotional isolation. It may be adaptive for short periods of time, when people need to perform rather than react. It may become maladaptive, if used for long periods of time, without healthy release of emotions.", examples: ["The nurse focuses on the care and treatment rather than the pain, and suffering of clients.", "A young woman describes being attacked and raped without showing any emotions."], illustration: <IsolationSvg /> },
+                        { term: "Rationalization (making excuses):", def: "It is a commonly used defense mechanism, in which a person justifies thoughts, feelings or behaviors with logical-sounding reasons. Rationalization is often used to preserve self-respect, reduce guilt feelings, or obtain social approval or acceptance.", examples: ["The student insists she or he received a poor grade on an exam because the teacher never explained the class content sufficiently.", "A client tells his nurse \"I drink because it’s the only way I can deal with my bad marriage and worse job\"."], illustration: <RationalizationSvg /> },
+                        { term: "Reaction formation:", def: "It is the prevention of unacceptable or undesirable thoughts or behaviors from being expressed by repressing them and exaggerating opposite thoughts or types of behaviors.", examples: ["The young soldier who has an extreme fear of participating in military combat volunteers for dangerous front-line duty.", "A mother who has an unconscious hostility toward her daughter is overprotective and hovers over her to protect her from harm, interfering with her normal growth and development."], illustration: <ReactionFormationSvg /> },
+                        { term: "Regression:", def: "An individual retreats to past levels of behavior and seeks a dependent role in an effort to reduce anxiety.", examples: ["A child who has been potty-trained for 5 years begins wetting the bed when her parents are arguing.", "As in schizophrenia, when the individual regresses to early stages of growth and development and is unable to care for his own basic needs."], illustration: <RegressionSvg /> },
+                        { term: "Repression:", def: "Unacceptable feelings or thoughts are involuntary pushed into one's unconsciousness. These feelings and thoughts may be painful or traumatic involving such things as sexual molestation or the feelings experienced during a life threatening accident or illness.", examples: ["A teenage boy cannot remember driving the car that was involved in the accident in which his best friend was killed.", "The mother seems unaware of the date or events surrounding her child’s death and shows no emotions when the death is discussed"], illustration: <RepressionSvg /> },
+                        { term: "Undoing (Restitution):", def: "A previous, consciously intolerable action or experience is symbolically negated, generally to relieve feelings of guilt.", examples: ["The husband purchases a gift for his wife after a quarrel.", "A repetitive hand washing, cleaning, or checking that occurs in clients with obsessive - compulsive disorder, who are attempting to undo the painful anxiety evoked by their troubling thoughts."], illustration: <UndoingSvg /> },
+                        { term: "Symbolization:", def: "An object, idea or act is used to unconsciously represent another which may be in conflict or unacceptable to the ego. The symbol may not overtly appear to be related to the repressed ideas or feeling.", examples: ["A husband sends his wife a bouquet of roses, as a symbol of love and beauty.", "The act of repeated hand-washing in an obsessive client symbolically represents washing out (unconsciously) a feeling of guilt (dirt)."], illustration: <SymbolizationSvg /> }
+                    ]
+                },
+                {
+                    category: "3- Immature defenses:",
+                    desc: "These mechanisms are often present in adults. These mechanisms lessen distress and anxiety produced by threatening people or by an uncomfortable reality. Excessive use of such defenses is seen as socially undesirable, in that they are immature, difficult to deal with and seriously out of touch with reality. The so-called \"immature\" defenses and its overuse almost always lead to serious problems in a person's ability to cope effectively. These defenses are often seen in major depression and personality disorders. They include:",
+                    color: "amber",
+                    items: [
+                        { term: "Fantasy:", def: "Is a defense mechanism in which imagined events or mental images, such as daydreams, are used to express unconscious conflicts, satisfy desires, or prepare for future events: A person may fantasize to help resolve an emotional conflict or as a means of mental rehearsal. Fantasy may be adaptive and even beneficial at any age as long as developmental tasks are being met and the person functions in a manner that reveals he or she is able to distinguish between fantasy and reality.", examples: ["A student who is anxious from exam, begin to fantasize that, he passed the exam with excellent grade."], illustration: <FantasySvg /> },
+                        { term: "Introjection:", def: "Identifying with some idea or object so deeply that it becomes a part of that person. For example, introjection occurs when we take on attributes of other people who seem better able to cope with the situation than we do.", examples: ["A small child develops her conscience by internalizing and introjecting what the parent believes is right and wrong. A child says to friends, \"Don’t cheat. It’s wrong\".", "Young child whose parents were overcritical and belittling grows up thinking that she is not any good. She has taken on her parent's evaluation of her as part of her self-image."], illustration: <IntrojectionSvg /> },
+                        { term: "Passive aggression:", def: "It is aggression towards others expressed indirectly or passively.", examples: ["An administration assistant gets back at her boss for yelling at her by being late to work each day for a week.", "Complaints of injustice, lack of appreciation and intentional mistakes"], illustration: <PassiveAggressionSvg /> },
+                        { term: "Projection:", def: "Projection reduces anxiety by attributing one's own unacknowledged unacceptable or unwanted thoughts and emotions to another.", examples: ["People who are cheating on a partner make false accusations of cheating against the faithful partner.", "A young soldier who has an extreme fear of participating in military combat tells his sergeant that the others in his unit are \"a bunch of cowards\"."], illustration: <ProjectionSvg /> }
+                    ]
+                },
+                {
+                    category: "4- Pathological defenses:",
+                    desc: "The mechanisms on this level, when predominating, almost always are severely pathological. These defenses, in conjunction, permit one effectively to rearrange external experiences to eliminate the need to cope with reality. The pathological users of these mechanisms frequently appear irrational or insane to others. These are the \"psychotic\" defenses, common in overt psychosis. However, they are normally found in dreams and throughout childhood as well. They include:",
+                    color: "red",
+                    items: [
+                        { term: "Conversion:", def: "It is a defense mechanism in which an individual transfers a mental conflict into a physical symptom to reduce anxiety.", examples: ["An individual experiences sudden blindness after witnessing an accident in which several people were injured.", "An elderly person loses function in the lower extremities when told a close friend has died."], illustration: <ConversionSvg /> },
+                        { term: "Delusional projection:", def: "Delusions about external reality, usually of a persecutory nature.", examples: ["A middle woman became convinced that her psychiatrist was in love with her. She followed him, became angry when he was with his wife, and even called the wife to inform that the psychiatrist would be filing for divorce in order to remarry."], illustration: <DelusionalProjectionSvg /> },
+                        { term: "Denial:", def: "Refusal to accept external reality because it is too threatening; arguing against an anxiety-provoking stimulus by stating it doesn't exist; resolution of emotional conflict and reduction of anxiety by refusing to perceive or consciously acknowledge the more unpleasant aspects of external reality. Denial may be adaptive when it is temporary and helps the individual get through a difficult, traumatic experience until he or she is better able to cope with reality. It becomes maladaptive when a person persistently denies having a serious disorder.", examples: ["A father witnesses his child being killed in a car accident, but repeatedly says, “That wasn’t my son. No, no, it couldn’t have been my son. He was at soccer practice.”", "A man drinks alcohol every day and cannot stop, failing to acknowledge that she has a problem."], illustration: <DenialSvg /> },
+                        { term: "Splitting:", def: "It is the failure in a person's thinking to bring together the dichotomy of both positive and negative qualities of the self and others into a cohesive, realistic whole. Everything in the world is seen as all good or all bad with nothing in between.", examples: ["A woman enters a new relationship and believes her spouse to be “perfect.” When the spouse does something wrong, the same woman immediately believes the partner to be horrible. She is unable to see that sometimes good people make mistakes.", "You think your best friend is absolutely worthless because he forgot a lunch date with you."], illustration: <SplittingSvg /> }
+                    ]
+                }
+            ]
+        };
+
+        const QUIZ_QUESTIONS = [
+            {
+                q: "A person's treatment for cancer makes him lose his hair so he makes jokes about being bald. This mature defense is:",
+                options: ["Altruism", "Humor", "Compensation", "Suppression"],
+                correct: 1
+            },
+            {
+                q: "What is the key difference between Anxiety and Fear?",
+                options: [
+                    "Anxiety is a reaction to a specific objective danger, while fear is vague.",
+                    "Fear involves an internal threat, while anxiety involves an external threat.",
+                    "Fear is a reaction to a specific external danger, while anxiety is a vague sense of dread related to subjective internal danger.",
+                    "There is no clinical difference between the two."
+                ],
+                correct: 2
+            },
+            {
+                q: "A mother yells at her child after being reprimanded by her husband. Which defense mechanism is she using?",
+                options: ["Projection", "Displacement", "Reaction Formation", "Splitting"],
+                correct: 1
+            },
+            {
+                q: "Which level of anxiety causes the perceptual field to be greatly diminished to the point where concentration centers on one particular detail only?",
+                options: ["Mild", "Moderate", "Severe", "Panic"],
+                correct: 2
+            },
+            {
+                q: "A father refuses to accept that his son was killed in an accident, insisting his son is just at practice. This pathological defense is:",
+                options: ["Conversion", "Dissociation", "Denial", "Suppression"],
+                correct: 2
+            }
+        ];
+
+        // --- UI COMPONENTS ---
+
+        const Card = ({ children, className = "" }) => (
+            <div className={`bg-white rounded-xl shadow-sm border border-slate-200 p-4 ${className}`}>
+                {children}
+            </div>
+        );
+
+        const SectionHeader = ({ title, icon, color }) => (
+            <div className={`flex items-center gap-3 mb-6 p-4 rounded-lg ${color} bg-opacity-10`}>
+                <div className={`p-2 rounded-full bg-white shadow-sm ${color.replace('bg-', 'text-')}`}>
+                    {icon}
+                </div>
+                <h2 className="text-2xl font-bold text-slate-800">{title}</h2>
+            </div>
+        );
+
+        const TermItem = ({ term, def, examples, icon, illustration, colorTheme = "blue" }) => {
+            const [isOpen, setIsOpen] = useState(false);
+            
+            // Generate tailwind color classes dynamically based on theme
+            const borderColors = {
+                blue: "border-blue-400",
+                green: "border-green-400",
+                amber: "border-amber-400",
+                red: "border-red-400"
+            };
+            const textColors = {
+                blue: "text-blue-600",
+                green: "text-green-600",
+                amber: "text-amber-600",
+                red: "text-red-600"
+            };
+            
+            return (
+                <div className={`mb-3 border-l-4 ${borderColors[colorTheme]} bg-slate-50 rounded-r-lg overflow-hidden transition-all duration-300`}>
+                    <div 
+                        className="p-3 flex justify-between items-start cursor-pointer hover:bg-slate-100"
+                        onClick={() => setIsOpen(!isOpen)}
+                    >
+                        <div className="flex items-start gap-3">
+                            {icon && <span className="mt-1 text-slate-500">{icon}</span>}
+                            <div>
+                                <h4 className="font-bold text-slate-800 text-lg">{term}</h4>
+                                <p className="text-slate-600 text-sm leading-relaxed">{def}</p>
+                            </div>
+                        </div>
+                        {(examples && examples.length > 0 || illustration) && (
+                            <button className="text-slate-400 hover:text-slate-600 shrink-0 ml-2 mt-1">
+                                {isOpen ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
+                            </button>
+                        )}
+                    </div>
+                    
+                    {isOpen && (examples && examples.length > 0 || illustration) && (
+                        <div className="bg-white p-4 border-t border-slate-200 text-sm animate-in fade-in slide-in-from-top-1">
+                            {illustration && (
+                                <div className="mb-6 mt-2 flex justify-center">
+                                    {illustration}
+                                </div>
+                            )}
+                            {examples && examples.length > 0 && (
+                                <div className="text-slate-700 space-y-3">
+                                    {examples.map((ex, idx) => (
+                                        <p key={idx} className="bg-slate-50 p-3 rounded border border-slate-100">
+                                            <span className={`font-bold ${textColors[colorTheme]}`}>Example:</span> {ex}
+                                        </p>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        function AnxietyAndDefenses() {
+            const [activeSection, setActiveSection] = useState(SECTIONS.INTRO);
+            const [quizScore, setQuizScore] = useState(0);
+            const [quizSubmitted, setQuizSubmitted] = useState(false);
+            const [quizAnswers, setQuizAnswers] = useState({});
+
+            const handleNavClick = (section) => {
+                setActiveSection(section);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const handleQuizOption = (qIndex, optIndex) => {
+                if (quizSubmitted) return;
+                setQuizAnswers(prev => ({ ...prev, [qIndex]: optIndex }));
+            };
+
+            const submitQuiz = () => {
+                let score = 0;
+                QUIZ_QUESTIONS.forEach((q, i) => {
+                    if (quizAnswers[i] === q.correct) score++;
+                });
+                setQuizScore(score);
+                setQuizSubmitted(true);
+            };
+
+            const resetQuiz = () => {
+                setQuizAnswers({});
+                setQuizSubmitted(false);
+                setQuizScore(0);
+            };
+
+            // --- Views ---
+
+            const IntroView = () => (
+                <div className="space-y-8 animate-in fade-in duration-500">
+                    <div className="bg-gradient-to-r from-indigo-600 to-purple-700 text-white p-8 rounded-2xl shadow-xl relative overflow-hidden">
+                        <div className="relative z-10">
+                            <h1 className="text-4xl font-extrabold mb-4">Anxiety & Defense Mechanisms</h1>
+                            <p className="text-indigo-100 text-lg max-w-2xl leading-relaxed">
+                                {ANXIETY_DATA.intro}
+                            </p>
+                            <div className="mt-6 flex flex-wrap gap-3">
+                                <button onClick={() => handleNavClick(SECTIONS.ANXIETY)} className="bg-white text-indigo-700 px-6 py-2 rounded-full font-bold hover:bg-indigo-50 transition flex items-center gap-2">
+                                    <AlertTriangle size={18}/> Explore Anxiety
+                                </button>
+                                <button onClick={() => handleNavClick(SECTIONS.DEFENSES)} className="bg-indigo-800 bg-opacity-40 text-white border border-indigo-400 px-6 py-2 rounded-full font-bold hover:bg-indigo-800 transition flex items-center gap-2">
+                                    <Shield size={18}/> Defense Mechanisms
+                                </button>
+                            </div>
+                        </div>
+                        <Shield className="absolute top-4 right-10 text-white opacity-10 w-64 h-64 rotate-12" />
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <Card className="border-t-4 border-t-blue-500">
+                            <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-slate-800">
+                                <Target className="text-blue-500" /> Learning Objectives
+                            </h3>
+                            <ul className="space-y-3 text-slate-600 list-disc list-inside">
+                                <li>Define anxiety.</li>
+                                <li>Differentiate between anxiety and fear.</li>
+                                <li>Describe different levels of anxiety.</li>
+                                <li>Describe different ways of coping with anxiety.</li>
+                                <li>Define defense mechanisms.</li>
+                                <li>Discriminate between the various types of defense mechanisms.</li>
+                            </ul>
+                        </Card>
+
+                        <Card className="border-t-4 border-t-purple-500 bg-purple-50 flex flex-col justify-center">
+                            <h3 className="text-lg font-bold text-purple-800 mb-3 text-center">Core Concept</h3>
+                            <p className="text-purple-700 text-center italic mb-4">
+                                "Self-realization and positive self-esteem develop as the individual confronts, moves through and overcomes anxiety provoking situations."
+                            </p>
+                            <div className="flex justify-center">
+                                <Activity className="text-purple-400 w-12 h-12" />
+                            </div>
+                        </Card>
+                    </div>
+                </div>
+            );
+
+            const AnxietyView = () => (
+                <div className="animate-in slide-in-from-right-4 duration-500">
+                    <SectionHeader title="Anxiety" icon={<AlertTriangle size={32} />} color="bg-orange-100 text-orange-600" />
+                    
+                    <div className="space-y-8">
+                        {/* Definition Card */}
+                        <Card className="bg-orange-50 border-orange-200">
+                            <h3 className="font-bold text-xl text-orange-800 mb-4 flex items-center gap-2">
+                                <BookOpen size={24}/> Definition
+                            </h3>
+                            <div className="space-y-3">
+                                {ANXIETY_DATA.definition.map((paragraph, i) => (
+                                    <p key={i} className="text-slate-700 leading-relaxed border-l-2 border-orange-300 pl-3">
+                                        {paragraph}
+                                    </p>
+                                ))}
+                            </div>
+                        </Card>
+
+                        {/* Anxiety vs Fear */}
+                        <section>
+                            <h3 className="text-xl font-bold text-slate-800 mb-4 border-b pb-2">Anxiety versus fear:</h3>
+                            <div className="grid md:grid-cols-2 gap-4">
+                                {ANXIETY_DATA.vsFear.map((item, idx) => (
+                                    <Card key={idx} className="shadow-sm">
+                                        <div className="flex items-center gap-3 mb-3">
+                                            {item.icon}
+                                            <h4 className="font-bold text-lg text-slate-800">{item.term}</h4>
+                                        </div>
+                                        <p className="text-slate-600 text-sm leading-relaxed">{item.def}</p>
+                                    </Card>
+                                ))}
+                            </div>
+                        </section>
+
+                        {/* Levels of Anxiety */}
+                        <section>
+                            <h3 className="text-xl font-bold text-slate-800 mb-2 border-b pb-2">Levels of anxiety:</h3>
+                            <p className="text-slate-600 mb-4 text-sm">{ANXIETY_DATA.levelsIntro}</p>
+                            <PerceptualFieldIllustration />
+                            <div className="grid gap-3">
+                                {ANXIETY_DATA.levels.map((level, idx) => {
+                                    const colors = ["green", "amber", "orange", "red"];
+                                    return (
+                                        <TermItem 
+                                            key={idx} 
+                                            term={level.term} 
+                                            def={level.def} 
+                                            colorTheme={colors[idx]}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        </section>
+
+                        {/* Manifestations */}
+                        <section>
+                            <h3 className="text-xl font-bold text-slate-800 mb-2 border-b pb-2 flex items-center gap-2">
+                                <HeartPulse className="text-red-500" /> Manifestations of anxiety:
+                            </h3>
+                            <p className="text-slate-600 mb-4 text-sm leading-relaxed">{ANXIETY_DATA.manifestationsIntro}</p>
+                            
+                            <div className="grid md:grid-cols-2 gap-6">
+                                {ANXIETY_DATA.manifestations.map((manif, idx) => (
+                                    <Card key={idx} className="bg-white">
+                                        <h4 className="font-bold text-slate-700 mb-3 text-sm tracking-wide whitespace-pre-line">{manif.category}</h4>
+                                        <ul className="space-y-2">
+                                            {manif.items.map((item, i) => (
+                                                <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
+                                                    <ArrowRight size={16} className="text-blue-400 shrink-0 mt-0.5" />
+                                                    <span>{item}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </Card>
+                                ))}
+                            </div>
+                        </section>
+
+                        {/* Ways of Coping */}
+                        <section>
+                            <h3 className="text-xl font-bold text-slate-800 mb-2 border-b pb-2 flex items-center gap-2">
+                                <GitBranch className="text-green-500" /> Ways of coping with anxiety:
+                            </h3>
+                            <Card className="bg-green-50 border-green-200">
+                                <p className="text-slate-700 leading-relaxed mb-4">{ANXIETY_DATA.coping}</p>
+                                <div className="p-4 bg-white rounded border border-green-100 text-center font-mono text-sm whitespace-pre-wrap text-slate-600 overflow-x-auto">
+                                    {ANXIETY_DATA.copingFigure}
+                                </div>
+                            </Card>
+                        </section>
+
+                        {/* Nursing Staff */}
+                        <Card className="bg-blue-50 border-blue-200 flex items-start gap-4">
+                            <Users className="text-blue-500 w-8 h-8 shrink-0 mt-1" />
+                            <div>
+                                <h4 className="font-bold text-blue-800 mb-2">Anxiety in nursing staff</h4>
+                                <p className="text-sm text-blue-900 leading-relaxed mb-2">{ANXIETY_DATA.staffIntro}</p>
+                                <ul className="list-disc list-inside text-sm text-blue-900 space-y-1">
+                                    {ANXIETY_DATA.staff.map((item, idx) => (
+                                        <li key={idx}>{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </Card>
+                    </div>
+                </div>
+            );
+
+            const DefensesView = () => (
+                <div className="animate-in slide-in-from-right-4 duration-500">
+                    <SectionHeader title="Defense Mechanisms" icon={<Shield size={32} />} color="bg-indigo-100 text-indigo-600" />
+                    
+                    <div className="space-y-4 mb-8 text-slate-700 leading-relaxed max-w-4xl">
+                        {DEFENSES_DATA.intro.map((para, idx) => (
+                            <p key={idx}>{para}</p>
+                        ))}
+                    </div>
+
+                    <div className="space-y-10 mt-8">
+                        {DEFENSES_DATA.categories.map((section, idx) => (
+                            <section key={idx}>
+                                <div className={`mb-6 pb-2 border-b-2 border-${section.color}-200`}>
+                                    <h3 className={`text-2xl font-bold text-${section.color}-800`}>{section.category}</h3>
+                                    <p className={`text-sm text-${section.color}-600 mt-1 italic leading-relaxed`}>{section.desc}</p>
+                                </div>
+                                
+                                <div className="grid gap-3 lg:grid-cols-2 mt-4">
+                                    {section.items.map((item, itemIdx) => (
+                                        <div key={itemIdx} className="w-full">
+                                            <TermItem 
+                                                term={item.term} 
+                                                def={item.def} 
+                                                examples={item.examples}
+                                                illustration={item.illustration}
+                                                colorTheme={section.color}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        ))}
+                    </div>
+                </div>
+            );
+
+            const QuizView = () => (
+                <div className="animate-in slide-in-from-right-4 duration-500 max-w-2xl mx-auto">
+                    <SectionHeader title="Knowledge Check" icon={<Lightbulb size={32} />} color="bg-yellow-100 text-yellow-600" />
+                    
+                    {!quizSubmitted ? (
+                        <div className="space-y-6">
+                            {QUIZ_QUESTIONS.map((q, qIndex) => (
+                                <Card key={qIndex} className="p-6">
+                                    <h4 className="font-bold text-lg mb-4 text-slate-800">{qIndex + 1}. {q.q}</h4>
+                                    <div className="space-y-2">
+                                        {q.options.map((opt, optIndex) => (
+                                            <button
+                                                key={optIndex}
+                                                onClick={() => handleQuizOption(qIndex, optIndex)}
+                                                className={`w-full text-left p-3 rounded border transition-colors ${
+                                                    quizAnswers[qIndex] === optIndex 
+                                                        ? 'bg-indigo-100 border-indigo-500 text-indigo-800 font-medium' 
+                                                        : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                                                }`}
+                                            >
+                                                {opt}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </Card>
+                            ))}
+                            <button 
+                                onClick={submitQuiz}
+                                disabled={Object.keys(quizAnswers).length < QUIZ_QUESTIONS.length}
+                                className="w-full py-3 bg-indigo-600 text-white rounded-lg font-bold disabled:opacity-50 hover:bg-indigo-700 transition"
+                            >
+                                Submit Answers
+                            </button>
+                        </div>
+                    ) : (
+                        <Card className="text-center p-8">
+                            <div className="text-5xl mb-4">{quizScore >= 4 ? '🎉' : '📚'}</div>
+                            <h2 className="text-2xl font-bold mb-2">You scored {quizScore} / {QUIZ_QUESTIONS.length}</h2>
+                            <p className="text-slate-600 mb-6">
+                                {quizScore === 5 ? "Perfect! You deeply understand anxiety and ego defenses." : "Good effort! Review the sections to master the mechanisms."}
+                            </p>
+                            <button onClick={resetQuiz} className="bg-slate-800 text-white px-6 py-2 rounded-full hover:bg-slate-700">Try Again</button>
+                        </Card>
+                    )}
+                </div>
+            );
+
+            return (
+                <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+                    {/* Top Navigation */}
+                    <nav className="bg-white shadow-sm sticky top-0 z-50">
+                        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+                            <div className="flex items-center gap-2 font-bold text-sm md:text-lg text-blue-800 cursor-pointer" onClick={() => handleNavClick(SECTIONS.INTRO)}>
+                                <DepartmentLogo className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 drop-shadow-sm" />
+                                <span className="hidden sm:inline">Psychiatric & Mental Health Nursing</span>
+                                <span className="sm:hidden">PMHN Dept.</span>
+                            </div>
+                            
+                            <div className="hidden md:flex gap-1">
+                                {[
+                                    { id: SECTIONS.INTRO, label: 'Intro', icon: <Target size={16}/> },
+                                    { id: SECTIONS.ANXIETY, label: 'Anxiety', icon: <AlertTriangle size={16}/> },
+                                    { id: SECTIONS.DEFENSES, label: 'Defenses', icon: <Shield size={16}/> },
+                                    { id: SECTIONS.QUIZ, label: 'Quiz', icon: <Lightbulb size={16}/> },
+                                ].map(nav => (
+                                    <button
+                                        key={nav.id}
+                                        onClick={() => handleNavClick(nav.id)}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                                            activeSection === nav.id 
+                                                ? 'bg-indigo-100 text-indigo-700' 
+                                                : 'text-slate-600 hover:bg-slate-100'
+                                        }`}
+                                    >
+                                        {nav.icon} {nav.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </nav>
+
+                    {/* Mobile Quick Nav */}
+                    <div className="md:hidden bg-white border-b border-slate-200 overflow-x-auto">
+                        <div className="flex p-2 gap-2 min-w-max">
+                            {[
+                                { id: SECTIONS.INTRO, label: 'Intro' },
+                                { id: SECTIONS.ANXIETY, label: 'Anxiety' },
+                                { id: SECTIONS.DEFENSES, label: 'Defenses' },
+                                { id: SECTIONS.QUIZ, label: 'Quiz' },
+                            ].map(nav => (
+                                <button
+                                    key={nav.id}
+                                    onClick={() => handleNavClick(nav.id)}
+                                    className={`px-3 py-1.5 rounded-full text-xs font-medium ${
+                                        activeSection === nav.id ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600'
+                                    }`}
+                                >
+                                    {nav.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Main Content Area */}
+                    <main className="max-w-5xl mx-auto px-4 py-8">
+                        {activeSection === SECTIONS.INTRO && <IntroView />}
+                        {activeSection === SECTIONS.ANXIETY && <AnxietyView />}
+                        {activeSection === SECTIONS.DEFENSES && <DefensesView />}
+                        {activeSection === SECTIONS.QUIZ && <QuizView />}
+                    </main>
+
+                    {/* Footer */}
+                    <footer className="bg-slate-900 text-slate-300 py-10 mt-12 border-t-4 border-indigo-600">
+                        <div className="max-w-5xl mx-auto px-6 flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
+                                <FacultyLogo className="w-24 h-28 flex-shrink-0 drop-shadow-md" />
+                                <div className="mt-2">
+                                    <p className="mb-1 text-lg font-bold text-white">Psychiatric Nursing & Mental Health</p>
+                                    <p className="text-sm text-slate-400 max-w-xs">Introduction to Psychiatric and Mental Health Nursing • Educational Material</p>
+                                </div>
+                            </div>
+                            
+                            <div className="text-center md:text-right space-y-2 text-sm border-t md:border-t-0 border-slate-700 pt-6 md:pt-0 w-full md:w-auto">
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Dean of The Faculty:</span> <span className="text-slate-200">Prof. Dr. Hanan Hosny El-Sherbiny</span></p>
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Acting Head of Department:</span> <span className="text-slate-200">Asst. Prof. Dr. Mayar Ezz-Eldin El-Naqeeb</span></p>
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Created by:</span> <span className="font-semibold text-white">M.Abdallah Abozaid</span></p>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<AnxietyAndDefenses />);
+    </script>
+</body>
+</html>
