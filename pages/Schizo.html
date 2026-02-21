@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schizophrenia Spectrum Disorders</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX compilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Lucide Icons (Vanilla) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
+        .text-justify { text-align: justify; }
+        .verbatim-text p { margin-bottom: 0.75rem; line-height: 1.6; }
+        .verbatim-text ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+        .verbatim-text ul ul { list-style-type: circle; margin-top: 0.25rem; margin-bottom: 0.25rem; }
+        .verbatim-text li { margin-bottom: 0.5rem; line-height: 1.6; }
+        .verbatim-text h4 { font-weight: bold; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #1e293b; }
+        .verbatim-text h5 { font-weight: 600; margin-top: 1rem; margin-bottom: 0.25rem; color: #334155; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useLayoutEffect } = React;
+
+        // --- ICON SYSTEM SETUP ---
+        const IconWrapper = ({ name, ...props }) => {
+            const ref = useRef(null);
+            
+            useLayoutEffect(() => {
+                if (ref.current && window.lucide && window.lucide.icons[name]) {
+                    const iconElement = window.lucide.createElement(window.lucide.icons[name]);
+                    if (props.className) {
+                        const existingClass = iconElement.getAttribute('class') || '';
+                        iconElement.setAttribute('class', `${existingClass} ${props.className}`);
+                    }
+                    if (props.size) {
+                        iconElement.setAttribute('width', props.size);
+                        iconElement.setAttribute('height', props.size);
+                    }
+                    ref.current.innerHTML = '';
+                    ref.current.appendChild(iconElement);
+                }
+            }, [name, props.className, props.size]);
+
+            return <span ref={ref} style={{ display: 'inline-flex', verticalAlign: 'middle' }} />;
+        };
+
+        const createIconComponent = (name) => (props) => <IconWrapper name={name} {...props} />;
+
+        const Brain = createIconComponent('Brain');
+        const Heart = createIconComponent('Heart');
+        const Activity = createIconComponent('Activity');
+        const BookOpen = createIconComponent('BookOpen');
+        const Search = createIconComponent('Search');
+        const ChevronDown = createIconComponent('ChevronDown');
+        const ChevronUp = createIconComponent('ChevronUp');
+        const Play = createIconComponent('Play');
+        const AlertCircle = createIconComponent('AlertCircle');
+        const Eye = createIconComponent('Eye');
+        const Ear = createIconComponent('Ear');
+        const Mic = createIconComponent('Mic');
+        const Layers = createIconComponent('Layers');
+        const Clock = createIconComponent('Clock');
+        const Compass = createIconComponent('Compass');
+        const Scale = createIconComponent('Scale');
+        const Lightbulb = createIconComponent('Lightbulb');
+        const MessageSquare = createIconComponent('MessageSquare');
+        const User = createIconComponent('User');
+        const Users = createIconComponent('Users');
+        const Crown = createIconComponent('Crown');
+        const Lock = createIconComponent('Lock');
+        const Frown = createIconComponent('Frown');
+        const Thermometer = createIconComponent('Thermometer');
+        const Zap = createIconComponent('Zap');
+        const Repeat = createIconComponent('Repeat');
+        const Volume2 = createIconComponent('Volume2');
+        const Anchor = createIconComponent('Anchor');
+        const Shuffle = createIconComponent('Shuffle');
+        const Smile = createIconComponent('Smile');
+        const Meh = createIconComponent('Meh');
+        const Network = createIconComponent('Network');
+        const ShieldAlert = createIconComponent('ShieldAlert');
+        const HeartPulse = createIconComponent('HeartPulse');
+        const Target = createIconComponent('Target');
+
+        // --- DEPARTMENT LOGO (SVG REPLICA) ---
+        const DepartmentLogo = ({ className = "w-10 h-10" }) => (
+            <svg viewBox="0 0 100 120" className={className} xmlns="http://www.w3.org/2000/svg">
+                {/* Hand Base (Solid Blue) */}
+                <path d="M 5 80 C 15 100 40 110 60 105 C 80 100 95 85 95 75 C 95 70 85 65 75 75 C 65 85 50 90 35 85 C 25 80 15 75 5 80 Z" fill="#004a8f" />
+                
+                {/* Finger Lines (White) */}
+                <path d="M 30 85 C 45 92 60 90 75 80" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                <path d="M 40 78 C 55 85 70 80 85 70" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                
+                {/* Head Outline (Blue) */}
+                <path d="M 50 65 L 53 72 L 58 67 L 58 57 C 58 52 64 50 64 45 C 64 43 60 41 60 39 L 68 37 C 70 36 70 34 68 32 C 65 31 62 32 60 29 C 60 15 48 5 35 10" stroke="#004a8f" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+
+                {/* Three Overlapping Circles */}
+                <g stroke="#1e1b4b" strokeWidth="1.5" fill="none">
+                    <circle cx="35" cy="22" r="9" />
+                    <circle cx="28" cy="35" r="9" />
+                    <circle cx="42" cy="35" r="9" />
+                </g>
+                
+                {/* CCA Letters */}
+                <text x="35" y="24.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">C</text>
+                <text x="28" y="37.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">C</text>
+                <text x="42" y="37.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">A</text>
+            </svg>
+        );
+
+        // --- FACULTY LOGO (SVG REPLICA) ---
+        const FacultyLogo = ({ className = "w-24 h-28" }) => (
+            <svg viewBox="0 0 100 130" className={className} xmlns="http://www.w3.org/2000/svg">
+                {/* Outer Borders */}
+                <path d="M 2 2 L 98 2 L 98 65 C 98 110 50 128 50 128 C 50 128 2 110 2 65 Z" fill="#24335c" />
+                <path d="M 4 4 L 96 4 L 96 65 C 96 108 50 125 50 125 C 50 125 4 108 4 65 Z" fill="#ffffff" />
+                
+                {/* Sky & Sea */}
+                <path d="M 6 6 L 94 6 L 94 65 C 94 106 50 122 50 122 C 50 122 6 106 6 65 Z" fill="#66c5f4" />
+                <path d="M 6 75 L 94 75 C 94 106 50 122 50 122 C 50 122 6 106 6 75 Z" fill="#1da2d8" />
+                
+                {/* Beams */}
+                <g stroke="#1a2f57" strokeWidth="0.8">
+                    <line x1="50" y1="18" x2="15" y2="12" />
+                    <line x1="50" y1="18" x2="10" y2="20" />
+                    <line x1="50" y1="18" x2="10" y2="28" />
+                    <line x1="50" y1="18" x2="15" y2="35" />
+                    
+                    <line x1="50" y1="18" x2="85" y2="12" />
+                    <line x1="50" y1="18" x2="90" y2="20" />
+                    <line x1="50" y1="18" x2="90" y2="28" />
+                    <line x1="50" y1="18" x2="85" y2="35" />
+                </g>
+                
+                {/* Fortress & Lighthouse */}
+                <g fill="#c49341" stroke="#1a2f57" strokeWidth="1.2" strokeLinejoin="round">
+                    <polygon points="12,60 10,75 22,75 20,60" />
+                    <rect x="10" y="56" width="12" height="4" />
+                    <rect x="11" y="53" width="10" height="3" />
+                    <rect x="20" y="63" width="18" height="12" />
+                    <polygon points="80,60 78,75 90,75 88,60" />
+                    <rect x="78" y="56" width="12" height="4" />
+                    <rect x="79" y="53" width="10" height="3" />
+                    <rect x="62" y="63" width="18" height="12" />
+                    <polygon points="40,40 33,75 67,75 60,40" />
+                    <rect x="38" y="38" width="24" height="4" />
+                    <rect x="42" y="24" width="16" height="14" />
+                    <rect x="40" y="22" width="20" height="3" />
+                    <rect x="45" y="14" width="10" height="8" />
+                    <rect x="44" y="12" width="12" height="2" />
+                    <polygon points="47,12 48,7 52,7 53,12" />
+                </g>
+                
+                {/* Details (Windows/Doors) */}
+                <g fill="none" stroke="#1a2f57" strokeWidth="1.2">
+                    <rect x="22" y="66" width="3" height="4" />
+                    <rect x="27" y="66" width="3" height="4" />
+                    <rect x="32" y="66" width="3" height="4" />
+                    <rect x="65" y="66" width="3" height="4" />
+                    <rect x="70" y="66" width="3" height="4" />
+                    <rect x="75" y="66" width="3" height="4" />
+                    <rect x="47" y="64" width="6" height="11" />
+                    <rect x="48" y="54" width="4" height="5" />
+                    <rect x="48" y="46" width="4" height="5" />
+                    <rect x="44" y="27" width="4" height="4" />
+                    <rect x="52" y="27" width="4" height="4" />
+                </g>
+                
+                {/* Wave styling */}
+                <g fill="#1a2f57" stroke="none">
+                    <path d="M 12 85 Q 16 87 20 85 L 20 87 Q 16 89 12 87 Z" />
+                    <path d="M 28 85 Q 32 87 36 85 L 36 87 Q 32 89 28 87 Z" />
+                    <path d="M 44 85 Q 48 87 52 85 L 52 87 Q 48 89 44 87 Z" />
+                    <path d="M 60 85 Q 64 87 68 85 L 68 87 Q 64 89 60 87 Z" />
+                    <path d="M 76 85 Q 80 87 84 85 L 84 87 Q 80 89 76 87 Z" />
+                    <path d="M 20 95 Q 24 97 28 95 L 28 97 Q 24 99 20 97 Z" />
+                    <path d="M 36 95 Q 40 97 44 95 L 44 97 Q 40 99 36 97 Z" />
+                    <path d="M 52 95 Q 56 97 60 95 L 60 97 Q 56 99 52 97 Z" />
+                    <path d="M 68 95 Q 72 97 76 95 L 76 97 Q 72 99 68 97 Z" />
+                    <path d="M 28 105 Q 32 107 36 105 L 36 107 Q 32 109 28 107 Z" />
+                    <path d="M 44 105 Q 48 107 52 105 L 52 107 Q 48 109 44 107 Z" />
+                    <path d="M 60 105 Q 64 107 68 105 L 68 107 Q 64 109 60 107 Z" />
+                    <path d="M 40 115 Q 44 117 48 115 L 48 117 Q 44 119 40 117 Z" />
+                    <path d="M 52 115 Q 56 117 60 115 L 60 117 Q 56 119 52 117 Z" />
+                </g>
+            </svg>
+        );
+
+        // =====================================================================
+        // --- 25+ SVG ILLUSTRATION COMPONENTS FOR VISUAL ENRICHMENT ---
+        // =====================================================================
+
+        // 1. Learning Objectives Target
+        const LearningObjectivesIllustration = () => (
+            <svg viewBox="0 0 200 100" className="w-full h-24 my-4 drop-shadow-sm">
+                <circle cx="100" cy="50" r="40" fill="#fef08a" stroke="#ca8a04" strokeWidth="4" />
+                <circle cx="100" cy="50" r="25" fill="#fde047" stroke="#ca8a04" strokeWidth="4" />
+                <circle cx="100" cy="50" r="10" fill="#ef4444" />
+                <path d="M 20 20 L 95 45" stroke="#1e293b" strokeWidth="3" markerEnd="url(#arrow-dark)"/>
+                <path d="M 180 80 L 105 55" stroke="#1e293b" strokeWidth="3" markerEnd="url(#arrow-dark)"/>
+                <defs>
+                    <marker id="arrow-dark" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                        <polygon points="0 0, 6 3, 0 6" fill="#1e293b" />
+                    </marker>
+                </defs>
+            </svg>
+        );
+
+        // 2. Schizophrenia Spectrum
+        const SpectrumIllustration = () => (
+            <svg viewBox="0 0 400 60" className="w-full h-16 my-4 drop-shadow-sm">
+                <defs>
+                    <linearGradient id="spectrumGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#93c5fd" />
+                        <stop offset="50%" stopColor="#c084fc" />
+                        <stop offset="100%" stopColor="#f43f5e" />
+                    </linearGradient>
+                </defs>
+                <rect x="10" y="20" width="380" height="20" rx="10" fill="url(#spectrumGrad)" />
+                <text x="20" y="15" fontSize="10" fill="#64748b" fontWeight="bold">Mild</text>
+                <text x="360" y="15" fontSize="10" fill="#64748b" fontWeight="bold">Severe</text>
+                <circle cx="80" cy="30" r="6" fill="#ffffff" stroke="#3b82f6" strokeWidth="2" />
+                <circle cx="200" cy="30" r="6" fill="#ffffff" stroke="#9333ea" strokeWidth="2" />
+                <circle cx="320" cy="30" r="8" fill="#ffffff" stroke="#e11d48" strokeWidth="3" />
+                <text x="320" y="55" fontSize="12" fill="#e11d48" fontWeight="bold" textAnchor="middle">Schizophrenia</text>
+            </svg>
+        );
+
+        // 3. Psychosis (Loss of Contact with Reality)
+        const PsychosisIllustration = () => (
+            <svg viewBox="0 0 200 100" className="w-full h-24 my-4">
+                <path d="M 40 50 Q 60 10 90 50 Q 60 90 40 50" fill="#bfdbfe" stroke="#3b82f6" strokeWidth="2"/>
+                <circle cx="65" cy="50" r="10" fill="#1e40af" />
+                <text x="65" y="85" fontSize="10" textAnchor="middle" fill="#1e40af" fontWeight="bold">Reality</text>
+                <path d="M 160 50 C 160 30 180 30 180 50 C 180 70 160 70 160 50 Z" fill="#fbcfe8" stroke="#ec4899" strokeWidth="2"/>
+                <text x="170" y="85" fontSize="10" textAnchor="middle" fill="#be185d" fontWeight="bold">Mind</text>
+                <path d="M 100 50 L 125 50" stroke="#ef4444" strokeWidth="4" strokeDasharray="4,4" />
+                <line x1="105" y1="35" x2="120" y2="65" stroke="#ef4444" strokeWidth="3" />
+                <line x1="120" y1="35" x2="105" y2="65" stroke="#ef4444" strokeWidth="3" />
+                <text x="112" y="25" fontSize="10" textAnchor="middle" fill="#ef4444" fontWeight="bold">Lost Contact</text>
+            </svg>
+        );
+
+        // 4. Bleuler's 4 A's 
+        const BleulersFourAsIllustration = () => (
+            <div className="grid grid-cols-2 gap-4 my-6">
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 shadow-sm flex flex-col items-center text-center">
+                    <div className="bg-blue-500 text-white p-3 rounded-full mb-2"><Brain size={24} /></div>
+                    <h5 className="font-bold text-blue-800 text-sm">Autistic Thinking</h5>
+                </div>
+                <div className="bg-purple-50 p-4 rounded-lg border border-purple-200 shadow-sm flex flex-col items-center text-center">
+                    <div className="bg-purple-500 text-white p-3 rounded-full mb-2"><Network size={24} /></div>
+                    <h5 className="font-bold text-purple-800 text-sm">Associative Looseness</h5>
+                </div>
+                <div className="bg-rose-50 p-4 rounded-lg border border-rose-200 shadow-sm flex flex-col items-center text-center">
+                    <div className="bg-rose-500 text-white p-3 rounded-full mb-2"><Shuffle size={24} /></div>
+                    <h5 className="font-bold text-rose-800 text-sm">Ambivalence</h5>
+                </div>
+                <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200 shadow-sm flex flex-col items-center text-center">
+                    <div className="bg-emerald-500 text-white p-3 rounded-full mb-2"><Meh size={24} /></div>
+                    <h5 className="font-bold text-emerald-800 text-sm">Affective Disturbance</h5>
+                </div>
+            </div>
+        );
+
+        // 5. Epidemiology Pie Chart
+        const EpidemiologyPieIllustration = () => (
+            <svg viewBox="0 0 200 120" className="w-full h-32 my-4">
+                <circle cx="60" cy="60" r="40" fill="#e2e8f0" />
+                <path d="M 60 60 L 60 20 A 40 40 0 0 1 66 20.5 Z" fill="#3b82f6" />
+                <text x="60" y="115" fontSize="10" textAnchor="middle" fill="#64748b" fontWeight="bold">0.7% Worldwide</text>
+                <rect x="130" y="30" width="10" height="30" fill="#3b82f6" rx="2" />
+                <circle cx="135" cy="20" r="6" fill="#3b82f6" />
+                <rect x="155" y="40" width="10" height="20" fill="#ec4899" rx="2" />
+                <circle cx="160" cy="30" r="6" fill="#ec4899" />
+                <text x="145" y="80" fontSize="12" textAnchor="middle" fill="#1e293b" fontWeight="bold">1.4 : 1</text>
+                <text x="145" y="95" fontSize="10" textAnchor="middle" fill="#64748b">Male to Female</text>
+            </svg>
+        );
+
+        // 6. Onset Timeline
+        const OnsetTimelineIllustration = () => (
+            <svg viewBox="0 0 300 80" className="w-full h-20 my-4">
+                <line x1="20" y1="40" x2="280" y2="40" stroke="#cbd5e1" strokeWidth="4" />
+                <circle cx="50" cy="40" r="6" fill="#94a3b8" />
+                <text x="50" y="60" fontSize="10" textAnchor="middle" fill="#64748b">Childhood</text>
+                <circle cx="150" cy="40" r="10" fill="#f59e0b" stroke="#ffffff" strokeWidth="2" />
+                <text x="150" y="25" fontSize="12" textAnchor="middle" fill="#b45309" fontWeight="bold">Late Teens</text>
+                <text x="150" y="65" fontSize="10" textAnchor="middle" fill="#b45309">Early Twenties</text>
+                <circle cx="250" cy="40" r="6" fill="#94a3b8" />
+                <text x="250" y="60" fontSize="10" textAnchor="middle" fill="#64748b">Adulthood</text>
+                <path d="M 120 40 Q 150 10 180 40" fill="none" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4,2" />
+            </svg>
+        );
+
+        // 7. Positive vs Negative
+        const PositiveVsNegativeIllustration = () => (
+            <svg viewBox="0 0 300 120" className="w-full h-28 my-4">
+                <rect x="30" y="20" width="100" height="80" rx="8" fill="#eff6ff" stroke="#3b82f6" strokeWidth="2" />
+                <text x="80" y="45" fontSize="24" textAnchor="middle" fill="#3b82f6" fontWeight="bold">+</text>
+                <text x="80" y="65" fontSize="12" textAnchor="middle" fill="#1e3a8a" fontWeight="bold">Positive</text>
+                <text x="80" y="85" fontSize="10" textAnchor="middle" fill="#64748b">Excess function</text>
+                <rect x="170" y="20" width="100" height="80" rx="8" fill="#fef2f2" stroke="#ef4444" strokeWidth="2" />
+                <text x="220" y="45" fontSize="24" textAnchor="middle" fill="#ef4444" fontWeight="bold">-</text>
+                <text x="220" y="65" fontSize="12" textAnchor="middle" fill="#991b1b" fontWeight="bold">Negative</text>
+                <text x="220" y="85" fontSize="10" textAnchor="middle" fill="#64748b">Loss of function</text>
+            </svg>
+        );
+
+        // 8. Concrete Thinking
+        const ConcreteThinkingIllustration = () => (
+            <svg viewBox="0 0 100 100" className="w-full h-24 my-2">
+                <path d="M 30 70 C 20 40, 40 30, 50 30 C 60 30, 80 40, 70 70 Z" fill="#e2e8f0" />
+                <rect x="40" y="40" width="20" height="20" fill="#94a3b8" stroke="#475569" strokeWidth="2" />
+                <text x="50" y="85" fontSize="10" textAnchor="middle" fill="#475569" fontWeight="bold">Literal Box</text>
+            </svg>
+        );
+
+        // 9. Magical Thinking
+        const MagicalThinkingIllustration = () => (
+            <svg viewBox="0 0 100 100" className="w-full h-24 my-2">
+                <path d="M 30 60 C 20 30, 40 20, 50 20 C 60 20, 80 30, 70 60 Z" fill="#fce7f3" stroke="#f472b6" strokeWidth="2" />
+                <line x1="80" y1="80" x2="60" y2="40" stroke="#9d174d" strokeWidth="3" />
+                <polygon points="55,35 60,40 65,35 60,30" fill="#fde047" />
+                <circle cx="40" cy="30" r="2" fill="#f59e0b" />
+                <circle cx="70" cy="20" r="3" fill="#f59e0b" />
+                <text x="50" y="90" fontSize="10" textAnchor="middle" fill="#9d174d" fontWeight="bold">Magical Thinking</text>
+            </svg>
+        );
+
+        // 10. Delusion of Grandeur
+        const DelusionOfGrandeurIllustration = () => (
+            <svg viewBox="0 0 100 100" className="w-full h-24 my-2">
+                <path d="M 35 60 L 40 80 L 60 80 L 65 60 Z" fill="#3b82f6" />
+                <circle cx="50" cy="50" r="15" fill="#fca5a5" />
+                <polygon points="40,35 50,20 60,35 55,40 45,40" fill="#eab308" stroke="#ca8a04" strokeWidth="1" />
+                <circle cx="50" cy="20" r="2" fill="#ef4444" />
+                <circle cx="40" cy="35" r="2" fill="#3b82f6" />
+                <circle cx="60" cy="35" r="2" fill="#3b82f6" />
+                <text x="50" y="95" fontSize="10" textAnchor="middle" fill="#ca8a04" fontWeight="bold">Grandeur</text>
+            </svg>
+        );
+
+        // 11. Delusion of Persecution
+        const DelusionOfPersecutionIllustration = () => (
+            <svg viewBox="0 0 100 100" className="w-full h-24 my-2">
+                <circle cx="50" cy="50" r="15" fill="#94a3b8" />
+                <path d="M 10 50 Q 20 35 30 50 Q 20 65 10 50" fill="none" stroke="#ef4444" strokeWidth="2" />
+                <circle cx="20" cy="50" r="3" fill="#ef4444" />
+                <path d="M 90 50 Q 80 35 70 50 Q 80 65 90 50" fill="none" stroke="#ef4444" strokeWidth="2" />
+                <circle cx="80" cy="50" r="3" fill="#ef4444" />
+                <path d="M 50 10 Q 35 20 50 30 Q 65 20 50 10" fill="none" stroke="#ef4444" strokeWidth="2" />
+                <circle cx="50" cy="20" r="3" fill="#ef4444" />
+                <text x="50" y="95" fontSize="10" textAnchor="middle" fill="#ef4444" fontWeight="bold">Persecution</text>
+            </svg>
+        );
+
+        // 12. Thought Broadcasting
+        const ThoughtBroadcastingIllustration = () => (
+            <svg viewBox="0 0 100 100" className="w-full h-24 my-2">
+                <path d="M 35 60 C 25 40, 45 30, 50 30 C 55 30, 75 40, 65 60 Z" fill="#cbd5e1" />
+                <path d="M 50 25 A 15 15 0 0 1 65 40" fill="none" stroke="#3b82f6" strokeWidth="2" strokeDasharray="2,2"/>
+                <path d="M 50 15 A 25 25 0 0 1 75 40" fill="none" stroke="#3b82f6" strokeWidth="2" strokeDasharray="3,3"/>
+                <path d="M 50 5 A 35 35 0 0 1 85 40" fill="none" stroke="#3b82f6" strokeWidth="2" strokeDasharray="4,4"/>
+                <text x="50" y="85" fontSize="10" textAnchor="middle" fill="#1d4ed8" fontWeight="bold">Broadcasting</text>
+            </svg>
+        );
+
+        // 13. Looseness of Association (Thought Disturbance)
+        const ThoughtDisturbanceIllustration = () => (
+            <svg viewBox="0 0 200 100" className="w-full h-24 my-4">
+                <path d="M 20 50 C 40 10, 60 90, 80 50 C 100 10, 120 90, 140 50 C 160 10, 180 90, 200 50" fill="none" stroke="#e2e8f0" strokeWidth="4" />
+                <path d="M 20 50 Q 40 20 60 70 T 100 30 T 140 80 T 180 50" fill="none" stroke="#8b5cf6" strokeWidth="3" />
+                <circle cx="180" cy="50" r="5" fill="#8b5cf6" />
+                <text x="100" y="95" fontSize="10" textAnchor="middle" fill="#6b21a8" fontWeight="bold">Looseness of Association & Word Salad</text>
+            </svg>
+        );
+
+        // 14. Auditory Hallucinations
+        const AuditoryHallucinationIllustration = () => (
+            <svg viewBox="0 0 200 120" className="w-full h-32 my-4">
+                <path d="M 120 20 C 160 20 160 100 120 100 C 100 100 100 80 120 80 C 130 80 130 40 120 40 Z" fill="#cbd5e1" />
+                <path d="M 80 30 A 30 30 0 0 1 80 90" fill="none" stroke="#3b82f6" strokeWidth="3" strokeLinecap="round"/>
+                <path d="M 60 40 A 20 20 0 0 1 60 80" fill="none" stroke="#60a5fa" strokeWidth="3" strokeLinecap="round"/>
+                <path d="M 40 50 A 10 10 0 0 1 40 70" fill="none" stroke="#93c5fd" strokeWidth="3" strokeLinecap="round"/>
+                <rect x="10" y="10" width="50" height="25" rx="5" fill="#ef4444" opacity="0.1" />
+                <text x="35" y="26" fontSize="10" textAnchor="middle" fill="#ef4444" fontWeight="bold">"Jump!"</text>
+                <text x="100" y="115" fontSize="10" textAnchor="middle" fill="#64748b">Commanding Hallucinations</text>
+            </svg>
+        );
+
+        // 15. Depersonalization
+        const DepersonalizationIllustration = () => (
+            <svg viewBox="0 0 100 100" className="w-full h-24 my-2">
+                <circle cx="50" cy="30" r="10" fill="#94a3b8" />
+                <path d="M 40 80 L 40 50 L 60 50 L 60 80 Z" fill="#cbd5e1" stroke="#cbd5e1" />
+                <path d="M 30 70 L 40 50" stroke="#94a3b8" strokeWidth="4" strokeDasharray="2,2" />
+                <path d="M 70 70 L 60 50" stroke="#94a3b8" strokeWidth="4" strokeDasharray="2,2" />
+                <circle cx="30" cy="70" r="5" fill="#64748b" opacity="0.5" />
+                <circle cx="70" cy="70" r="5" fill="#64748b" opacity="0.5" />
+                <text x="50" y="95" fontSize="10" textAnchor="middle" fill="#475569" fontWeight="bold">Depersonalization</text>
+            </svg>
+        );
+
+        // 16. Motor Behavior (Waxy Flexibility)
+        const MotorBehaviorIllustration = () => (
+            <svg viewBox="0 0 200 120" className="w-full h-32 my-4">
+                <circle cx="100" cy="30" r="15" fill="#e2e8f0" stroke="#475569" strokeWidth="2" />
+                <line x1="100" y1="45" x2="100" y2="90" stroke="#475569" strokeWidth="3" />
+                <line x1="100" y1="90" x2="80" y2="120" stroke="#475569" strokeWidth="3" />
+                <line x1="100" y1="90" x2="120" y2="120" stroke="#475569" strokeWidth="3" />
+                <line x1="100" y1="55" x2="130" y2="40" stroke="#475569" strokeWidth="3" />
+                <line x1="100" y1="55" x2="70" y2="80" stroke="#475569" strokeWidth="3" />
+                <path d="M 125 30 A 15 15 0 0 1 145 30" fill="none" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#arrow-yellow)" />
+                <text x="145" y="20" fontSize="10" fill="#b45309" fontWeight="bold">Stays fixed</text>
+                <text x="100" y="115" fontSize="10" textAnchor="middle" fill="#64748b" className="bg-white">Waxy Flexibility</text>
+                <defs>
+                    <marker id="arrow-yellow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                        <polygon points="0 0, 6 3, 0 6" fill="#f59e0b" />
+                    </marker>
+                </defs>
+            </svg>
+        );
+
+        // 17. Flat Affect / Negative Symptoms
+        const NegativeSymptomsIllustration = () => (
+            <svg viewBox="0 0 200 120" className="w-full h-32 my-4">
+                <circle cx="100" cy="50" r="30" fill="#f1f5f9" stroke="#94a3b8" strokeWidth="3" />
+                <line x1="85" y1="45" x2="95" y2="45" stroke="#64748b" strokeWidth="3" />
+                <line x1="105" y1="45" x2="115" y2="45" stroke="#64748b" strokeWidth="3" />
+                <line x1="85" y1="65" x2="115" y2="65" stroke="#64748b" strokeWidth="3" />
+                <text x="100" y="100" fontSize="12" textAnchor="middle" fill="#64748b" fontWeight="bold">Flat Affect</text>
+                <text x="100" y="115" fontSize="10" textAnchor="middle" fill="#94a3b8">Anergia / Avolition</text>
+            </svg>
+        );
+
+        // 18. Cognitive Deficit
+        const CognitiveDeficitIllustration = () => (
+            <svg viewBox="0 0 200 120" className="w-full h-28 my-4">
+                <path d="M 60 30 C 60 10 140 10 140 30 C 140 80 100 100 100 100 C 100 100 60 80 60 30 Z" fill="#f1f5f9" stroke="#94a3b8" strokeWidth="2" />
+                <circle cx="90" cy="45" r="15" fill="none" stroke="#3b82f6" strokeWidth="3" strokeDasharray="6,4" />
+                <circle cx="115" cy="65" r="12" fill="none" stroke="#ef4444" strokeWidth="3" strokeDasharray="5,3" />
+                <line x1="100" y1="35" x2="110" y2="50" stroke="#cbd5e1" strokeWidth="3" />
+                <text x="100" y="115" fontSize="10" textAnchor="middle" fill="#64748b">Deficits in Memory & Executive Function</text>
+            </svg>
+        );
+
+        // 19. Affective Depression
+        const AffectiveDepressionIllustration = () => (
+            <svg viewBox="0 0 200 120" className="w-full h-28 my-4">
+                <path d="M 60 50 A 20 20 0 0 1 100 30 A 25 25 0 0 1 140 50 A 15 15 0 0 1 140 80 L 60 80 A 15 15 0 0 1 60 50 Z" fill="#94a3b8" />
+                <line x1="80" y1="85" x2="75" y2="100" stroke="#3b82f6" strokeWidth="2" />
+                <line x1="100" y1="85" x2="95" y2="100" stroke="#3b82f6" strokeWidth="2" />
+                <line x1="120" y1="85" x2="115" y2="100" stroke="#3b82f6" strokeWidth="2" />
+                <text x="100" y="115" fontSize="10" textAnchor="middle" fill="#64748b">Depressed Mood & Suffering</text>
+            </svg>
+        );
+
+        // 20. Dopamine Hypothesis
+        const DopamineHypothesisIllustration = () => (
+            <div className="flex justify-center my-6">
+                <div className="bg-white p-6 rounded-xl border border-slate-200 text-center relative w-full max-w-md shadow-sm">
+                    <h5 className="font-bold text-slate-700 mb-4">Dopamine Hypothesis in Schizophrenia</h5>
+                    <svg viewBox="0 0 300 150" className="w-full">
+                        <path d="M 50 10 C 50 60 100 80 100 100 C 100 120 150 120 150 100 C 150 80 200 60 200 10" fill="none" stroke="#94a3b8" strokeWidth="4" />
+                        <path d="M 40 10 C 40 70 80 90 80 110 C 80 140 170 140 170 110 C 170 90 210 70 210 10" fill="#e2e8f0" />
+                        
+                        <circle cx="100" cy="115" r="4" fill="#ef4444" />
+                        <circle cx="115" cy="125" r="4" fill="#ef4444" />
+                        <circle cx="125" cy="110" r="4" fill="#ef4444" />
+                        <circle cx="140" cy="120" r="4" fill="#ef4444" />
+                        <circle cx="150" cy="130" r="4" fill="#ef4444" />
+                        <circle cx="95" cy="135" r="4" fill="#ef4444" />
+                        <circle cx="130" cy="135" r="4" fill="#ef4444" />
+
+                        <path d="M 20 140 Q 125 150 230 140 L 230 150 L 20 150 Z" fill="#cbd5e1" />
+                        
+                        <path d="M 90 140 C 90 130 105 130 105 140" fill="none" stroke="#3b82f6" strokeWidth="3" />
+                        <path d="M 120 140 C 120 130 135 130 135 140" fill="none" stroke="#3b82f6" strokeWidth="3" />
+                        <path d="M 150 140 C 150 130 165 130 165 140" fill="none" stroke="#3b82f6" strokeWidth="3" />
+                        
+                        <text x="250" y="125" fontSize="12" fill="#ef4444" fontWeight="bold">Dopamine</text>
+                        <text x="250" y="140" fontSize="10" fill="#64748b">Hyperactivity</text>
+                    </svg>
+                </div>
+            </div>
+        );
+
+        // 21. Genetic Risk
+        const GeneticRiskIllustration = () => (
+            <svg viewBox="0 0 200 120" className="w-full h-24 my-4">
+                <path d="M 40 20 Q 70 60 40 100" fill="none" stroke="#3b82f6" strokeWidth="4" />
+                <path d="M 60 20 Q 30 60 60 100" fill="none" stroke="#8b5cf6" strokeWidth="4" />
+                <line x1="42" y1="40" x2="58" y2="40" stroke="#cbd5e1" strokeWidth="2" />
+                <line x1="45" y1="60" x2="55" y2="60" stroke="#cbd5e1" strokeWidth="2" />
+                <line x1="42" y1="80" x2="58" y2="80" stroke="#cbd5e1" strokeWidth="2" />
+                
+                <text x="140" y="30" fontSize="12" textAnchor="middle" fill="#1e293b" fontWeight="bold">1st Degree</text>
+                <text x="140" y="45" fontSize="10" textAnchor="middle" fill="#ef4444" fontWeight="bold">10x Risk</text>
+                
+                <text x="140" y="70" fontSize="12" textAnchor="middle" fill="#1e293b" fontWeight="bold">Identical Twins</text>
+                <text x="140" y="85" fontSize="10" textAnchor="middle" fill="#ef4444" fontWeight="bold">50% Risk</text>
+            </svg>
+        );
+
+        // 22. Brain Ventricles
+        const BrainVentriclesIllustration = () => (
+            <svg viewBox="0 0 300 120" className="w-full h-24 my-4">
+                <ellipse cx="80" cy="60" rx="40" ry="50" fill="#f1f5f9" stroke="#94a3b8" strokeWidth="2" />
+                <path d="M 70 50 Q 80 40 90 50 Q 80 80 70 50 Z" fill="#94a3b8" />
+                <text x="80" y="125" fontSize="10" textAnchor="middle" fill="#64748b">Normal Ventricles</text>
+
+                <ellipse cx="220" cy="60" rx="40" ry="50" fill="#f1f5f9" stroke="#94a3b8" strokeWidth="2" />
+                <path d="M 200 45 Q 220 30 240 45 Q 220 90 200 45 Z" fill="#1e293b" />
+                <text x="220" y="125" fontSize="10" textAnchor="middle" fill="#ef4444" fontWeight="bold">Enlarged Ventricles</text>
+            </svg>
+        );
+
+        // 23. Psychoanalytic Theory (Id vs Ego Balance)
+        const PsychoanalyticScaleSVG = () => (
+            <svg viewBox="0 0 200 100" className="w-full h-24 my-4">
+                <polygon points="100,80 90,100 110,100" fill="#94a3b8" />
+                <line x1="30" y1="50" x2="170" y2="80" stroke="#475569" strokeWidth="4" />
+                <rect x="20" y="20" width="30" height="30" fill="#ef4444" />
+                <text x="35" y="40" fill="#fff" fontSize="12" fontWeight="bold" textAnchor="middle">ID</text>
+                <rect x="160" y="60" width="20" height="20" fill="#3b82f6" />
+                <text x="170" y="74" fill="#fff" fontSize="8" fontWeight="bold" textAnchor="middle">EGO</text>
+            </svg>
+        );
+
+        // 24. Psychosocial Theory (Mistrust)
+        const EriksonMistrustSVG = () => (
+            <svg viewBox="0 0 100 100" className="w-full h-24 my-2">
+                <rect x="20" y="20" width="60" height="60" fill="#cbd5e1" stroke="#64748b" strokeWidth="2" />
+                <circle cx="50" cy="40" r="8" fill="#475569" />
+                <path d="M 40 70 L 40 55 C 40 50, 60 50, 60 55 L 60 70" stroke="#475569" strokeWidth="4" fill="none" />
+                <path d="M 30 40 L 45 50" stroke="#475569" strokeWidth="3" />
+                <text x="50" y="95" fontSize="10" textAnchor="middle" fill="#1e293b" fontWeight="bold">Mistrust & Withdrawal</text>
+            </svg>
+        );
+
+        // 25. Family Dynamics
+        const FamilyDynamicsIllustration = () => (
+            <div className="grid md:grid-cols-2 gap-4 my-6">
+                <div className="bg-white p-4 rounded-lg border border-orange-200 shadow-sm flex flex-col items-center text-center">
+                    <h5 className="font-bold text-orange-800 mb-2">Double Bind</h5>
+                    <svg width="150" height="100" viewBox="0 0 150 100">
+                        <circle cx="75" cy="50" r="20" fill="#fed7aa" stroke="#ea580c" strokeWidth="2"/>
+                        <text x="75" y="55" textAnchor="middle" fontSize="12" fill="#ea580c">Child</text>
+                        <path d="M 20 20 L 55 40" fill="none" stroke="#ef4444" strokeWidth="2" markerEnd="url(#arrowhead-red)"/>
+                        <text x="15" y="15" fontSize="10" fill="#ef4444">"Come here"</text>
+                        <path d="M 130 80 L 95 60" fill="none" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrowhead-blue)"/>
+                        <text x="110" y="95" fontSize="10" fill="#3b82f6">"Go away"</text>
+                        <defs>
+                            <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
+                            </marker>
+                            <marker id="arrowhead-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
+                            </marker>
+                        </defs>
+                    </svg>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-indigo-200 shadow-sm flex flex-col items-center text-center">
+                    <h5 className="font-bold text-indigo-800 mb-2">Scapegoating</h5>
+                    <svg width="150" height="100" viewBox="0 0 150 100">
+                        <circle cx="75" cy="70" r="20" fill="#e0e7ff" stroke="#4f46e5" strokeWidth="2"/>
+                        <text x="75" y="75" textAnchor="middle" fontSize="12" fill="#4f46e5">Child</text>
+                        <circle cx="30" cy="30" r="15" fill="#f1f5f9" stroke="#64748b" strokeWidth="2"/>
+                        <circle cx="120" cy="30" r="15" fill="#f1f5f9" stroke="#64748b" strokeWidth="2"/>
+                        <path d="M 35 40 L 60 60" fill="none" stroke="#ef4444" strokeWidth="2" strokeDasharray="4" markerEnd="url(#arrowhead-red)"/>
+                        <path d="M 115 40 L 90 60" fill="none" stroke="#ef4444" strokeWidth="2" strokeDasharray="4" markerEnd="url(#arrowhead-red)"/>
+                        <text x="75" y="25" textAnchor="middle" fontSize="10" fill="#ef4444" fontWeight="bold">Blame</text>
+                    </svg>
+                </div>
+            </div>
+        );
+
+        // 26. Paranoid Subtype
+        const ParanoidSubtypeSVG = () => (
+            <svg viewBox="0 0 100 100" className="w-full h-24 my-2">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#ef4444" strokeWidth="4" strokeDasharray="5,5" />
+                <path d="M 50 30 L 40 40 L 40 60 L 50 70 L 60 60 L 60 40 Z" fill="#fee2e2" stroke="#dc2626" strokeWidth="2" />
+                <circle cx="50" cy="50" r="5" fill="#dc2626" />
+                <text x="50" y="90" fontSize="10" textAnchor="middle" fill="#dc2626" fontWeight="bold">Paranoid</text>
+            </svg>
+        );
+
+        // 27. Nursing Altered Thought (Fixing)
+        const NursingAlteredThoughtSVG = () => (
+            <svg viewBox="0 0 200 100" className="w-full h-24 my-4">
+                <path d="M 50 80 C 30 50, 70 20, 100 50" fill="none" stroke="#94a3b8" strokeWidth="4" />
+                <rect x="90" y="40" width="20" height="20" fill="#10b981" />
+                <path d="M 110 50 L 150 50" stroke="#10b981" strokeWidth="4" strokeDasharray="4,4" />
+                <text x="160" y="55" fontSize="12" fill="#047857" fontWeight="bold">Reality</text>
+            </svg>
+        );
+
+        // 28. Nursing Social Isolation
+        const NursingIsolationSVG = () => (
+            <svg viewBox="0 0 200 100" className="w-full h-24 my-4">
+                <rect x="20" y="30" width="40" height="40" fill="#f1f5f9" stroke="#94a3b8" />
+                <circle cx="40" cy="50" r="10" fill="#64748b" />
+                <path d="M 60 50 L 130 50" stroke="#3b82f6" strokeWidth="4" strokeDasharray="5,5" markerEnd="url(#arrow-blue)" />
+                <circle cx="150" cy="40" r="8" fill="#3b82f6" />
+                <circle cx="170" cy="50" r="8" fill="#3b82f6" />
+                <circle cx="150" cy="60" r="8" fill="#3b82f6" />
+                <defs>
+                    <marker id="arrow-blue" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                        <polygon points="0 0, 6 3, 0 6" fill="#3b82f6" />
+                    </marker>
+                </defs>
+            </svg>
+        );
+
+        // 29. Relapse Cycle
+        const RelapseCycleIllustration = () => (
+            <svg viewBox="0 0 200 150" className="w-full h-32 my-4">
+                <path d="M 100 20 A 40 40 0 0 1 140 60" fill="none" stroke="#ef4444" strokeWidth="4" markerEnd="url(#arrow-red)"/>
+                <path d="M 140 80 A 40 40 0 0 1 100 120" fill="none" stroke="#3b82f6" strokeWidth="4" markerEnd="url(#arrow-blue-relapse)"/>
+                <path d="M 60 100 A 40 40 0 0 1 60 40" fill="none" stroke="#f59e0b" strokeWidth="4" markerEnd="url(#arrow-yellow-thick)"/>
+                
+                <text x="150" y="30" fontSize="10" fill="#ef4444" fontWeight="bold">Stress / Nonadherence</text>
+                <text x="150" y="130" fontSize="10" fill="#3b82f6" fontWeight="bold">Relapse</text>
+                <text x="10" y="70" fontSize="10" fill="#b45309" fontWeight="bold">Remission</text>
+                
+                <defs>
+                    <marker id="arrow-red" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                        <polygon points="0 0, 6 3, 0 6" fill="#ef4444" />
+                    </marker>
+                    <marker id="arrow-blue-relapse" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                        <polygon points="0 0, 6 3, 0 6" fill="#3b82f6" />
+                    </marker>
+                    <marker id="arrow-yellow-thick" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                        <polygon points="0 0, 6 3, 0 6" fill="#f59e0b" />
+                    </marker>
+                </defs>
+            </svg>
+        );
+
+        // 30. Social Skills Training
+        const SocialSkillsIllustration = () => (
+            <svg viewBox="0 0 200 100" className="w-full h-24 my-4">
+                <circle cx="60" cy="50" r="15" fill="#3b82f6" />
+                <rect x="50" y="65" width="20" height="30" fill="#3b82f6" rx="2" />
+                
+                <circle cx="140" cy="50" r="15" fill="#10b981" />
+                <rect x="130" y="65" width="20" height="30" fill="#10b981" rx="2" />
+                
+                <path d="M 80 40 Q 100 20 120 40" fill="none" stroke="#64748b" strokeWidth="2" strokeDasharray="4,2" />
+                <path d="M 120 60 Q 100 80 80 60" fill="none" stroke="#64748b" strokeWidth="2" strokeDasharray="4,2" markerEnd="url(#arrow-gray)" />
+                
+                <rect x="85" y="15" width="30" height="20" rx="4" fill="#f1f5f9" stroke="#94a3b8" />
+                <text x="100" y="28" fontSize="8" textAnchor="middle" fill="#475569">Roleplay</text>
+                
+                <defs>
+                    <marker id="arrow-gray" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                        <polygon points="0 0, 6 3, 0 6" fill="#64748b" />
+                    </marker>
+                </defs>
+            </svg>
+        );
+
+        // --- DATA & APP ---
+
+        const SECTIONS = {
+            INTRO: 'introduction',
+            SYMPTOMS: 'symptoms',
+            ETIOLOGY: 'etiology',
+            NURSING: 'nursing',
+            QUIZ: 'quiz'
+        };
+
+        const QUIZ_QUESTIONS = [
+            {
+                q: "Which of the following is considered a 'negative' symptom of schizophrenia?",
+                options: ["Auditory Hallucinations", "Delusions of Grandeur", "Avolition", "Echolalia"],
+                correct: 2
+            },
+            {
+                q: "A family dynamic where a child is forced to choose between two conflicting messages (e.g., verbal vs non-verbal) is called:",
+                options: ["Scapegoating", "Double Bind", "Schism", "Expressed Emotion"],
+                correct: 1
+            },
+            {
+                q: "If a patient asks you if you hear the voices they are hearing, what is the best nursing response?",
+                options: ["'Yes, I hear them too.'", "'You are crazy, there are no voices.'", "'I do not hear the voices, but I would like to know what you are experiencing.'", "'Let's talk about the weather instead.'"],
+                correct: 2
+            },
+            {
+                q: "Which of Bleuler's Four A's represents holding two opposing emotions or attitudes simultaneously?",
+                options: ["Autistic Thinking", "Associative Looseness", "Ambivalence", "Affective Disturbance"],
+                correct: 2
+            },
+            {
+                q: "According to the dopamine hypothesis, positive symptoms are related to dopamine hyperactivity in which area of the brain?",
+                options: ["Prefrontal cortex", "Mesolimbic tract", "Occipital lobe", "Cerebellum"],
+                correct: 1
+            }
+        ];
+
+        // --- COMPONENTS ---
+
+        const Card = ({ children, className = "" }) => (
+            <div className={`bg-white rounded-xl shadow-sm border border-slate-200 p-6 ${className}`}>
+                {children}
+            </div>
+        );
+
+        const SectionHeader = ({ title, icon, color }) => (
+            <div className={`flex items-center gap-3 mb-6 p-4 rounded-lg ${color} bg-opacity-10`}>
+                <div className={`p-2 rounded-full bg-white shadow-sm ${color.replace('bg-', 'text-')}`}>
+                    {icon}
+                </div>
+                <h2 className="text-2xl font-bold text-slate-800">{title}</h2>
+            </div>
+        );
+
+        function SchizophreniaLecture() {
+            const [activeSection, setActiveSection] = useState(SECTIONS.INTRO);
+            const [quizScore, setQuizScore] = useState(0);
+            const [quizSubmitted, setQuizSubmitted] = useState(false);
+            const [quizAnswers, setQuizAnswers] = useState({});
+
+            const handleNavClick = (section) => {
+                setActiveSection(section);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const handleQuizOption = (qIndex, optIndex) => {
+                if (quizSubmitted) return;
+                setQuizAnswers(prev => ({ ...prev, [qIndex]: optIndex }));
+            };
+
+            const submitQuiz = () => {
+                let score = 0;
+                QUIZ_QUESTIONS.forEach((q, i) => {
+                    if (quizAnswers[i] === q.correct) score++;
+                });
+                setQuizScore(score);
+                setQuizSubmitted(true);
+            };
+
+            const resetQuiz = () => {
+                setQuizAnswers({});
+                setQuizSubmitted(false);
+                setQuizScore(0);
+            };
+
+            // --- Views built to ensure VERBATIM inclusion of the source text ---
+
+            const IntroView = () => (
+                <div className="space-y-8 animate-in fade-in duration-500 verbatim-text text-justify">
+                    <div className="bg-gradient-to-r from-blue-700 to-indigo-900 text-white p-8 rounded-2xl shadow-xl relative overflow-hidden">
+                        <div className="relative z-10">
+                            <h1 className="text-4xl font-extrabold mb-4">Unit 2, Chapter 1: Schizophrenia Spectrum and Other Psychotic Disorders</h1>
+                        </div>
+                        <Brain size={192} className="absolute top-10 right-10 text-white opacity-10" />
+                    </div>
+
+                    <Card>
+                        <h3 className="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2 border-b pb-2"><Target size={28} className="text-blue-600"/> Learning Objectives</h3>
+                        <p>By the end of this lecture, the student will be able to:</p>
+                        <ol className="list-decimal pl-6 space-y-2 mt-4 text-slate-700 font-medium">
+                            <li>Explain the meaning of schizophrenia.</li>
+                            <li>Differentiate between positive and negative symptoms of schizophrenia.</li>
+                            <li>Discuss etiological factors related to schizophrenia.</li>
+                            <li>Compare various subtypes of schizophrenia.</li>
+                            <li>Assess a client suffering from schizophrenia.</li>
+                            <li>Formulate a nursing care plan for a client suffering from schizophrenia.</li>
+                            <li>Design a psychoeducational plan for the client and his family members to help prevent relapse.</li>
+                            <li>Specify the treatment modalities suitable for each client.</li>
+                        </ol>
+                        <LearningObjectivesIllustration />
+                    </Card>
+
+                    <Card>
+                        <h3 className="text-2xl font-bold text-slate-800 mb-4 border-b pb-2">Content</h3>
+                        <ul className="list-disc pl-6 space-y-2 text-slate-700">
+                            <li>Introduction</li>
+                            <li>Definition of schizophrenia</li>
+                            <li>Epidemiology & onset of schizophrenia</li>
+                            <li>Signs and symptoms</li>
+                            <li>Etiology</li>
+                            <li>Nursing care plan for a client with schizophrenia</li>
+                            <li>Relapse in schizophrenia</li>
+                            <li>Treatment Modalities</li>
+                        </ul>
+                    </Card>
+
+                    <Card>
+                        <h3 className="text-2xl font-bold text-slate-800 mb-4 border-b pb-2">Introduction</h3>
+                        <p>Schizophrenia Spectrum Disorders are among the most severe mental illness. According to the DSM-V, it includes:</p>
+                        <ul>
+                            <li>Schizophrenia</li>
+                            <li>delusional disorders</li>
+                            <li>schizoaffective</li>
+                            <li>schizotypal disorders</li>
+                            <li>brief psychotic disorder</li>
+                            <li>schizophreniform disorder</li>
+                            <li>substance/medication-induced psychotic disorder.</li>
+                        </ul>
+                        <SpectrumIllustration />
+                        <p>Schizophrenia will be discussed in this chapter. The central concept of understanding schizophrenia spectrum disorders is the presence of psychosis which is a state in which an individual loses contact with reality and experiences psychotic symptoms such as hallucinations; delusions; disorganized thoughts, speech, or behaviors.</p>
+                        <PsychosisIllustration />
+                        <p>Schizophrenia is a major psychotic disorder marked by a profound withdrawal from interpersonal relationships and the cognition and perceptual disturbances that make dealing with reality difficult.</p>
+                    </Card>
+
+                    <Card>
+                        <h3 className="text-2xl font-bold text-slate-800 mb-4 border-b pb-2">Definition of Schizophrenia</h3>
+                        <p>Schizophrenia was first described by Emil Kraepelin (1856-1926), as a syndrome characterized by hallucinations and delusions. Eugen Bleuler (1857-1939) introduced the term "schizophrenia", which means, "Split minded".</p>
+                        <p>It is characterized by the splitting of the normal links between perception, mood, thinking, behavior, and contact with reality.</p>
+                        <p>He saw the inconsistency between emotion, thought, and behavior noted in the client with schizophrenia.</p>
+                        <p>He also further refined the description by calling it a "thought disorder" with fundamental symptoms, known as Bleuler's four A's</p>
+                        <ul>
+                            <li>Autistic thinking</li>
+                            <li>Associative looseness</li>
+                            <li>Ambivalence</li>
+                            <li>Affective disturbance including; blunted affect, flat affect, and inappropriate affect.</li>
+                        </ul>
+                        <BleulersFourAsIllustration />
+                    </Card>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <Card>
+                            <h3 className="text-2xl font-bold text-slate-800 mb-4 border-b pb-2">Epidemiology</h3>
+                            <ul>
+                                <li>Schizophrenia is found in all cultures and countries. It is prevalent in about 0.7% of the worldwide population and is listed within the top 20 illnesses for life lost resulting from premature death and years lived in less than full health (Department of Health Statistics and Information Systems, 2013).</li>
+                                <li>It is diagnosed more frequently in males (1.4:1) and among persons growing up in urban areas.</li>
+                            </ul>
+                            <EpidemiologyPieIllustration />
+                        </Card>
+
+                        <Card>
+                            <h3 className="text-2xl font-bold text-slate-800 mb-4 border-b pb-2">Onset</h3>
+                            <ul>
+                                <li>Onset may be abrupt or insidious, but most clients slowly and gradually develop signs and symptoms such as social withdrawal, unusual behavior, loss of interest in school or at work, and neglected hygiene.</li>
+                                <li>The diagnosis of schizophrenia is usually made when the person begins to display more actively positive symptoms of delusions, hallucinations, and disordered thinking (psychosis).</li>
+                                <li>Schizophrenia usually presents during the late teens and early twenties.</li>
+                            </ul>
+                            <OnsetTimelineIllustration />
+                        </Card>
+                    </div>
+                </div>
+            );
+
+            const SymptomsView = () => (
+                <div className="space-y-8 animate-in slide-in-from-right-4 duration-500 verbatim-text text-justify">
+                    <SectionHeader title="Signs and Symptoms" icon={<Activity size={32} />} color="bg-blue-100 text-blue-600" />
+                    
+                    <Card>
+                        <p>The symptoms of schizophrenia are divided into four main symptom groups:</p>
+                        <ul className="font-semibold text-lg">
+                            <li>I. Positive symptoms</li>
+                            <li>II. Negative symptoms</li>
+                            <li>III. Cognitive symptoms</li>
+                            <li>IV. Affective symptoms</li>
+                        </ul>
+                        <PositiveVsNegativeIllustration />
+                    </Card>
+
+                    <Card className="border-t-4 border-blue-500">
+                        <h3 className="text-2xl font-bold text-blue-800 mb-4 border-b pb-2">I. Positive Symptoms of Schizophrenia</h3>
+                        <ul>
+                            <li>It represents an excess or distortion of normal functioning.</li>
+                            <li>The presence of something that is not normally present.</li>
+                            <li>The positive symptoms appear in the acute/active phase of the illness.</li>
+                            <li>These are the symptoms that get people's attention and often precipitate hospitalization.</li>
+                            <li>They are, however, the least important prognostically and usually respond to antipsychotic medications.</li>
+                            <li>The positive symptoms are presented in terms of alterations in thought, perception, and behavior.</li>
+                        </ul>
+
+                        <h4 className="text-xl text-blue-700 border-b border-blue-100 pb-1">i. Alteration of thought</h4>
+                        <p className="font-semibold mt-4">a. Disturbance in the form of thoughts:</p>
+                        <ul>
+                            <li>Concrete thinking</li>
+                            <ConcreteThinkingIllustration />
+                            <li>Autistic thinking</li>
+                            <li>Magical thinking</li>
+                            <MagicalThinkingIllustration />
+                        </ul>
+
+                        <p className="font-semibold mt-4">b. Disturbance in the content of thoughts:</p>
+                        <ul>
+                            <li>Delusions: Most common delusional thinking includes: Ideas of reference, Delusions of persecution, Delusions of grandeur, Somatic delusions, Delusions of jealousy.</li>
+                            <div className="flex gap-4 w-full">
+                                <DelusionOfGrandeurIllustration />
+                                <DelusionOfPersecutionIllustration />
+                            </div>
+                            <li>Other delusions observed: Thought broadcasting, Thought insertion, Thought withdrawal, Delusions of being controlled.</li>
+                            <ThoughtBroadcastingIllustration />
+                        </ul>
+
+                        <p className="font-semibold mt-4">c. Disturbance in the stream of thought:</p>
+                        <ul>
+                            <li>Looseness of association</li>
+                            <li>Incoherence</li>
+                            <li>Word salad</li>
+                            <li>Clang association</li>
+                            <li>Neologism</li>
+                            <li>Echolalia</li>
+                        </ul>
+                        <ThoughtDisturbanceIllustration />
+
+                        <h4 className="text-xl text-blue-700 border-b border-blue-100 pb-1 mt-6">ii. Alterations in perception</h4>
+                        <p>Hallucinations are the major examples of alterations in perception in schizophrenia, especially auditory hallucinations, and loss of ego boundaries (depersonalization and derealization).</p>
+                        
+                        <p className="font-semibold mt-4">a. Hallucinations:</p>
+                        <ul>
+                            <li>It is estimated that 90% of people with schizophrenia experience hallucinations at some time during their illness.</li>
+                            <li>Although manifestations of hallucinations are varied, auditory hallucinations are most common in schizophrenia.</li>
+                            <li>Visual hallucinations are less often reported in schizophrenia and are more often noted in organic disorders. The voice may be familiar or strange, single, or multiple.</li>
+                            <li>Voices may speak directly to the person or comment on the person's behavior or command the patient to act in a certain way.</li>
+                            <li>Commanding hallucinations must be assessed, because the "voices" may command the person to hurt himself or others.</li>
+                            <li>For example, a client might state "the voices" are telling him to "jump out of the window" or "take a knife and kill his/her child".</li>
+                            <li>Commanding hallucinations are often terrifying for the individual.</li>
+                            <li>A person may believe the voices are from God, the devil, deceased relatives, or strangers.</li>
+                            <li>The auditory hallucinations may occasionally take the form of sounds rather than voices.</li>
+                        </ul>
+                        <AuditoryHallucinationIllustration />
+
+                        <p className="font-semibold mt-4">b. Loss of ego boundaries:</p>
+                        <ul>
+                            <li>Depersonalization</li>
+                            <DepersonalizationIllustration />
+                            <li>Derealization</li>
+                        </ul>
+
+                        <h4 className="text-xl text-blue-700 border-b border-blue-100 pb-1 mt-6">iii. Alterations in behavior</h4>
+                        <ul>
+                            <li>Extreme motor agitation (excitement)</li>
+                            <li>Stereotyped behavior</li>
+                            <li>Echopraxia</li>
+                            <li>Waxy flexibility</li>
+                            <li>Catalepsy</li>
+                            <li>Negativism</li>
+                            <li>Impulsive behavior</li>
+                            <li>Bizarre behavior</li>
+                        </ul>
+                        <MotorBehaviorIllustration />
+                    </Card>
+
+                    <Card className="border-t-4 border-indigo-500">
+                        <h3 className="text-2xl font-bold text-indigo-800 mb-4 border-b pb-2">II. Negative Symptoms of Schizophrenia</h3>
+                        <p>It represents a deficit or loss of normal functioning. It is the absence of something that should be present. Negative symptoms develop slowly and are those that most interfere with a person's adjustment and ability to cope.</p>
+                        <p>It hinders one's ability to do the following:</p>
+                        <ul>
+                            <li>Initiate and maintain conversations and relationships. It contributes to poor social functioning and social withdrawal.</li>
+                            <li>Obtain and maintain employment.</li>
+                            <li>Make decisions and follow through on plans.</li>
+                            <li>Maintain adequate hygiene and grooming.</li>
+                        </ul>
+                        <p className="font-semibold mt-4">Negative symptoms include:</p>
+                        <ul>
+                            <li>Flat or blunted affect (Diminished facial and vocal expressions, Poor eye contact, Minimal use of gestures)</li>
+                            <li>Inappropriate affect</li>
+                            <li>Bizarre affect</li>
+                            <li>Anergia</li>
+                            <li>Anhedonia (Difficulty or inability to anticipate future pleasure, Few future activities, Lack of interest in sexual activity)</li>
+                            <li>Avolition (Emotional withdrawal, Apathy, Poor grooming and hygiene, Decreased involvement with work/school)</li>
+                            <li>Asociality (Few friends, Poor relationships with friends, Lack of motivation for relationships, Reduced social Interaction)</li>
+                            <li>Alogia (Short or monosyllable answers to questions, Avoids communication, Uses few words)</li>
+                            <li>Poverty of content of speech</li>
+                            <li>Poverty of speech</li>
+                            <li>Thought blocking</li>
+                        </ul>
+                        <NegativeSymptomsIllustration />
+                    </Card>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <Card className="border-t-4 border-teal-500">
+                            <h3 className="text-2xl font-bold text-teal-800 mb-4 border-b pb-2">III. Cognitive Symptoms</h3>
+                            <ul>
+                                <li>Cognitive symptoms represent the third symptom group and are evident in most persons with schizophrenia.</li>
+                                <li>They involve deficits in memory, attention, and executive functions (e.g., decision-making, judgment, planning, and problem-solving).</li>
+                                <li>Classically, a client with schizophrenia has a lack of insight which is associated with poor compliance with treatment.</li>
+                                <li>These impairments can lead to poor judgment and leave the patient less able to cope, learn, manage his health, or hold a job. N.B client with schizophrenia is oriented to time, person, and place.</li>
+                            </ul>
+                            <CognitiveDeficitIllustration />
+                        </Card>
+
+                        <Card className="border-t-4 border-rose-500">
+                            <h3 className="text-2xl font-bold text-rose-800 mb-4 border-b pb-2">IV. Affective Symptoms</h3>
+                            <ul>
+                                <li>Affective symptoms, the fourth group, are common and increase patients' suffering.</li>
+                                <li>Mood may be depressed especially in the early years of illness due to awareness of the impact of illness on one's life.</li>
+                                <li>Assessment for depression is crucial because depression may:
+                                    <ul>
+                                        <li>Increase relapse</li>
+                                        <li>Increase substance abuse</li>
+                                        <li>Increase suicide risk</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                            <AffectiveDepressionIllustration />
+                        </Card>
+                    </div>
+                </div>
+            );
+
+            const EtiologyView = () => (
+                <div className="space-y-8 animate-in slide-in-from-right-4 duration-500 verbatim-text text-justify">
+                    <SectionHeader title="Etiology & Subtypes" icon={<Network size={32} />} color="bg-purple-100 text-purple-600" />
+                    
+                    <Card>
+                        <h3 className="text-2xl font-bold text-slate-800 mb-4 border-b pb-2">Etiology</h3>
+                        <ul>
+                            <li>Schizophrenia is a heterogeneous neuro-developmental brain disorder.</li>
+                            <li>It is not known what accounts for the disruptions in brain function causing the diverse symptoms of schizophrenia, but there are interesting results from research that have implications for a multifactorial etiology of schizophrenia.</li>
+                        </ul>
+
+                        <h4 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2 mt-6">
+                            <Brain size={24} className="text-purple-500" /> Biological Factors
+                        </h4>
+                        <p className="font-semibold">A. Genetic Factors</p>
+                        <p>Most genetic studies have focused on immediate families (i.e., parents, and siblings) to examine whether schizophrenia is genetically transmitted or inherited. The most important studies are:</p>
+                        <ul>
+                            <li>First-degree relatives are 10 times more likely to develop schizophrenia than the general population.</li>
+                            <li>Children with one biological parent with schizophrenia have a 15% risk; the risk rises to 35% if both biological parents have schizophrenia.</li>
+                            <li>Twins studies demonstrated that identical twins have a 50% risk for schizophrenia; that is, if one twin has schizophrenia, the other has a 50% chance of developing it as well. However, fraternal twins have only a 15% risk.</li>
+                            <li>Adoption studies found that the children who were adopted at birth into a family with no history of schizophrenia but whose biological parents have a history of schizophrenia still reflect the genetic risk of their biological parents.</li>
+                        </ul>
+                        <p>These studies indicate that schizophrenia is at least partially inherited.</p>
+                        <GeneticRiskIllustration />
+
+                        <p className="font-semibold mt-4">B. Neuroanatomic Factors</p>
+                        <p>Symptoms in schizophrenia may be linked to some type of functional or structural brain abnormalities:</p>
+                        <ul>
+                            <li>Less brain tissue, volume, and cerebrospinal fluid.</li>
+                            <li>Enlarged ventricles in the brain and cortical atrophy.</li>
+                            <li>Diminished glucose metabolism and oxygen in the frontal cortical structures of the brain which govern planning, abstract thinking, and social adjustment.</li>
+                            <li>It is unknown whether these changes are the result of a failure of these areas to develop properly or if a virus, trauma, or immune response has damaged them or Intrauterine influences such as poor nutrition, tobacco, alcohol, or other drugs, that may cause brain pathology found in people with schizophrenia.</li>
+                        </ul>
+                        <BrainVentriclesIllustration />
+
+                        <p className="font-semibold mt-4">C. Neurotransmitters Factors</p>
+                        <ul>
+                            <li>Neurotransmitters: chemicals are released at synapses to bind onto the receptors of the postsynaptic membrane present at the surface of the dendrite of the next neuron.</li>
+                            <li>Positive symptoms of schizophrenia, specifically, hallucinations and delusions, are thought to be related to dopamine hyperactivity in the mesolimbic tract at the receptor site.</li>
+                            <li>Conversely, chronic low levels of dopamine in the prefrontal cortex are thought to underlie cognitive and negative symptoms of schizophrenia.</li>
+                            <li>Excess serotonin contributes to the development of positive and negative symptoms of schizophrenia.</li>
+                            <li>Deficiency in GABA (Gama-Aminobutyric Acid) could lead to hyperactivity of dopamine receptors.</li>
+                        </ul>
+                        <DopamineHypothesisIllustration />
+
+                        <h4 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2 mt-8 border-t pt-4">
+                            <MessageSquare size={24} className="text-indigo-500" /> Psychological Theories
+                        </h4>
+                        <p className="font-semibold mt-2">A. Psychoanalytic/Psychodynamic Theory</p>
+                        <ul>
+                            <li>Schizophrenia results from the fixation of psychic energy in the oral stage of psychosexual development. If the mother failed to provide security, trust, and warmth, a portion of psychic energy will be fixated around the conflict of dependency which hinders the development of the ego.</li>
+                            <li>Thus, the id becomes the dominant operator of the personality.</li>
+                            <li>In other words, the personality is operated in accordance with the pleasure principles and is controlled by primary process thinking.</li>
+                            <li>Later, when faced with stressful life situations, especially during adolescents, the individual regresses to the early childhood period to seek pleasure and avoid psychological suffering.</li>
+                            <li>Further, his/her thoughts become illogic, primitive, and self-centered.</li>
+                            <li>He creates his/her world to fulfill desires and needs.</li>
+                            <li>In this way, the individual loses contact with reality as he/she no longer distinguishes between oneself and others, one's fantasies, and reality; and becomes very autistic and fears trusting intimate relationships with others.</li>
+                            <li>Defense mechanisms: Regression, Projection, Denial, Rationalization, Acting out.</li>
+                        </ul>
+                        <PsychoanalyticScaleSVG />
+
+                        <p className="font-semibold mt-4">B. Psychosocial Theory</p>
+                        <ul>
+                            <li>Erik Eriksson: is referring schizophrenia to the first stage of development, where basic trust was not achieved so the child mistrusts all surroundings.</li>
+                            <li>Withdrawal behavior may be interpreted as a protective mechanism against further rejection from others.</li>
+                        </ul>
+                        <EriksonMistrustSVG />
+
+                        <p className="font-semibold mt-4">C. Interpersonal Theory</p>
+                        <ul>
+                            <li>Sullivan believes that schizophrenia arises from a distortion in a mother-child relationship that is characterized by intense anxiety which produces feelings of horror and dread on the part of the child.</li>
+                            <li>This leads the child to deny these painful feelings to relieve anxiety.</li>
+                            <li>The denied feelings become "not me" but someone else. The "not me" portion of personality is the basis for the later development of schizophrenia and explains why identity confusion and depersonalization appear in some clients with schizophrenia.</li>
+                        </ul>
+
+                        <p className="font-semibold mt-4">D. Learning Theory</p>
+                        <ul>
+                            <li>According to the learning theory, children who later have schizophrenia learn irrational reactions and ways of thinking by imitating parents who have significant emotional problems.</li>
+                            <li>So, poor interpersonal relationships of the client with schizophrenia develop because of poor models or learning during childhood.</li>
+                        </ul>
+
+                        <h4 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2 mt-8">
+                            <Users size={24} className="text-orange-500" /> Family & Environmental Theories
+                        </h4>
+                        <p className="font-semibold mt-4">E. Family Theory</p>
+                        <p>Several family patterns have been cited as being particularly damaging to the developing child. These patterns are:</p>
+                        <ul>
+                            <li>A double bind
+                                <ul>
+                                    <li>is a dilemma in which the child is forced to choose between two conflicting messages, thus producing confusion, anxiety, and fear in the child's mind.</li>
+                                    <li>For example, a verbal message may differ from a nonverbal one, a parent may insist that he is not angry at the child's behavior but expresses obvious anger in aggressive, hostile, and destructive behavior.</li>
+                                </ul>
+                            </li>
+                            <li>Scapegoating.
+                                <ul>
+                                    <li>A scapegoat is one who is made to bear the blame for others or to suffer in their place.</li>
+                                    <li>For example, one or both parents may blame the child when things go wrong, rather than blame themselves or one another.</li>
+                                    <li>So, the child is the focus of the pain and anxiety within the family and becomes the scapegoat for the parents' problems.</li>
+                                </ul>
+                            </li>
+                            <li>Schism families
+                                <ul>
+                                    <li>are prominent split between the parents, one parent is overly close to a child of the opposite gender because of a continuous fight between them.</li>
+                                </ul>
+                            </li>
+                            <li>Skewed families
+                                <ul>
+                                    <li>involve a power struggle between the parents and the resulting dominance of one parent.</li>
+                                </ul>
+                            </li>
+                            <li>Expressed emotion (EE).
+                                <ul>
+                                    <li>Families are classified as high EE families when one or more of the followings are exhibited: criticism, hostility, negative remarks, and over-protectiveness.</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <p>These dynamics stress the fragile adaptive capacity of the schizophrenic person.</p>
+                        <FamilyDynamicsIllustration />
+
+                        <p className="font-semibold mt-4">F. Cultural and Environmental Theories</p>
+                        <ul>
+                            <li>Although schizophrenia exists in all socio-economic groups, it is disproportionately represented in the lower socio-economic group.</li>
+                            <li>Some social scientists believe that the stress of living in a lower socio-economic group is often enough to trigger schizophrenia in the vulnerable population.</li>
+                            <li>Individuals with schizophrenia who are under psychological stress manifest low levels of self-esteem and self-efficacy perception and may have limited resources to cope with their situation.</li>
+                        </ul>
+                    </Card>
+
+                    <Card>
+                        <h4 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2 border-b pb-2">
+                            <Layers size={24} className="text-emerald-500" /> Subtypes of Schizophrenia
+                        </h4>
+                        <p>There are five major subtypes of schizophrenia presented in DSM-IV-TR:</p>
+                        <ul>
+                            <li>Paranoid.</li>
+                            <li>Disorganized.</li>
+                            <li>Catatonic.</li>
+                            <li>Undifferentiated.</li>
+                            <li>Residual.</li>
+                        </ul>
+
+                        <p className="font-semibold mt-4">I. Paranoid schizophrenia</p>
+                        <p>This subtype of schizophrenia is characterized by:</p>
+                        <ul>
+                            <li>Delusions that tend to be persecutory or grandiose.</li>
+                            <li>Auditory hallucinations are common and are related to the delusionary theme.</li>
+                        </ul>
+                        <ParanoidSubtypeSVG />
+
+                        <p className="font-semibold mt-4">II. Disorganized schizophrenia</p>
+                        <ul>
+                            <li>The disorganized type of schizophrenia is characterized by a severe disintegration of the personality.</li>
+                            <li>Speech is disorganized and may include word salad, incoherent speech, and clanging.</li>
+                            <li>Behavior is odd, including grimacing, posturing, rocking, stereotyped behaviors, and uninhibited sexual behaviors such as masturbating in public.</li>
+                            <li>Personal grooming is poor.</li>
+                        </ul>
+
+                        <p className="font-semibold mt-4">III. Catatonic schizophrenia</p>
+                        <p>Catatonic schizophrenia is characterized by an intense psychomotor disturbance that may take the form of stupor, or excitement.</p>
+                        <p>Manifestations of psychomotor disturbance include :</p>
+                        <ul>
+                            <li>Posturing</li>
+                            <li>Immobility</li>
+                            <li>Catalepsy</li>
+                            <li>waxy flexibility</li>
+                            <li>mutism</li>
+                            <li>negativism</li>
+                            <li>grimacing</li>
+                            <li>stereotypic movements.</li>
+                        </ul>
+
+                        <p className="font-semibold mt-4">IV. Undifferentiated schizophrenia</p>
+                        <ul>
+                            <li>Undifferentiated schizophrenia cannot be classified as paranoid, disorganized, or catatonic, but it has some aspects of each type.</li>
+                        </ul>
+
+                        <p className="font-semibold mt-4">V. Residual schizophrenia</p>
+                        <ul>
+                            <li>A subtype of schizophrenia in which the individual has no longer any delusions, hallucinations, disorganized speech, or behavior.</li>
+                            <li>Negative symptoms or mild forms of positive symptoms such as odd beliefs are found.</li>
+                        </ul>
+                    </Card>
+                </div>
+            );
+
+            const NursingView = () => (
+                <div className="space-y-8 animate-in slide-in-from-right-4 duration-500 verbatim-text text-justify">
+                    <SectionHeader title="Nursing Care & Management" icon={<HeartPulse size={32} />} color="bg-emerald-100 text-emerald-600" />
+                    
+                    <Card>
+                        <h3 className="text-2xl font-bold text-slate-800 mb-4 border-b pb-2">Nursing Care Plan for a Client with Schizophrenia</h3>
+                        
+                        <h4 className="text-xl text-emerald-700 mt-4">Assessment</h4>
+                        <p>See signs and symptoms of schizophrenia.</p>
+
+                        <h4 className="text-xl text-emerald-700 mt-4">Nursing Diagnoses</h4>
+                        <p>Nursing diagnoses are formulated from the information obtained during the assessment phase of the nursing process. The following is a listing of some of the more common diagnoses applicable to schizophrenia.</p>
+                        <ol className="list-decimal pl-6 space-y-1 mt-2">
+                            <li>Altered thought processes.</li>
+                            <li>Sensory/perceptual alterations.</li>
+                            <li>Impaired verbal communication.</li>
+                            <li>Social isolation.</li>
+                            <li>Ineffective individual coping.</li>
+                            <li>Self-care deficit [bathing, hygiene, dressing, grooming, feeding, toileting].</li>
+                            <li>Altered family processes.</li>
+                            <li>Risk for violence: directed at others.</li>
+                            <li>Risk for violence: self-directed.</li>
+                        </ol>
+                    </Card>
+
+                    <Card>
+                        <h4 className="text-xl text-emerald-700 font-bold mb-4">1. Altered Thought Process</h4>
+                        <p><strong>Related factors:</strong></p>
+                        <ul>
+                            <li>Impaired ability to process and synthesize internal and external stimuli.</li>
+                            <li>Biologic factors (neurophysiologic, genetic)</li>
+                            <li>Psychosocial/environmental stressors.</li>
+                            <li>Weak ego boundaries</li>
+                            <li>Lack of trust</li>
+                            <li>High level of anxiety.</li>
+                        </ul>
+                        <p><strong>Evidenced by:</strong></p>
+                        <ul>
+                            <li>Autistic thinking.</li>
+                            <li>Delusional thinking</li>
+                            <li>Believes that his or her thoughts are responsible for world events or disasters (magical thinking).</li>
+                        </ul>
+                        <p><strong>Goals:</strong></p>
+                        <ul>
+                            <li>Demonstrate reality-based thinking in verbal and non-verbal behavior.</li>
+                            <li>Demonstrate absence of psychosis (delusions, magical thinking, ...etc)</li>
+                        </ul>
+                        <NursingAlteredThoughtSVG />
+                        <p><strong>Nursing interventions: Establish a trusting relationship</strong></p>
+                        <ul>
+                            <li>Avoid challenging the client's delusional system or arguing with the client, since delusion cannot be changed through logic, and challenging the belief, may force the client to adhere to it and defend it.</li>
+                            <li>Be honest, genuine, reliable, and consistent all the time.</li>
+                            <li>Keep your promise and do not promise clients about unattainable things.</li>
+                            <li>Use clear, direct, and simple statements while communicating with clients with delusions.</li>
+                            <li>Maintain facial expressions and behaviors that are in harmony with verbal statements to avoid misinterpretation or confusion.</li>
+                            <li>Interpret the client's misconceptions and misperceived environmental events in a calm, matter-of-fact manner, empathic, and supportive manner.</li>
+                            <li>Assure the clients that it is a safe environment, and no harm will come if needed.</li>
+                            <li>Center on the client as a person, rather than on the need to control the symptoms.</li>
+                            <li>Refrain from touching a client who is experiencing persecutory delusion to avoid misinterpretation.</li>
+                        </ul>
+                        <p><strong>Assess delusional experience</strong></p>
+                        <ul>
+                            <li>Assess the content and the type of delusion. Ask the patient to describe his beliefs. Example: "tell me more about someone trying to hurt you", "what makes others against you?"</li>
+                            <li>Identify the emotional needs and feelings behind the delusion.</li>
+                            <li>Assess duration, frequency, and intensity of delusional experiences.</li>
+                            <li>Identify what triggered the delusion. For example, you can ask the client "tell me what is happening before thinking that way".</li>
+                            <li>Assess whether the client acts based on his/her delusion. Protect self and others if needed.</li>
+                            <li>Assess the degree of conviction. How much the client is certain about the delusion belief including the existence of evidence to support the belief?</li>
+                            <li>Investigate the concrete ways that the delusion interferes with daily-level activities.</li>
+                        </ul>
+                        <p><strong>Once the dynamics of delusion are understood the nurse should:</strong></p>
+                        <ul>
+                            <li>Avoid seeking the details of the client's delusion so as not to reinforce the false belief and further distance the client from reality.</li>
+                            <li>Focus on the client's meaning, and feelings rather than the delusional content. Listen carefully to the client's feelings and reflected them to the client. For example, "It must be frightening for you to think that people are against you".</li>
+                            <li>Meet the emotional needs the delusions fulfill. For example, if the delusion fulfills a need for security, attempt to meet this need in everyday life.</li>
+                            <li>Distract the client from the delusion by engaging him in a less threatening or more comforting real topic and activities that need attention and cognitive skills to stimulate the cognitive process, and structure the environment so that it is difficult for the client to spend time in delusions.</li>
+                            <li>If the client asks you directly if you believe the delusion, respect that this is the patient's experience. For example, you can say "I believe you are telling me this as you see it" or that is your thought". If the client persists in asking if you believe the delusion, simply present the reality that you do not share the delusional beliefs.</li>
+                            <li>Observe events that trigger delusions. If possible, help the client find ways to avoid such triggers or reduce the associated anxiety.</li>
+                            <li>Teach clients stress management techniques.</li>
+                            <li>Teach the client to approach the staff when frightening thoughts occur.</li>
+                            <li>Offer praise as soon as the client begins to differentiate between reality-based and non-reality-based thinking.</li>
+                        </ul>
+                    </Card>
+
+                    <Card>
+                        <h4 className="text-xl text-emerald-700 font-bold mb-4">2. Sensory/Perceptual Alterations</h4>
+                        <p><strong>Related factors:</strong></p>
+                        <ul>
+                            <li>Psychosocial stressors, loneliness, and isolation (perceived or actual).</li>
+                            <li>Withdrawal from the environment.</li>
+                            <li>Lack of adequate support persons.</li>
+                            <li>Chronic illness and institutionalization.</li>
+                            <li>Biologic factors (neurophysiologic, genetic).</li>
+                            <li>Delusional thinking.</li>
+                            <li>High level of anxiety.</li>
+                            <li>Feelings of insecurity and mistrust.</li>
+                            <li>Weak ego boundaries.</li>
+                        </ul>
+                        <p><strong>Evidenced by:</strong></p>
+                        <ul>
+                            <li>Inattentive to surroundings (preoccupied with hallucination).</li>
+                            <li>Irrelevant answer.</li>
+                            <li>Unable to follow a conversation or may misinterpret what is said.</li>
+                            <li>Startles when approached and speaking to others.</li>
+                            <li>Tilting of the head as if the client is talking to someone. Sometimes audible responses are heard.</li>
+                            <li>Talks to self (lips move as if conversing with unseen presence).</li>
+                            <li>Appears to be listening to voices or sounds when neither is present. (Cocks head to the side as if concentrating on sounds that are inaudible to others).</li>
+                            <li>May act upon "voice" commands (may attempt mutilating gestures to self or others that could be injurious).</li>
+                            <li>Describes hallucinatory experience: "It's my father's voice and he's telling me I'm not good".</li>
+                            <li>Use the pronoun "they".</li>
+                            <li>Bizarre behaviors, for example, grimacing three times before eating a bit of food.</li>
+                        </ul>
+                        <p><strong>Goals:</strong></p>
+                        <ul>
+                            <li>Able to hold a conversation without hallucinating.</li>
+                            <li>States those hallucinations are under control.</li>
+                        </ul>
+                        <p><strong>Nursing interventions: Establish a Trusting Interpersonal Relationship</strong></p>
+                        <ul>
+                            <li>Be patient, show acceptance, and use active listening skills.</li>
+                            <li>Use openness, honesty, and consistency in all interactions.</li>
+                            <li>Avoid challenging the client's hallucination or arguing with the client.</li>
+                            <li>Communicate simple, direct, and concrete statements to avoid misinterpretations.</li>
+                            <li>Demonstrate calm, support, and a matter-of-fact approach to the client.</li>
+                            <li>Assure the client that a hospital is a safe place and that no harm will come. Clients are often anxious and frightened and need to know that they are in a safe place to explore their feelings. Remember, if you are anxious or frightened, the patient will be anxious or frightened also, which in turn increases hallucination.</li>
+                            <li>Observe for behavioral clues that indicate the presence of hallucinations.</li>
+                            <li>Identify the precipitating stressors that trigger hallucinatory experiences.</li>
+                            <li>Use reflection when you observe hallucinatory behavior "You appear to be focusing on something other than our conversations" or, "I notice that you began looking at the wall is there something distracting you?"</li>
+                        </ul>
+                        <p><strong>If the client talks about a hallucinatory experience, an assessment of the symptoms of hallucination should include the following:</strong></p>
+                        <ul>
+                            <li>Assess the type of hallucinations, whether they are only auditory or include other senses.</li>
+                            <li>Identify if they are voices or sounds. If the client hears voices, what do they say (to identify the content of the hallucination)?</li>
+                            <li>How many voices does the client hear?</li>
+                            <li>Identify if the voices are familiar or strangers to the client.</li>
+                            <li>Assess if the voices are commenting, commanding, or conversing with the clients. It is important to assess for command hallucinations.</li>
+                            <li>Focus on the client's needs that may be reflected in the content of auditory hallucination and try to fulfill them. The unmet needs usually center on low self-esteem, insecurity and anxiety, and lack of control and power.</li>
+                            <li>Focus on real topics or events and reinforce the client when interacting in reality.</li>
+                            <li>Protect the client and others when violence or danger may occur because of hallucinations.</li>
+                            <li>If the client asks whether the nurse hears the voices, do not imply belief in the voices. Rather, state that you do not hear the voices but would like to know the client's experience.</li>
+                        </ul>
+                        <p><strong>Help the client manage the hallucination:</strong></p>
+                        <ul>
+                            <li>Reinforce reality and help the client to focus on the here and now. Engage the client in stimulating activities to grasp attention to reality.</li>
+                            <li>Help the client to make an association between the onset of hallucination and the occurrence of stressors or increased anxiety.</li>
+                            <li>Teach stress management techniques to relieve and cope with anxiety.</li>
+                            <li>Teach distraction techniques, such as listening to music, keeping busy, watching TV, and talking to someone trusted who will give supportive and corrective feedback.</li>
+                            <li>Teach thought-stopping techniques (say to voices stop and go away) to control the hallucination. Teach the client to shout "stop" loudly whenever he/she heard the voices. This procedure should be repeated till the intensity of voices decreases. Then, teach the client to shout "stop "softly, then sub-vocally.</li>
+                        </ul>
+                        <p><strong>While Communicating with a hallucinating client, the nurse should:</strong></p>
+                        <ul>
+                            <li>Approach the client frequently, interacting for short periods to interrupt the hallucinatory experience.</li>
+                            <li>Call the clients and the staff by their names to reinforce the reality.</li>
+                            <li>Use a slightly louder voice than usual to stimulate the client to respond.</li>
+                            <li>Do not give the voices any status, refer to them as the "so-called" voices or" voices you say you hear".</li>
+                        </ul>
+                    </Card>
+
+                    <Card>
+                        <h4 className="text-xl text-emerald-700 font-bold mb-4">3. Impaired Verbal Communication</h4>
+                        <p><strong>Related factors:</strong></p>
+                        <ul>
+                            <li>Disturbances in the form of thinking (autistic).</li>
+                            <li>Delusions and magical thinking.</li>
+                            <li>High level of anxiety.</li>
+                            <li>Neurotransmitters disturbance.</li>
+                        </ul>
+                        <p><strong>Evidenced by:</strong></p>
+                        <ul>
+                            <li>Looseness of associations, neologisms, word salad, incoherence, clang associations, echolalia.</li>
+                        </ul>
+                        <p><strong>Goals:</strong></p>
+                        <ul>
+                            <li>Communicate thoughts and feelings in a coherent, goal-directed manner.</li>
+                        </ul>
+                        <p><strong>Nursing Interventions:</strong></p>
+                        <ul>
+                            <li>Assess the extent to which the client's impaired verbal communication interferes with his or her ability to get others to understand the meaning behind the message and to clarify communication.</li>
+                            <li>Demonstrate a calm approach, rather than attempting to force the client to speak coherently to decrease the client's fears and anxieties about the inability to communicate needs and to demonstrate acceptance of the client.</li>
+                            <li>Use short, clear, and concrete sentences.</li>
+                            <li>Actively listen to and observe verbal and nonverbal cues and behaviors during the communication process.</li>
+                            <li>Use communication strategies such as restatement, classification, and consensual validation to help reveal the intent of the client's messages.</li>
+                            <li>Acknowledge the client's inability to use the spoken word while encouraging alternative methods to convey messages (gestures, writing, and drawing).</li>
+                            <li>Instruct the client to seek assistance from staff when experiencing communication problems.</li>
+                            <li>Praise the client's attempt to speak more coherently to increase self-esteem and promote continued functional speech patterns.</li>
+                        </ul>
+                    </Card>
+
+                    <Card>
+                        <h4 className="text-xl text-emerald-700 font-bold mb-4">4. Social Isolation</h4>
+                        <p><strong>Related factors:</strong></p>
+                        <ul>
+                            <li>Delusional thinking and/or hallucinatory experiences.</li>
+                            <li>Disturbances in communication.</li>
+                            <li>Long-term illness, and hospitalization.</li>
+                            <li>Lack of social skills.</li>
+                            <li>Lack of supportive persons.</li>
+                            <li>Impaired volition.</li>
+                        </ul>
+                        <p><strong>Evidenced by:</strong></p>
+                        <ul>
+                            <li>Withdrawal from the environment and others in the environment.</li>
+                            <li>Isolates himself in his room or bed for most of the day and night.</li>
+                            <li>Difficulty in establishing bonds or relationships with others in the environment (fails to seek out or respond to others).</li>
+                            <li>Verbalizations that indicate feelings of rejection from others in the environment.</li>
+                            <li>Inability to engage in social interactions or milieu activities.</li>
+                            <li>Inability to share or express feelings with others in groups or one-to-one.</li>
+                        </ul>
+                        <p><strong>Goals:</strong></p>
+                        <ul>
+                            <li>Verbalize willingness to engage in social interactions and activities with others in the environment.</li>
+                        </ul>
+                        <NursingIsolationSVG />
+                        <p><strong>Nursing Interventions:</strong></p>
+                        <ul>
+                            <li>Structure each day to include planned times for brief interactions and activities with the client. This can help the client organize times to engage with others and to know that participation is expected and that he or she is a worthwhile member of the community.</li>
+                            <li>Spend brief intervals with the client each day, engaging in meaningful and non-challenging interactions.</li>
+                            <li>Keep all appointments for interactions with the client to promote the client's trust and self-esteem which enhance socialization.</li>
+                            <li>Discuss with the client anything of interest to him or her, such as items in the client's room, favorite activities, or hobbies, to encourage the client's social skills and decrease social isolation.</li>
+                            <li>Identify the client's significant support persons (may be other clients) and encourage them to seek out the client for interactions.</li>
+                            <li>Provide the client with stimulation from recreational and other milieu activities to expose the client to social activities and increase opportunities for socialization.</li>
+                            <li>Encourage the client to engage in social activities with other clients with similar interests with whom the client can socialize. This will provide the client with successful social experiences that are likely to be repeated.</li>
+                            <li>Provide the client with gradual activities according to the level of tolerance and physical functioning. Gradually expose the client to more complex activities and interactions with others.</li>
+                            <li>Act as a role model for social behavior in one-to-one and in group interaction. For example, maintain eye-to-eye contact, moderate tone of voice, etc.</li>
+                            <li>Praise the client for attempts to seek out others for interactions and activities with them. For example, "your participation in the group today is helpful".</li>
+                        </ul>
+                    </Card>
+
+                    <Card>
+                        <h3 className="text-2xl font-bold text-slate-800 mb-4 border-b pb-2">Relapse in Schizophrenia</h3>
+                        <p>Schizophrenia is a type of persistent mental illness characterized by a high rate of relapse and disability. Relapse is a return or worsening of symptoms following a period of remission. Schizophrenia relapse rates range from 40% to 90%. It is important to identify factors contributing to release and observe for early warning signs that indicate relapse.</p>
+                        
+                        <p className="font-semibold mt-4">Relapse risk factors</p>
+                        <ul>
+                            <li>Nonadherence to psychotropic medications.</li>
+                            <li>Lack of support from family or mental health team.</li>
+                            <li>Use of alcohol and substance.</li>
+                            <li>Lack of coping strategies.</li>
+                            <li>Severe emotional stress, e.g., The death of a loved one, the loss of a job, the move to a new home.</li>
+                            <li>When significant others are critical, controlling, or intrusive, relapse increases, and outcomes are poorer.</li>
+                        </ul>
+                        
+                        <p className="font-semibold mt-4">Behaviors that indicate a relapse</p>
+                        <ul>
+                            <li>Sleeplessness.</li>
+                            <li>Increased social withdrawal.</li>
+                            <li>Deterioration of personal hygiene.</li>
+                            <li>Thought and speech disorder.</li>
+                            <li>Aggressive behaviors toward self and/or others.</li>
+                            <li>Signs of visual and auditory hallucinations (e.g., Listening excessively to loud music, usually with headphones, perhaps in an attempt to drown out the voices).</li>
+                        </ul>
+                        
+                        <p className="font-semibold mt-4">Prevention of relapse:</p>
+                        <ul>
+                            <li>Psycho-education for clients and their family caregivers.</li>
+                            <li>Help clients and caregivers to understand that relapse is part of the illness, not a sign of failure.</li>
+                            <li>Teach the client and family about the illness: causes, medications, side effects, coping strategies, what to expect, and early signs of relapse.</li>
+                            <li>Teach about the importance of the client's taking medications consistently. Medication education should cover the association between medications and the relief of symptoms, side effects, and their management.</li>
+                            <li>Make a list of whom to call, what to do, and where to go if signs of relapse appear.</li>
+                            <li>Teach strategies to cope with family, work, and social stress. Stresses can easily trigger symptoms.</li>
+                            <li>Avoid alcohol and/or drugs; they can act on the brain and cause a relapse.</li>
+                            <li>Taking care of one's diet, health, and hygiene.</li>
+                            <li>Maintain a regular sleep pattern.</li>
+                            <li>Teach social skills training as a part of psychosocial rehabilitation program.</li>
+                        </ul>
+                        <RelapseCycleIllustration />
+                    </Card>
+
+                    <Card>
+                        <h3 className="text-2xl font-bold text-slate-800 mb-4 border-b pb-2">Treatment Modalities</h3>
+                        <ol className="list-decimal pl-6 space-y-2 mt-4 text-slate-700">
+                            <li>Psychopharmacology: Traditional antipsychotics and atypical antipsychotic medications.</li>
+                            <li>Somatic therapy: Electro-Convulsive Therapy (ECT).</li>
+                            <li>Milieu therapy</li>
+                            <li>Psychosocial rehabilitation: Psychosocial rehabilitation interventions aim to assist an individual in achieving restoration from a state of dependency caused by schizophrenia to a state of being an independent decision-maker. 
+                                <br/><br/>Social Skills Training (SST) is one of the important psychosocial rehabilitation approaches for schizophrenia.
+                                <ul>
+                                    <li>Social skills training is a psychological intervention focused on the development or improvement of social interaction, social performance, or interpersonal skills for clients diagnosed with schizophrenia-spectrum disorders.
+                                    <br/>Complex interpersonal skills are broken down into smaller skills and taught using clinician demonstration of skills in role plays, behavioral rehearsal (client practicing of skills in multiple role plays), positive and corrective feedback to shape the learning of skills, and home assignments to practice the skill outside of sessions.</li>
+                                    <li>A wide range of skills can be taught with SST, such as:
+                                        <ul>
+                                            <li>Initiating, continuing, and terminating the conversation as well as sharing personal experiences and concerns with another person.</li>
+                                            <li>Asking for information. Making requests/expressing needs.</li>
+                                            <li>Refusing requests or saying no.</li>
+                                            <li>Expressing unpleasant feelings and anger.</li>
+                                            <li>Making and responding to complaints.</li>
+                                            <li>Making apologies.</li>
+                                        </ul>
+                                    </li>
+                                    <li>Some programs aimed at improving social functioning in schizophrenia are based primarily on SST, whereas other programs may incorporate SST along with other therapeutic approaches, such as psychoeducation or behavioral therapy.</li>
+                                </ul>
+                            </li>
+                            <li>Individual psychotherapy</li>
+                            <li>Group therapy</li>
+                            <li>Family therapy</li>
+                            <li>Occupational and Recreational Therapy: Will be discussed at clinical sites.</li>
+                        </ol>
+                        <SocialSkillsIllustration />
+                    </Card>
+                </div>
+            );
+
+            const QuizView = () => (
+                <div className="animate-in slide-in-from-right-4 duration-500 max-w-2xl mx-auto">
+                    <SectionHeader title="Knowledge Check" icon={<Lightbulb size={32} />} color="bg-yellow-100 text-yellow-600" />
+                    
+                    {!quizSubmitted ? (
+                        <div className="space-y-6">
+                            {QUIZ_QUESTIONS.map((q, qIndex) => (
+                                <Card key={qIndex} className="p-6">
+                                    <h4 className="font-bold text-lg mb-4 text-slate-800">{qIndex + 1}. {q.q}</h4>
+                                    <div className="space-y-2">
+                                        {q.options.map((opt, optIndex) => (
+                                            <button
+                                                key={optIndex}
+                                                onClick={() => handleQuizOption(qIndex, optIndex)}
+                                                className={`w-full text-left p-3 rounded border transition-colors ${
+                                                    quizAnswers[qIndex] === optIndex 
+                                                        ? 'bg-blue-100 border-blue-500 text-blue-800 font-medium' 
+                                                        : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700'
+                                                }`}
+                                            >
+                                                {opt}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </Card>
+                            ))}
+                            <button 
+                                onClick={submitQuiz}
+                                disabled={Object.keys(quizAnswers).length < QUIZ_QUESTIONS.length}
+                                className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-lg disabled:opacity-50 hover:bg-blue-700 transition shadow-md hover:shadow-lg"
+                            >
+                                Submit Answers
+                            </button>
+                        </div>
+                    ) : (
+                        <Card className="text-center p-10 bg-white border-blue-100">
+                            <div className="text-6xl mb-6">{quizScore >= 4 ? '🏆' : '📚'}</div>
+                            <h2 className="text-3xl font-bold mb-3 text-slate-800">You scored {quizScore} out of {QUIZ_QUESTIONS.length}</h2>
+                            <p className="text-slate-600 mb-8 text-lg">
+                                {quizScore === 5 ? "Perfect score! You have mastered the Schizophrenia chapter." : "Good effort! Review the sections and try again to improve your score."}
+                            </p>
+                            <button onClick={resetQuiz} className="bg-slate-800 text-white px-8 py-3 rounded-full font-bold hover:bg-slate-700 transition">
+                                Retake Quiz
+                            </button>
+                        </Card>
+                    )}
+                </div>
+            );
+
+            return (
+                <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+                    {/* Top Navigation */}
+                    <nav className="bg-white shadow-sm sticky top-0 z-50">
+                        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+                            <div className="flex items-center gap-2 font-bold text-sm md:text-lg text-blue-800 cursor-pointer hover:opacity-80 transition" onClick={() => handleNavClick(SECTIONS.INTRO)}>
+                                <DepartmentLogo className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 drop-shadow-sm" />
+                                <span className="hidden sm:inline">Psychiatric and Mental Health Nursing Department</span>
+                                <span className="sm:hidden">Psych Nursing</span>
+                            </div>
+                            
+                            <div className="hidden md:flex gap-1">
+                                {[
+                                    { id: SECTIONS.INTRO, label: 'Intro', icon: <Compass size={16}/> },
+                                    { id: SECTIONS.SYMPTOMS, label: 'Symptoms', icon: <Activity size={16}/> },
+                                    { id: SECTIONS.ETIOLOGY, label: 'Etiology', icon: <Network size={16}/> },
+                                    { id: SECTIONS.NURSING, label: 'Nursing', icon: <HeartPulse size={16}/> },
+                                    { id: SECTIONS.QUIZ, label: 'Quiz', icon: <Lightbulb size={16}/> },
+                                ].map(nav => (
+                                    <button
+                                        key={nav.id}
+                                        onClick={() => handleNavClick(nav.id)}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                                            activeSection === nav.id 
+                                                ? 'bg-blue-100 text-blue-800 shadow-sm' 
+                                                : 'text-slate-600 hover:bg-slate-100'
+                                        }`}
+                                    >
+                                        {nav.icon} {nav.label}
+                                    </button>
+                                ))}
+                            </div>
+                            
+                            {/* Mobile menu hint */}
+                            <div className="md:hidden text-slate-400">
+                                <select 
+                                    className="bg-slate-100 p-2 rounded text-sm border-none outline-none text-slate-700 font-bold"
+                                    value={activeSection}
+                                    onChange={(e) => handleNavClick(e.target.value)}
+                                >
+                                    <option value={SECTIONS.INTRO}>Introduction</option>
+                                    <option value={SECTIONS.SYMPTOMS}>Symptoms</option>
+                                    <option value={SECTIONS.ETIOLOGY}>Etiology</option>
+                                    <option value={SECTIONS.NURSING}>Nursing Care</option>
+                                    <option value={SECTIONS.QUIZ}>Quiz</option>
+                                </select>
+                            </div>
+                        </div>
+                    </nav>
+
+                    {/* Main Content Area */}
+                    <main className="max-w-5xl mx-auto px-4 py-8">
+                        {activeSection === SECTIONS.INTRO && <IntroView />}
+                        {activeSection === SECTIONS.SYMPTOMS && <SymptomsView />}
+                        {activeSection === SECTIONS.ETIOLOGY && <EtiologyView />}
+                        {activeSection === SECTIONS.NURSING && <NursingView />}
+                        {activeSection === SECTIONS.QUIZ && <QuizView />}
+                    </main>
+
+                    {/* Footer */}
+                    <footer className="bg-slate-900 text-slate-300 py-10 mt-12 border-t-4 border-indigo-600">
+                        <div className="max-w-5xl mx-auto px-6 flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
+                                <FacultyLogo className="w-24 h-28 flex-shrink-0 drop-shadow-md" />
+                                <div className="mt-2">
+                                    <p className="mb-1 text-lg font-bold text-white">Psychiatric Nursing & Mental Health</p>
+                                    <p className="text-sm text-slate-400 max-w-xs">Introduction to Psychiatric and Mental Health Nursing • Educational Material</p>
+                                </div>
+                            </div>
+                            
+                            <div className="text-center md:text-right space-y-2 text-sm border-t md:border-t-0 border-slate-700 pt-6 md:pt-0 w-full md:w-auto">
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Dean of The Faculty:</span> <span className="text-slate-200">Prof. Dr. Hanan Hosny El-Sherbiny</span></p>
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Acting Head of Department:</span> <span className="text-slate-200">Asst. Prof. Dr. Mayar Ezz-Eldin El-Naqeeb</span></p>
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Created by:</span> <span className="font-semibold text-white">M.Abdallah Abozaid</span></p>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<SchizophreniaLecture />);
+    </script>
+</body>
+</html>

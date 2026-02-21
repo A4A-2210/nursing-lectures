@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Milieu Therapy</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX compilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Lucide Icons (Vanilla) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
+        /* Arabic Font support */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;700&display=swap');
+        .font-arabic { font-family: 'Noto Kufi Arabic', sans-serif; }
+        
+        /* Custom Scrollbar for better look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useLayoutEffect } = React;
+
+        // --- ICON SYSTEM SETUP ---
+        const IconWrapper = ({ name, ...props }) => {
+            const ref = useRef(null);
+            
+            useLayoutEffect(() => {
+                if (ref.current && window.lucide && window.lucide.icons[name]) {
+                    const iconElement = window.lucide.createElement(window.lucide.icons[name]);
+                    if (props.className) {
+                        const existingClass = iconElement.getAttribute('class') || '';
+                        iconElement.setAttribute('class', `${existingClass} ${props.className}`);
+                    }
+                    if (props.size) {
+                        iconElement.setAttribute('width', props.size);
+                        iconElement.setAttribute('height', props.size);
+                    }
+                    ref.current.innerHTML = '';
+                    ref.current.appendChild(iconElement);
+                }
+            }, [name, props.className, props.size]);
+
+            return <span ref={ref} style={{ display: 'inline-flex', verticalAlign: 'middle' }} />;
+        };
+
+        const createIconComponent = (name) => (props) => <IconWrapper name={name} {...props} />;
+
+        const Users = createIconComponent('Users');
+        const Home = createIconComponent('Home');
+        const Target = createIconComponent('Target');
+        const Lightbulb = createIconComponent('Lightbulb');
+        const BookOpen = createIconComponent('BookOpen');
+        const CheckCircle = createIconComponent('CheckCircle');
+        const ChevronDown = createIconComponent('ChevronDown');
+        const ChevronUp = createIconComponent('ChevronUp');
+        const Activity = createIconComponent('Activity');
+        const ListChecks = createIconComponent('ListChecks');
+        const Puzzle = createIconComponent('Puzzle');
+
+        // --- SVG 1: DEPARTMENT LOGO (Original - Unchanged) ---
+        const DepartmentLogo = ({ className = "w-10 h-10" }) => (
+            <svg viewBox="0 0 100 120" className={className} xmlns="http://www.w3.org/2000/svg">
+                <path d="M 5 80 C 15 100 40 110 60 105 C 80 100 95 85 95 75 C 95 70 85 65 75 75 C 65 85 50 90 35 85 C 25 80 15 75 5 80 Z" fill="#004a8f" />
+                <path d="M 30 85 C 45 92 60 90 75 80" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                <path d="M 40 78 C 55 85 70 80 85 70" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                <path d="M 50 65 L 53 72 L 58 67 L 58 57 C 58 52 64 50 64 45 C 64 43 60 41 60 39 L 68 37 C 70 36 70 34 68 32 C 65 31 62 32 60 29 C 60 15 48 5 35 10" stroke="#004a8f" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                <g stroke="#1e1b4b" strokeWidth="1.5" fill="none">
+                    <circle cx="35" cy="22" r="9" />
+                    <circle cx="28" cy="35" r="9" />
+                    <circle cx="42" cy="35" r="9" />
+                </g>
+                <text x="35" y="24.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">C</text>
+                <text x="28" y="37.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">C</text>
+                <text x="42" y="37.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">A</text>
+            </svg>
+        );
+
+        // --- SVG 2: FACULTY LOGO (New) ---
+        const FacultyLogo = ({ className = "w-24 h-28" }) => (
+            <svg viewBox="0 0 100 130" className={className} xmlns="http://www.w3.org/2000/svg">
+                <path d="M 2 2 L 98 2 L 98 65 C 98 110 50 128 50 128 C 50 128 2 110 2 65 Z" fill="#24335c" />
+                <path d="M 4 4 L 96 4 L 96 65 C 96 108 50 125 50 125 C 50 125 4 108 4 65 Z" fill="#ffffff" />
+                <path d="M 6 6 L 94 6 L 94 65 C 94 106 50 122 50 122 C 50 122 6 106 6 65 Z" fill="#66c5f4" />
+                <path d="M 6 75 L 94 75 C 94 106 50 122 50 122 C 50 122 6 106 6 75 Z" fill="#1da2d8" />
+                <g stroke="#1a2f57" strokeWidth="0.8">
+                    <line x1="50" y1="18" x2="15" y2="12" />
+                    <line x1="50" y1="18" x2="10" y2="20" />
+                    <line x1="50" y1="18" x2="10" y2="28" />
+                    <line x1="50" y1="18" x2="15" y2="35" />
+                    <line x1="50" y1="18" x2="85" y2="12" />
+                    <line x1="50" y1="18" x2="90" y2="20" />
+                    <line x1="50" y1="18" x2="90" y2="28" />
+                    <line x1="50" y1="18" x2="85" y2="35" />
+                </g>
+                <g fill="#c49341" stroke="#1a2f57" strokeWidth="1.2" strokeLinejoin="round">
+                    <polygon points="12,60 10,75 22,75 20,60" />
+                    <rect x="10" y="56" width="12" height="4" />
+                    <rect x="11" y="53" width="10" height="3" />
+                    <rect x="20" y="63" width="18" height="12" />
+                    <polygon points="80,60 78,75 90,75 88,60" />
+                    <rect x="78" y="56" width="12" height="4" />
+                    <rect x="79" y="53" width="10" height="3" />
+                    <rect x="62" y="63" width="18" height="12" />
+                    <polygon points="40,40 33,75 67,75 60,40" />
+                    <rect x="38" y="38" width="24" height="4" />
+                    <rect x="42" y="24" width="16" height="14" />
+                    <rect x="40" y="22" width="20" height="3" />
+                    <rect x="45" y="14" width="10" height="8" />
+                    <rect x="44" y="12" width="12" height="2" />
+                    <polygon points="47,12 48,7 52,7 53,12" />
+                </g>
+                <g fill="none" stroke="#1a2f57" strokeWidth="1.2">
+                    <rect x="22" y="66" width="3" height="4" />
+                    <rect x="27" y="66" width="3" height="4" />
+                    <rect x="32" y="66" width="3" height="4" />
+                    <rect x="65" y="66" width="3" height="4" />
+                    <rect x="70" y="66" width="3" height="4" />
+                    <rect x="75" y="66" width="3" height="4" />
+                    <rect x="47" y="64" width="6" height="11" />
+                    <rect x="48" y="54" width="4" height="5" />
+                    <rect x="48" y="46" width="4" height="5" />
+                    <rect x="44" y="27" width="4" height="4" />
+                    <rect x="52" y="27" width="4" height="4" />
+                </g>
+                <g fill="#1a2f57" stroke="none">
+                    <path d="M 12 85 Q 16 87 20 85 L 20 87 Q 16 89 12 87 Z" />
+                    <path d="M 28 85 Q 32 87 36 85 L 36 87 Q 32 89 28 87 Z" />
+                    <path d="M 44 85 Q 48 87 52 85 L 52 87 Q 48 89 44 87 Z" />
+                    <path d="M 60 85 Q 64 87 68 85 L 68 87 Q 64 89 60 87 Z" />
+                    <path d="M 76 85 Q 80 87 84 85 L 84 87 Q 80 89 76 87 Z" />
+                    <path d="M 20 95 Q 24 97 28 95 L 28 97 Q 24 99 20 97 Z" />
+                    <path d="M 36 95 Q 40 97 44 95 L 44 97 Q 40 99 36 97 Z" />
+                    <path d="M 52 95 Q 56 97 60 95 L 60 97 Q 56 99 52 97 Z" />
+                    <path d="M 68 95 Q 72 97 76 95 L 76 97 Q 72 99 68 97 Z" />
+                    <path d="M 28 105 Q 32 107 36 105 L 36 107 Q 32 109 28 107 Z" />
+                    <path d="M 44 105 Q 48 107 52 105 L 52 107 Q 48 109 44 107 Z" />
+                    <path d="M 60 105 Q 64 107 68 105 L 68 107 Q 64 109 60 107 Z" />
+                    <path d="M 40 115 Q 44 117 48 115 L 48 117 Q 44 119 40 117 Z" />
+                    <path d="M 52 115 Q 56 117 60 115 L 60 117 Q 56 119 52 117 Z" />
+                </g>
+            </svg>
+        );
+
+        // --- CUSTOM SVG ILLUSTRATIONS (15+) ---
+
+        const MilieuConceptIllustration = () => (
+            <div className="flex justify-center my-10">
+                <svg width="300" height="200" viewBox="0 0 300 200">
+                    <rect x="10" y="10" width="280" height="180" rx="20" fill="#f0f9ff" stroke="#38bdf8" strokeWidth="2" strokeDasharray="5,5"/>
+                    <text x="150" y="30" textAnchor="middle" fontSize="12" fill="#0284c7" fontWeight="bold">THERAPEUTIC MILIEU</text>
+                    <path d="M 150 100 L 80 80" stroke="#cbd5e1" strokeWidth="2" />
+                    <path d="M 150 100 L 220 80" stroke="#cbd5e1" strokeWidth="2" />
+                    <path d="M 150 100 L 150 160" stroke="#cbd5e1" strokeWidth="2" />
+                    <circle cx="80" cy="80" r="25" fill="#bae6fd" stroke="#0284c7" strokeWidth="2" />
+                    <text x="80" y="84" textAnchor="middle" fontSize="10" fill="#0369a1" fontWeight="bold">Staff</text>
+                    <circle cx="220" cy="80" r="25" fill="#fde047" stroke="#ca8a04" strokeWidth="2" />
+                    <text x="220" y="84" textAnchor="middle" fontSize="10" fill="#a16207" fontWeight="bold">Peers</text>
+                    <circle cx="150" cy="160" r="25" fill="#d8b4fe" stroke="#9333ea" strokeWidth="2" />
+                    <text x="150" y="164" textAnchor="middle" fontSize="10" fill="#7e22ce" fontWeight="bold">Setting</text>
+                    <circle cx="150" cy="100" r="30" fill="#3b82f6" stroke="#1d4ed8" strokeWidth="3" />
+                    <text x="150" y="104" textAnchor="middle" fontSize="12" fill="#ffffff" fontWeight="bold">Client</text>
+                </svg>
+            </div>
+        );
+
+        const GoalsIllustration = () => (
+            <svg width="60" height="60" viewBox="0 0 100 100" className="flex-shrink-0">
+                <circle cx="50" cy="50" r="45" fill="#e0e7ff" />
+                <circle cx="50" cy="50" r="30" fill="#c7d2fe" />
+                <circle cx="50" cy="50" r="15" fill="#4f46e5" />
+                <path d="M 80 20 L 55 45" stroke="#ef4444" strokeWidth="4" strokeLinecap="round" />
+                <polygon points="50,40 55,45 60,50 50,50" fill="#ef4444" />
+            </svg>
+        );
+
+        const GrowthIllustration = () => (
+            <svg width="50" height="50" viewBox="0 0 100 100" className="flex-shrink-0">
+                <path d="M 50 90 L 50 40" stroke="#10b981" strokeWidth="6" strokeLinecap="round" />
+                <path d="M 50 70 Q 20 70 20 40 Q 50 40 50 70" fill="#34d399" />
+                <path d="M 50 60 Q 80 60 80 30 Q 50 30 50 60" fill="#10b981" />
+                <circle cx="50" cy="20" r="10" fill="#fbbf24" />
+            </svg>
+        );
+
+        const InteractionIllustration = () => (
+            <svg width="50" height="50" viewBox="0 0 100 100" className="flex-shrink-0">
+                <path d="M 20 30 Q 50 10 70 30 Q 80 50 70 70 L 80 90 L 60 80 Q 40 90 20 70 Q 10 50 20 30" fill="#bfdbfe" stroke="#3b82f6" strokeWidth="3"/>
+                <path d="M 80 40 Q 95 50 90 70 L 100 85 L 85 80 Q 75 90 60 80" fill="#fbcfe8" stroke="#ec4899" strokeWidth="3"/>
+                <circle cx="45" cy="45" r="4" fill="#3b82f6" />
+                <circle cx="60" cy="45" r="4" fill="#3b82f6" />
+            </svg>
+        );
+
+        const AutonomyIllustration = () => (
+            <svg width="50" height="50" viewBox="0 0 100 100" className="flex-shrink-0">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#f59e0b" strokeWidth="6" strokeDasharray="10 5" />
+                <circle cx="50" cy="50" r="25" fill="#fef3c7" stroke="#d97706" strokeWidth="4" />
+                <path d="M 45 40 L 55 40 L 55 60 L 45 60 Z" fill="#d97706" />
+                <circle cx="50" cy="35" r="5" fill="#d97706" />
+            </svg>
+        );
+
+        const PeerPressureIllustration = () => (
+            <svg width="50" height="50" viewBox="0 0 100 100" className="flex-shrink-0">
+                <circle cx="50" cy="50" r="20" fill="#f87171" />
+                {[0, 90, 180, 270].map(angle => (
+                    <g key={angle} transform={`rotate(${angle} 50 50)`}>
+                        <path d="M 50 10 L 50 25" stroke="#ef4444" strokeWidth="4" />
+                        <polygon points="45,20 55,20 50,30" fill="#ef4444" />
+                    </g>
+                ))}
+            </svg>
+        );
+
+        const NoPunishmentIllustration = () => (
+            <svg width="50" height="50" viewBox="0 0 100 100" className="flex-shrink-0">
+                <rect x="25" y="40" width="50" height="40" rx="5" fill="#94a3b8" />
+                <path d="M 35 40 L 35 25 A 15 15 0 0 1 65 25" fill="none" stroke="#94a3b8" strokeWidth="6" />
+                <path d="M 60 25 L 75 10" stroke="#22c55e" strokeWidth="5" />
+                <path d="M 75 25 L 60 10" stroke="#22c55e" strokeWidth="5" />
+            </svg>
+        );
+
+        const BasicNeedsIllustration = () => (
+            <svg width="60" height="60" viewBox="0 0 100 100" className="flex-shrink-0">
+                <polygon points="50,10 90,90 10,90" fill="#fed7aa" stroke="#f97316" strokeWidth="3" />
+                <line x1="25" y1="60" x2="75" y2="60" stroke="#f97316" strokeWidth="3" />
+                <line x1="38" y1="35" x2="62" y2="35" stroke="#f97316" strokeWidth="3" />
+                <text x="50" y="80" textAnchor="middle" fontSize="12" fill="#c2410c" fontWeight="bold">Needs</text>
+            </svg>
+        );
+
+        const DemocraticIllustration = () => (
+            <svg width="60" height="60" viewBox="0 0 100 100" className="flex-shrink-0">
+                <path d="M 20 90 L 20 50 A 10 10 0 0 1 40 50 L 40 90" fill="#60a5fa" />
+                <path d="M 50 90 L 50 30 A 10 10 0 0 1 70 30 L 70 90" fill="#3b82f6" />
+                <path d="M 80 90 L 80 60 A 10 10 0 0 1 100 60 L 100 90" fill="#93c5fd" />
+            </svg>
+        );
+
+        const ScheduleIllustration = () => (
+            <svg width="60" height="60" viewBox="0 0 100 100" className="flex-shrink-0">
+                <rect x="20" y="20" width="60" height="70" rx="5" fill="#f8fafc" stroke="#64748b" strokeWidth="4" />
+                <line x1="20" y1="40" x2="80" y2="40" stroke="#64748b" strokeWidth="4" />
+                <line x1="30" y1="55" x2="70" y2="55" stroke="#cbd5e1" strokeWidth="4" />
+                <line x1="30" y1="70" x2="60" y2="70" stroke="#cbd5e1" strokeWidth="4" />
+                <circle cx="40" cy="20" r="5" fill="#ef4444" />
+                <circle cx="60" cy="20" r="5" fill="#ef4444" />
+            </svg>
+        );
+
+        const PhysicalSettingIllustration = () => (
+            <svg width="60" height="60" viewBox="0 0 100 100" className="flex-shrink-0">
+                {/* Window */}
+                <rect x="20" y="10" width="30" height="30" fill="#e0f2fe" stroke="#0ea5e9" strokeWidth="2" />
+                <line x1="35" y1="10" x2="35" y2="40" stroke="#0ea5e9" strokeWidth="2" />
+                <line x1="20" y1="25" x2="50" y2="25" stroke="#0ea5e9" strokeWidth="2" />
+                {/* Sofa */}
+                <rect x="10" y="60" width="60" height="20" rx="5" fill="#8b5cf6" />
+                <rect x="5" y="50" width="10" height="30" rx="2" fill="#7c3aed" />
+                <rect x="65" y="50" width="10" height="30" rx="2" fill="#7c3aed" />
+                {/* Plant */}
+                <path d="M 85 90 L 85 70" stroke="#22c55e" strokeWidth="3" />
+                <circle cx="85" cy="65" r="10" fill="#4ade80" />
+                <rect x="75" y="80" width="20" height="15" fill="#d97706" />
+            </svg>
+        );
+
+        const RulesIllustration = () => (
+            <svg width="60" height="60" viewBox="0 0 100 100" className="flex-shrink-0">
+                <rect x="25" y="15" width="50" height="75" rx="5" fill="#fdf4ff" stroke="#d946ef" strokeWidth="3" />
+                <line x1="40" y1="35" x2="65" y2="35" stroke="#d946ef" strokeWidth="3" />
+                <line x1="40" y1="55" x2="65" y2="55" stroke="#d946ef" strokeWidth="3" />
+                <line x1="40" y1="75" x2="55" y2="75" stroke="#d946ef" strokeWidth="3" />
+                <path d="M 30 35 L 35 40 L 45 25" fill="none" stroke="#22c55e" strokeWidth="3" />
+                <path d="M 30 55 L 35 60 L 45 45" fill="none" stroke="#22c55e" strokeWidth="3" />
+            </svg>
+        );
+
+        const StaffIllustration = () => (
+            <svg width="60" height="60" viewBox="0 0 100 100" className="flex-shrink-0">
+                <circle cx="50" cy="30" r="15" fill="#fca5a5" />
+                <path d="M 25 90 Q 50 50 75 90" fill="#ef4444" />
+                <rect x="40" y="60" width="20" height="20" fill="#ffffff" />
+                <line x1="50" y1="65" x2="50" y2="75" stroke="#ef4444" strokeWidth="4" />
+                <line x1="45" y1="70" x2="55" y2="70" stroke="#ef4444" strokeWidth="4" />
+            </svg>
+        );
+
+        const CommunityMeetingIllustration = () => (
+            <div className="flex justify-center my-8">
+                <svg width="220" height="220" viewBox="0 0 220 220">
+                    <circle cx="110" cy="110" r="60" fill="#f0fdf4" stroke="#86efac" strokeWidth="4" />
+                    {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => {
+                        const rad = (angle * Math.PI) / 180;
+                        const x = 110 + 60 * Math.cos(rad);
+                        const y = 110 + 60 * Math.sin(rad);
+                        const isStaff = i === 0 || i === 4;
+                        return (
+                            <g key={i}>
+                                <circle cx={x} cy={y} r="15" fill={isStaff ? "#3b82f6" : "#10b981"} stroke="#ffffff" strokeWidth="2" />
+                                <circle cx={x} cy={y-5} r="6" fill="#ffffff" opacity="0.8" />
+                                <path d={`M ${x-8} ${y+10} Q ${x} ${y} ${x+8} ${y+10}`} stroke="#ffffff" strokeWidth="2" fill="none" />
+                            </g>
+                        );
+                    })}
+                    <text x="110" y="115" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#166534">Meeting</text>
+                </svg>
+            </div>
+        );
+
+        const ClientGovIllustration = () => (
+            <svg width="60" height="60" viewBox="0 0 100 100" className="flex-shrink-0">
+                <path d="M 20 80 L 80 80 L 70 60 L 30 60 Z" fill="#b45309" />
+                <rect x="45" y="40" width="10" height="40" fill="#78350f" transform="rotate(45 50 60)" />
+                <rect x="70" y="20" width="20" height="30" rx="5" fill="#78350f" transform="rotate(45 80 35)" />
+            </svg>
+        );
+
+        // --- VERBATIM APPLICATION DATA ---
+
+        const SECTIONS = {
+            INTRO: 'intro',
+            PRINCIPLES: 'principles',
+            IMPLEMENTATION: 'implementation',
+            QUIZ: 'quiz'
+        };
+
+        const DATA = {
+            objectives: [
+                "Define milieu therapy",
+                "Explain the goals of milieu therapy.",
+                "Describe the general characteristics of milieu therapy.",
+                "Analyze the basic assumptions of milieu therapy",
+                "Apply the conditions that promote a therapeutic milieu.",
+                "Summarize the various components of milieu therapy.",
+                "Implement the different strategies of milieu therapy.",
+                "Determine problems that may arise within the milieu.",
+                "Specify the role of the psychiatric nurse in the therapeutic milieu."
+            ],
+            intro: {
+                background: "The recognition of the effect of the environment on the client's behavior led to the development of a treatment approach called \"milieu therapy\". This approach greatly valued the client's interaction with his/her environment. The concept of milieu therapy is founded upon the belief that the total environmental experiences can be used to promote therapeutic changes. It was developed in an attempt to resist the negative effects of institutionalization and facilitate the client's rehabilitation and discharge processes.",
+                whatIsHeading: "What Is Milieu Therapy?",
+                etymology: "The word milieu is a French word. The English translation of the word milieu is \"environment or surroundings\". Various terms are used to describe milieu therapy, such as therapeutic milieu, therapeutic environment and therapeutic community.",
+                definition: "Milieu therapy can be defined as a residential treatment where clients are put in a carefully designed environment in order to teach them new patterns of interpersonal relationships and unlearn unhealthy behaviors. It implies that staff and clients work together to achieve clear, and definite goals. It means that people, resources, and events in the clients' environment are purposeful to create a therapeutic experience for them.",
+                structure: "The therapeutic milieu is a structured therapeutic environment that serves as the ideal, and dynamic environment for working with clients. This milieu consists of clients, every member of the treatment team, and secure physical surroundings. Structured aspects of the milieu include unit activities, rules, clear limits and behavioral expectations. In addition, the clients are in constant interactions with other clients, staff and visitors which help them engage and feel more valuable and competent in social situations."
+            },
+            goals: [
+                "Learn adaptive coping methods and develop interpersonal skills that can be generalized to other aspects of his or her life. Milieu therapy can serve as real-life training for practicing communication and coping skills to prepare for a return to the community.",
+                "Help the clients to solve problems, plan activities and to develop the necessary rules and regulations for the community.",
+                "Enable the client to be an active participant in his care and become involved in the daily activities of his community.",
+                "Increase clients' autonomy and independence, and gain control over their activities.",
+                "Enable the clients to become aware of how their behavior affects others."
+            ],
+            characteristics: [
+                "Environment is influenced by and influences the client.",
+                "The environment should balance the needs of every individual with the needs of the group.",
+                "Every minute of the client's time should be used to achieve definite therapeutic goals.",
+                "Channels of communication and care plans should be clear.",
+                "Care plans should give the client as much responsibility as possible. Clients and staff are supported in their trial of new patterns of behavior.",
+                "Staff should have a high tolerance for the deviance and variation in the client's behavior.",
+                "Staff must be honest with one another, willing to work through their interpersonal issues, accept the responsibility for their action, be able to tolerate stress and frustration without being defensive, be able to seek and use help from others, and be able to respect and understand others.",
+                "Clients should be given opportunities for solving-problem and -decision making."
+            ],
+            assumptions: [
+                { title: "1. The Health in Each Individual is to be realized and encouraged to Grow:", desc: "All individuals are considered to have strengths as well as limitations. These individual strengths are identified and serve as a base for personality growth and development and help the individual to function more productively in all aspects of life.", icon: <GrowthIllustration /> },
+                { title: "2. Every Interaction Is an Opportunity for Therapeutic Intervention:", desc: "Within this structured setting, it is impossible to avoid interpersonal interaction. The ideal situation exists for clients to improve communication and relationship development skills.", icon: <InteractionIllustration /> },
+                { title: "3. The Client Owns His or Her Environment:", desc: "Clients make decisions and solve problems related to the government of the unit. In this way, personal needs for autonomy as well as the needs of the group as a whole are fulfilled.", icon: <AutonomyIllustration /> },
+                { title: "4. Each Client Owns His or Her Behavior:", desc: "Each individual within the therapeutic community is expected to take responsibility for his or her behavior.", icon: <AutonomyIllustration /> },
+                { title: "5. Peer Pressure is a Useful and Powerful Tool:", desc: "Group norms are established through peer pressure. Feedback is direct and frequent, so behaving in a manner acceptable to the other members of the community becomes essential.", icon: <PeerPressureIllustration /> },
+                { title: "6. Inappropriate Behaviors Are Dealt with as They Occur:", desc: "Individuals examine the significance of their behavior, look at how it affects other people, and discuss more appropriate ways of behaving in certain situations.", icon: <NoPunishmentIllustration /> },
+                { title: "7. Restrictions and Punishment are to be avoided:", desc: "Destructive behaviors can usually be controlled with group discussions. However, if an individual requires external controls, temporary isolation is preferred over lengthy restrictions or other harsh consequences.", icon: <NoPunishmentIllustration /> }
+            ],
+            conditions: [
+                { title: "1. Basic physiological needs are fulfilled:", desc: "As \"Maslow\" suggested, individuals do not move to higher levels of functioning until their basic biological needs, such as food, water, air and shelter, have been met.", icon: <BasicNeedsIllustration /> },
+                { title: "2. Physical facilities are conducive to the achievement of the goals of therapy:", desc: "Space is provided so that each client has sufficient privacy, as well as physical space, for therapeutic interaction with others. Physical setup, space, and furnishings are arranged to present a homelike atmosphere for the facilitation of interpersonal interaction and communication. Pictures on walls, comfortable furniture, and soothing colors help clients relax. Most facilities encourage clients and nursing staff to wear street clothes, which helps decrease the formalized nature of hospital settings and promote client-nurse relationships.", icon: <PhysicalSettingIllustration /> },
+                { title: "3. A democratic form of self-government exists:", desc: "In milieu therapy, clients participate in the making-decision and -problem solving processes that affect the management of the treatment setting. This is accomplished through regularly scheduled community meetings. At these meetings, some issues such as those with which certain clients have some disagreements may be discussed. A decision is then democratically made by the entire group. This approach reinforces the democratic atmosphere of the therapeutic environment. For example, several clients in the unit may disagree with the hours that have been designated for watching television. They may elect to bring up this issue at a community meeting and suggest an extension in television viewing time. After discussion by the group, a vote will be taken, and clients and staff agree to abide by the expressed preference of the majority.", icon: <DemocraticIllustration /> },
+                { title: "4. Responsibilities are assigned according to client capabilities:", desc: "Increasing self-esteem is the ultimate goal of milieu therapy. By assigning clients responsibilities that promote achievement, self-esteem is enhanced. Adjustments in assignments should be made in a way that preserves self-esteem and provides for progression to greater degrees of responsibility as the client returns to the previous level of functioning. All interactions a staff member initiates with a client should reflect his or her respect for that client. Clients must believe that staff members truly like and respect them.", icon: <AutonomyIllustration /> },
+                { title: "5. A structured program of social and work-related activities is scheduled as part of the treatment program:", desc: "A structured schedule of activities is a major focus of milieu therapy, e.g., occupational and recreational activities. Through these activities, healthy behaviors are learned and social skills are developed. Each client's therapeutic program consists of group activities in which interpersonal interaction and communication with other individuals are emphasized. In the group situation, the client can practice what he or she has learned to prepare for the transition to the general community.", icon: <ScheduleIllustration /> },
+                { title: "6. Community and family are included in the program of therapy:", desc: "It is important to keep as many links to the client's life outside of therapy as possible. Family members are invited to participate in specific therapy groups, and sometimes to share meals with the client. Connections with community life may be maintained through client group activities, such as shopping and attending movies. These connections with family and community facilitate the discharge process.", icon: <InteractionIllustration /> }
+            ],
+            components: [
+                {
+                    title: "A. Physical setting:",
+                    desc: "The physical environment is structured to provide both private places for contemplation and reflection and larger areas for group interaction. Physical setup, equipment, and space should provide for privacy, social interaction, safety and security. They should also meet basic human needs. The environment should be \"Home-like\", as far as possible, to create a pleasant atmosphere. Every effort should be made to take away a regimented appearance, e.g., the alignment of beds in dormitories can be broken up in various ways. They can be arranged in small boxes, with the use of a colored bedspread and small tables between them. Any touch of color from soft furnishing, flowers, books, magazines and small personal possessions may be beneficial. Chairs placed in small groups are conducive to informal discussions and more friendly relationships. Also, telephones and visits must be available.",
+                    icon: <PhysicalSettingIllustration />
+                },
+                {
+                    title: "B. Rules, regulations, and routines:",
+                    desc: "Part of the effectiveness of residential treatment is related to the things clients are expected to do. A therapeutic milieu could be structured by clearly identified rules, regulations, routines, and consequences of violations. They may include rules and regulations related to grooming, medication taking, group meetings, programs of activities, and visiting hours. These should provide for a certain degree of social order and group cohesion. In establishing rules, it is important to remember that the activities clients engage in can influence them strongly. The ward personnel should plan a daily program for the clients, including special activities. The ward routines must be communicated clearly to all clients.\n\nThe psychiatric nurse should provide for each client with the orderliness of events. He/she plans to have every client know what is happening, what is going to happen, and why. He/she wants every client to know the things he can do, and what he can expect the staff to do. The nurse should ensure that clients have written schedules of activities to which they are assigned, and he/she must work with clients to determine methods that result in the achievement of therapeutic activities and provide positive feedback for success. The nurse has to assess and make a periodic review of the ward policies and regulations, to determine if they are adequate and flexible and if they meet the client's needs in a therapeutic milieu program.",
+                    icon: <RulesIllustration />
+                },
+                {
+                    title: "C. Staff members:",
+                    desc: "Interpersonal relationships among staff members affect the well-being of clients. A therapeutic milieu requires staff members who are responsible, who can tolerate anxiety, and who have the potential for interpersonal growth and change. Staff members are selected for a milieu according to its nature and purpose.\n\nMilieu therapy is directed by a multidisciplinary treatment team which may include the psychiatric nurse, psychiatrist, psychologist, social worker, occupational therapist, and recreational therapist. However, psychiatric nurses are the only members of this team who spend time with clients on a 24-hour basis, so they assume a great responsibility for the management of the therapeutic milieu.\n\nEvery nurse who works in a therapeutic milieu needs to be aware of the meaning and significance of his/her relationships with clients. Most important, the nurse may use the interpersonal relationship to help clients learn to trust others, acquire self-confidence and improve self-esteem, and progress from dependence to independence. Sometimes the nurse may focus on practical solving-problem. At other times the nurse may set limits with clients in ways that are therapeutic rather than punitive.",
+                    icon: <StaffIllustration />
+                }
+            ],
+            strategies: [
+                {
+                    title: "1) Community meetings:",
+                    desc: "These meetings are attended by all clients and staff members daily, and all individuals have equal input in the discussions. Meetings should focus mainly on day-to-day life in the unit. During community meetings, new clients are welcomed, ward rules are discussed and reviewed, behavioral limits are set, and general announcements about unit activities are made. The community meeting is used to solve problems related to living with a large group of people or living in a psychiatric ward. Community meetings can also be used to plan activities such as picnics or social gatherings. They also may include discussing aspects of the ward environment such as privacy, television uses and cleanliness. Community meetings provide opportunities for clients to express their opinions, receive feedback, and share in making-decision democratically."
+                },
+                {
+                    title: "2) Client government:",
+                    desc: "In the client government clients are expected to take responsibility for themselves and to learn the consequences of their behaviors. The client government is led by a client. Staff members should be available always. They are often represented by nursing personnel and provide consultation on the ward rules and regulations. Clients and staff meet once or twice per week to discuss and resolve day-to-day issues based on group decisions. Such issues may be housekeeping process, meal distribution, disruptive behavior of some clients and ward activities. The success of this strategy depends on the administration and staff's willingness to be receptive to the client's ideas and suggestions.",
+                    bulletsTitle: "Principles of client government:",
+                    bullets: [
+                        "Clients should make and enforce most of the ward rules.",
+                        "Staff members should not attempt to solve a problem that can be delegated to the client government."
+                    ],
+                    advantagesTitle: "Advantages of client government:",
+                    advantages: [
+                        "Make life in the hospital resembles that in the community.",
+                        "An opportunity for clients to understand the administrative policy and to apply it.",
+                        "Increase client's self-esteem.",
+                        "A way to control deviant behavior with group pressure.",
+                        "Provide means to express negative feelings.",
+                        "Provide means for free communication.",
+                        "Group support for very disturbed clients."
+                    ]
+                },
+                {
+                    title: "3) Staff Attitude:",
+                    desc: "Certain attitudes or approaches should be consistently assumed and used by all staff members in their interactions with clients to provide a consistent"
+                }
+            ]
+        };
+
+        const QUIZ_QUESTIONS = [
+            {
+                q: "What is the English translation of the French word 'Milieu'?",
+                options: ["Treatment", "Environment or surroundings", "Therapy session", "Medical facility"],
+                correct: 1
+            },
+            {
+                q: "According to the basic assumptions of milieu therapy, how should punishment and restrictions be handled?",
+                options: ["Used frequently to enforce rules", "Applied only by the client government", "Avoided, with group discussion preferred", "Used primarily for minor infractions"],
+                correct: 2
+            },
+            {
+                q: "What is considered the ultimate goal of assigning responsibilities to clients in milieu therapy?",
+                options: ["Decreasing staffing costs", "Increasing self-esteem", "Keeping the ward clean", "Punishing bad behavior"],
+                correct: 1
+            },
+            {
+                q: "Who typically leads the 'Client Government' in a therapeutic milieu?",
+                options: ["The psychiatrist", "The psychiatric nurse", "A social worker", "A client"],
+                correct: 3
+            },
+            {
+                q: "Which member of the multidisciplinary team spends time with clients on a 24-hour basis and assumes a great responsibility for the milieu?",
+                options: ["Psychologist", "Recreational therapist", "Psychiatric nurse", "Occupational therapist"],
+                correct: 2
+            }
+        ];
+
+        // --- REUSABLE UI COMPONENTS ---
+
+        const Card = ({ children, className = "" }) => (
+            <div className={`bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8 ${className}`}>
+                {children}
+            </div>
+        );
+
+        const SectionHeader = ({ title, icon, color }) => (
+            <div className={`flex items-center gap-4 mb-10 p-6 rounded-xl ${color} bg-opacity-10 border border-${color.split('-')[1]}-100`}>
+                <div className={`p-3 rounded-full bg-white shadow-sm ${color.replace('bg-', 'text-')}`}>
+                    {icon}
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold text-slate-800 tracking-tight">{title}</h2>
+            </div>
+        );
+
+        const ExpandableItem = ({ title, desc, icon, defaultOpen = false }) => {
+            const [isOpen, setIsOpen] = useState(defaultOpen);
+            
+            return (
+                <div className="mb-5 border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow">
+                    <div 
+                        className="p-5 md:p-6 flex justify-between items-center cursor-pointer bg-slate-50 hover:bg-teal-50 transition-colors"
+                        onClick={() => setIsOpen(!isOpen)}
+                    >
+                        <div className="flex items-center gap-5">
+                            {icon && <div className="flex-shrink-0">{icon}</div>}
+                            <h4 className="font-bold text-slate-800 text-lg md:text-xl leading-tight">{title}</h4>
+                        </div>
+                        <button className="text-slate-400 flex-shrink-0 ml-3 hover:text-teal-600 transition-colors">
+                            {isOpen ? <ChevronUp size={28} /> : <ChevronDown size={28} />}
+                        </button>
+                    </div>
+                    {isOpen && (
+                        <div className="p-6 md:p-8 border-t border-slate-100 text-slate-700 text-lg leading-loose animate-in fade-in slide-in-from-top-2">
+                            {desc}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // --- MAIN APP COMPONENT ---
+
+        function MilieuTherapyApp() {
+            const [activeSection, setActiveSection] = useState(SECTIONS.INTRO);
+            
+            // Quiz State
+            const [quizScore, setQuizScore] = useState(0);
+            const [quizSubmitted, setQuizSubmitted] = useState(false);
+            const [quizAnswers, setQuizAnswers] = useState({});
+
+            const handleNavClick = (section) => {
+                setActiveSection(section);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const handleQuizOption = (qIndex, optIndex) => {
+                if (quizSubmitted) return;
+                setQuizAnswers(prev => ({ ...prev, [qIndex]: optIndex }));
+            };
+
+            const submitQuiz = () => {
+                let score = 0;
+                QUIZ_QUESTIONS.forEach((q, i) => {
+                    if (quizAnswers[i] === q.correct) score++;
+                });
+                setQuizScore(score);
+                setQuizSubmitted(true);
+            };
+
+            const resetQuiz = () => {
+                setQuizAnswers({});
+                setQuizSubmitted(false);
+                setQuizScore(0);
+            };
+
+            // --- VIEWS ---
+
+            const IntroView = () => (
+                <div className="space-y-12 animate-in fade-in duration-500">
+                    <div className="bg-gradient-to-br from-teal-600 to-cyan-800 text-white p-10 md:p-16 rounded-3xl shadow-xl relative overflow-hidden">
+                        <div className="relative z-10">
+                            <span className="bg-teal-900 bg-opacity-40 text-teal-100 text-sm font-bold px-4 py-1.5 rounded-full uppercase tracking-wider mb-6 inline-block shadow-sm">Unit 3, Chapter 2</span>
+                            <h1 className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight">Milieu Therapy</h1>
+                            <p className="text-teal-50 text-xl max-w-3xl leading-loose mb-6 font-light">
+                                <span className="font-bold block mb-2 text-2xl text-white">Introduction:</span>
+                                {DATA.intro.background}
+                            </p>
+                            <div className="mt-10 flex flex-wrap gap-5">
+                                <button onClick={() => handleNavClick(SECTIONS.PRINCIPLES)} className="bg-white text-teal-800 px-8 py-4 rounded-full font-bold text-lg hover:bg-teal-50 hover:shadow-lg transition-all transform hover:-translate-y-1">Explore Principles</button>
+                                <button onClick={() => handleNavClick(SECTIONS.QUIZ)} className="bg-teal-900 bg-opacity-30 text-white border-2 border-teal-400 px-8 py-4 rounded-full font-bold text-lg hover:bg-teal-800 transition-all">Take Quiz</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-12 gap-8">
+                        <div className="md:col-span-7 space-y-8">
+                            <Card className="border-l-4 border-l-teal-500 shadow-md">
+                                <h3 className="text-2xl md:text-3xl font-bold text-slate-800 mb-6 flex items-center gap-3 border-b pb-4">
+                                    <BookOpen className="text-teal-500 w-8 h-8" /> {DATA.intro.whatIsHeading}
+                                </h3>
+                                <div className="space-y-6 text-slate-700 leading-loose text-lg">
+                                    <p className="bg-slate-50 p-5 rounded-xl border border-slate-100">
+                                        <span className="font-bold text-teal-800 block mb-2">Etymology:</span>
+                                        {DATA.intro.etymology}
+                                    </p>
+                                    <p className="bg-teal-50 p-5 rounded-xl border border-teal-100 font-medium text-teal-900 shadow-sm">
+                                        <span className="font-bold text-teal-800 block mb-2">Definition:</span>
+                                        {DATA.intro.definition}
+                                    </p>
+                                    <p className="bg-slate-50 p-5 rounded-xl border border-slate-100">
+                                        <span className="font-bold text-teal-800 block mb-2">Structure:</span>
+                                        {DATA.intro.structure}
+                                    </p>
+                                </div>
+                            </Card>
+                        </div>
+                        
+                        <div className="md:col-span-5">
+                            <Card className="bg-white border border-slate-200 shadow-sm h-full flex flex-col">
+                                <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-slate-800 border-b pb-4">
+                                    <Target className="text-teal-600 w-8 h-8" /> Learning Objectives:
+                                </h3>
+                                <p className="mb-5 text-base text-slate-600 font-medium">By the end of this lecture, the student will be able to:</p>
+                                <ul className="space-y-4 flex-grow">
+                                    {DATA.objectives.map((obj, i) => (
+                                        <li key={i} className="flex gap-4 text-base md:text-lg text-slate-700 bg-slate-50 hover:bg-teal-50/50 transition-colors p-3 md:p-4 rounded-xl border border-slate-100">
+                                            <span className="text-teal-700 font-bold bg-teal-100 w-8 h-8 flex items-center justify-center rounded-full flex-shrink-0 text-sm">{i+1}</span>
+                                            <span className="mt-1 leading-relaxed">{obj}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </Card>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            const PrinciplesView = () => (
+                <div className="animate-in slide-in-from-right-4 duration-500">
+                    <SectionHeader title="Goals & Principles" icon={<Target size={32} />} color="bg-indigo-100 text-indigo-600" />
+                    
+                    <div className="grid lg:grid-cols-2 gap-12 mb-12">
+                        {/* Goals */}
+                        <section>
+                            <div className="flex items-center gap-4 mb-8">
+                                <GoalsIllustration />
+                                <h3 className="text-2xl font-bold text-slate-800">Goals of milieu therapy</h3>
+                            </div>
+                            <div className="space-y-6">
+                                {DATA.goals.map((goal, idx) => (
+                                    <div key={idx} className="flex gap-5 bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:border-indigo-200 hover:shadow-md transition-all">
+                                        <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center font-bold text-sm mt-1">
+                                            {idx + 1}
+                                        </div>
+                                        <p className="text-slate-700 text-lg leading-loose">{goal}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+
+                        {/* Characteristics */}
+                        <section>
+                            <div className="flex items-center gap-4 mb-8">
+                                <ListChecks size={48} className="text-indigo-500 flex-shrink-0" />
+                                <h3 className="text-2xl font-bold text-slate-800">General characteristics of milieu therapy</h3>
+                            </div>
+                            <Card className="bg-indigo-50/50 border-indigo-100">
+                                <ul className="space-y-5">
+                                    {DATA.characteristics.map((char, idx) => (
+                                        <li key={idx} className="flex gap-4 items-start bg-white p-4 rounded-xl border border-indigo-50 shadow-sm">
+                                            <span className="text-indigo-500 mt-2 flex-shrink-0"><CheckCircle size={20}/></span>
+                                            <span className="text-slate-700 text-lg leading-loose">{char}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </Card>
+                        </section>
+                    </div>
+
+                    {/* Basic Assumptions */}
+                    <section className="mt-16">
+                        <div className="text-center mb-10">
+                            <h3 className="text-3xl font-bold text-slate-800 inline-block relative">
+                                Basic assumptions of Milieu Therapy
+                                <div className="absolute -bottom-3 left-1/4 right-1/4 h-1.5 bg-indigo-500 rounded-full"></div>
+                            </h3>
+                            <p className="text-slate-500 mt-6 text-lg font-medium">There are seven basic assumptions on which milieu therapy is based:</p>
+                        </div>
+                        
+                        <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+                            {DATA.assumptions.map((assump, idx) => (
+                                <div key={idx} className={idx === 6 ? "md:col-span-2 md:w-2/3 md:mx-auto" : ""}>
+                                    <ExpandableItem 
+                                        title={assump.title} 
+                                        desc={assump.desc} 
+                                        icon={assump.icon}
+                                        defaultOpen={idx === 0}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                </div>
+            );
+
+            const ImplementationView = () => (
+                <div className="animate-in slide-in-from-right-4 duration-500">
+                    <SectionHeader title="Implementation & Strategies" icon={<Puzzle size={32} />} color="bg-emerald-100 text-emerald-600" />
+                    
+                    <MilieuConceptIllustration />
+
+                    <div className="space-y-16">
+                        {/* Conditions */}
+                        <section>
+                            <h3 className="text-3xl font-bold text-slate-800 mb-8 border-b pb-3">
+                                Conditions that promote a therapeutic milieu
+                            </h3>
+                            <p className="mb-8 text-slate-700 text-lg leading-loose bg-emerald-50 p-6 rounded-xl border border-emerald-100 shadow-sm">
+                                In a therapeutic milieu setting, everything that happens to the client, or within the client's environment, is considered to be part of the treatment program. Several conditions that promote a therapeutic milieu have been identified as follows:
+                            </p>
+                            <div className="grid md:grid-cols-2 gap-8">
+                                {DATA.conditions.map((cond, idx) => (
+                                    <Card key={idx} className="border-t-4 border-t-emerald-400 hover:shadow-lg transition-all flex flex-col bg-white">
+                                        <div className="flex items-center gap-5 mb-5">
+                                            <div className="bg-emerald-50 p-3 rounded-2xl shadow-sm">
+                                                {cond.icon}
+                                            </div>
+                                            <h4 className="font-bold text-slate-800 text-xl leading-tight">{cond.title}</h4>
+                                        </div>
+                                        <p className="text-slate-600 text-lg leading-loose flex-grow whitespace-pre-line">{cond.desc}</p>
+                                    </Card>
+                                ))}
+                            </div>
+                        </section>
+
+                        {/* Components */}
+                        <section>
+                            <h3 className="text-3xl font-bold text-slate-800 mb-8 border-b pb-3">
+                                Components of milieu therapy
+                            </h3>
+                            <p className="mb-8 text-slate-600 text-lg">Various components constituting a therapeutic milieu include:</p>
+                            <div className="space-y-8">
+                                {DATA.components.map((comp, idx) => (
+                                    <div key={idx} className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden flex flex-col md:flex-row hover:shadow-lg transition-shadow">
+                                        <div className="bg-emerald-600 text-white p-8 md:w-1/3 lg:w-1/4 flex flex-col justify-center items-center text-center relative overflow-hidden">
+                                            <div className="relative z-10 flex flex-col items-center">
+                                                {comp.icon}
+                                                <h4 className="font-bold text-2xl mt-5">{comp.title}</h4>
+                                            </div>
+                                            <div className="absolute inset-0 bg-emerald-700 opacity-20 transform -skew-y-12 scale-150 origin-bottom-right"></div>
+                                        </div>
+                                        <div className="p-8 md:w-2/3 lg:w-3/4 text-slate-700 text-lg leading-loose whitespace-pre-line">
+                                            {comp.desc}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+
+                        {/* Strategies */}
+                        <section>
+                            <h3 className="text-3xl font-bold text-slate-800 mb-8 border-b pb-3">
+                                Strategies of milieu therapy
+                            </h3>
+                            
+                            <div className="space-y-10">
+                                {/* Community Meetings */}
+                                <Card className="bg-blue-50/50 border-blue-200 shadow-md">
+                                    <div className="md:flex gap-8 items-center">
+                                        <div className="md:w-2/3">
+                                            <h4 className="text-2xl font-bold text-blue-900 mb-5">{DATA.strategies[0].title}</h4>
+                                            <p className="text-slate-700 text-lg leading-loose">{DATA.strategies[0].desc}</p>
+                                        </div>
+                                        <div className="md:w-1/3 mt-6 md:mt-0 flex justify-center">
+                                            <CommunityMeetingIllustration />
+                                        </div>
+                                    </div>
+                                </Card>
+
+                                {/* Client Government */}
+                                <Card className="bg-amber-50/50 border-amber-200 shadow-md">
+                                    <div className="md:flex gap-8 items-start">
+                                        <div className="md:w-3/5">
+                                            <h4 className="text-2xl font-bold text-amber-900 mb-5 flex items-center gap-4">
+                                                <ClientGovIllustration /> {DATA.strategies[1].title}
+                                            </h4>
+                                            <p className="text-slate-700 text-lg leading-loose mb-8">{DATA.strategies[1].desc}</p>
+                                        </div>
+                                        <div className="md:w-2/5 space-y-6">
+                                            <div className="bg-white p-6 rounded-xl shadow-sm border border-amber-100">
+                                                <h5 className="font-bold text-amber-900 text-lg mb-4">{DATA.strategies[1].bulletsTitle}</h5>
+                                                <ul className="space-y-3">
+                                                    {DATA.strategies[1].bullets.map((b, i) => (
+                                                        <li key={i} className="flex gap-3 text-base text-slate-700 leading-relaxed">
+                                                            <span className="text-amber-500 text-xl font-bold">•</span> {b}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                            <div className="bg-white p-6 rounded-xl shadow-sm border border-amber-100">
+                                                <h5 className="font-bold text-amber-900 text-lg mb-4">{DATA.strategies[1].advantagesTitle}</h5>
+                                                <ul className="space-y-3">
+                                                    {DATA.strategies[1].advantages.map((a, i) => (
+                                                        <li key={i} className="flex gap-3 text-base text-slate-700 leading-relaxed">
+                                                            <span className="text-amber-500 mt-1"><CheckCircle size={18}/></span> {a}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Card>
+
+                                {/* Staff Attitude */}
+                                <Card className="bg-purple-50/50 border-purple-200 shadow-md flex items-center gap-8">
+                                    <div className="flex-shrink-0 hidden md:block bg-white p-4 rounded-full shadow-sm">
+                                        <StaffIllustration />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-2xl font-bold text-purple-900 mb-4">{DATA.strategies[2].title}</h4>
+                                        <p className="text-slate-700 text-lg leading-loose">{DATA.strategies[2].desc}</p>
+                                    </div>
+                                </Card>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            );
+
+            const QuizView = () => (
+                <div className="animate-in slide-in-from-right-4 duration-500 max-w-4xl mx-auto">
+                    <SectionHeader title="Knowledge Check" icon={<Lightbulb size={32} />} color="bg-rose-100 text-rose-600" />
+                    
+                    {!quizSubmitted ? (
+                        <div className="space-y-8">
+                            {QUIZ_QUESTIONS.map((q, qIndex) => (
+                                <Card key={qIndex} className="p-8 shadow-md hover:shadow-lg transition-shadow">
+                                    <h4 className="font-bold text-xl mb-6 text-slate-800 leading-relaxed">
+                                        <span className="bg-slate-100 text-slate-500 px-3 py-1 rounded-lg mr-3 text-lg">{qIndex + 1}</span>
+                                        {q.q}
+                                    </h4>
+                                    <div className="space-y-4 pl-2 md:pl-12">
+                                        {q.options.map((opt, optIndex) => (
+                                            <button
+                                                key={optIndex}
+                                                onClick={() => handleQuizOption(qIndex, optIndex)}
+                                                className={`w-full text-left p-5 rounded-xl border-2 transition-all duration-200 text-lg ${
+                                                    quizAnswers[qIndex] === optIndex 
+                                                        ? 'bg-rose-50 border-rose-500 text-rose-900 shadow-md transform scale-[1.01]' 
+                                                        : 'bg-white border-slate-200 text-slate-700 hover:border-rose-300 hover:bg-rose-50/50'
+                                                }`}
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <div className={`w-6 h-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${quizAnswers[qIndex] === optIndex ? 'border-rose-500 bg-rose-500' : 'border-slate-300'}`}>
+                                                        {quizAnswers[qIndex] === optIndex && <CheckCircle size={14} className="text-white" />}
+                                                    </div>
+                                                    {opt}
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </Card>
+                            ))}
+                            
+                            <div className="pt-8">
+                                <button 
+                                    onClick={submitQuiz}
+                                    disabled={Object.keys(quizAnswers).length < QUIZ_QUESTIONS.length}
+                                    className="w-full py-5 bg-rose-600 text-white rounded-2xl font-bold text-2xl shadow-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-rose-700 transition-colors transform hover:-translate-y-1 active:translate-y-0"
+                                >
+                                    Submit Answers
+                                </button>
+                                {Object.keys(quizAnswers).length < QUIZ_QUESTIONS.length && (
+                                    <p className="text-center text-base text-slate-500 mt-4 font-medium">Please answer all questions to submit.</p>
+                                )}
+                            </div>
+                        </div>
+                    ) : (
+                        <Card className="text-center p-12 md:p-16 bg-gradient-to-b from-white to-slate-50 shadow-xl">
+                            <div className="text-8xl mb-8">{quizScore >= 4 ? '🏆' : '📚'}</div>
+                            <h2 className="text-4xl md:text-5xl font-extrabold mb-4 text-slate-800">You scored {quizScore} out of {QUIZ_QUESTIONS.length}</h2>
+                            <p className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+                                {quizScore === 5 
+                                    ? "Perfect score! You have a complete mastery of Milieu Therapy concepts." 
+                                    : quizScore >= 3 
+                                        ? "Good job! You have a solid understanding, but reviewing a few concepts could make you an expert."
+                                        : "Keep studying! Review the Principles and Implementation sections and try again."}
+                            </p>
+                            
+                            <div className="bg-white rounded-2xl border border-slate-200 p-8 text-left mb-10 space-y-6 shadow-sm max-w-3xl mx-auto">
+                                <h3 className="font-bold text-2xl border-b pb-4 mb-6 text-slate-800">Review:</h3>
+                                {QUIZ_QUESTIONS.map((q, i) => (
+                                    <div key={i} className="flex gap-4">
+                                        <div className="mt-1 flex-shrink-0">
+                                            {quizAnswers[i] === q.correct 
+                                                ? <CheckCircle className="text-emerald-500" size={24}/> 
+                                                : <Target className="text-rose-500" size={24}/>}
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-slate-800 text-lg leading-relaxed">{q.q}</p>
+                                            <p className="text-base text-slate-600 mt-2">Correct Answer: <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">{q.options[q.correct]}</span></p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <button 
+                                onClick={resetQuiz} 
+                                className="bg-slate-800 text-white px-10 py-4 rounded-full font-bold text-xl hover:bg-slate-700 transition-colors shadow-lg"
+                            >
+                                Retake Quiz
+                            </button>
+                        </Card>
+                    )}
+                </div>
+            );
+
+            return (
+                <div className="min-h-screen bg-slate-50 font-sans text-slate-800 selection:bg-teal-200">
+                    {/* Top Navigation */}
+                    <nav className="bg-white shadow-md sticky top-0 z-50 border-b border-slate-200">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+                            <div className="flex items-center gap-4 font-bold text-base md:text-xl text-teal-800 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => handleNavClick(SECTIONS.INTRO)}>
+                                <DepartmentLogo className="w-12 h-12 md:w-14 md:h-14 flex-shrink-0" />
+                                <span className="hidden lg:inline">Psychiatric & Mental Health Nursing</span>
+                                <span className="lg:hidden">PMHN Dept.</span>
+                            </div>
+                            
+                            <div className="flex gap-2 overflow-x-auto no-scrollbar py-2">
+                                {[
+                                    { id: SECTIONS.INTRO, label: 'Intro', icon: <Home size={18}/> },
+                                    { id: SECTIONS.PRINCIPLES, label: 'Principles', icon: <Target size={18}/> },
+                                    { id: SECTIONS.IMPLEMENTATION, label: 'Implementation', icon: <Puzzle size={18}/> },
+                                    { id: SECTIONS.QUIZ, label: 'Quiz', icon: <Lightbulb size={18}/> },
+                                ].map(nav => (
+                                    <button
+                                        key={nav.id}
+                                        onClick={() => handleNavClick(nav.id)}
+                                        className={`flex items-center gap-2 px-4 md:px-5 py-2.5 rounded-full text-sm md:text-base font-semibold transition-all whitespace-nowrap ${
+                                            activeSection === nav.id 
+                                                ? 'bg-teal-100 text-teal-900 shadow-inner' 
+                                                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                                        }`}
+                                    >
+                                        <span className="hidden sm:inline">{nav.icon}</span> {nav.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </nav>
+
+                    {/* Main Content Area */}
+                    <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+                        {activeSection === SECTIONS.INTRO && <IntroView />}
+                        {activeSection === SECTIONS.PRINCIPLES && <PrinciplesView />}
+                        {activeSection === SECTIONS.IMPLEMENTATION && <ImplementationView />}
+                        {activeSection === SECTIONS.QUIZ && <QuizView />}
+                    </main>
+
+                    {/* Footer */}
+                    <footer className="bg-slate-900 text-slate-300 py-12 mt-16 border-t-4 border-indigo-600">
+                        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center md:items-start justify-between gap-10">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+                                <FacultyLogo className="w-24 h-28 flex-shrink-0 drop-shadow-md" />
+                                <div className="mt-3">
+                                    <p className="mb-2 text-xl font-bold text-white tracking-wide">Psychiatric Nursing & Mental Health</p>
+                                    <p className="text-base text-slate-400 max-w-sm leading-relaxed">Introduction to Psychiatric and Mental Health Nursing • Educational Material</p>
+                                </div>
+                            </div>
+                            
+                            <div className="text-center md:text-right space-y-3 text-base border-t md:border-t-0 border-slate-700 pt-8 md:pt-0 w-full md:w-auto">
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider font-bold block sm:inline sm:mr-3">Dean of The Faculty:</span> <span className="text-slate-200">Prof. Dr. Hanan Hosny El-Sherbiny</span></p>
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider font-bold block sm:inline sm:mr-3">Acting Head of Department:</span> <span className="text-slate-200">Asst. Prof. Dr. Mayar Ezz-Eldin El-Naqeeb</span></p>
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider font-bold block sm:inline sm:mr-3">Created by:</span> <span className="font-semibold text-white">M.Abdallah Abozaid</span></p>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<MilieuTherapyApp />);
+    </script>
+</body>
+</html>

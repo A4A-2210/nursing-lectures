@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anxiety, OCD & Trauma Disorders</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX compilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useLayoutEffect } = React;
+
+        // --- ICON SYSTEM SETUP ---
+        const IconWrapper = ({ name, ...props }) => {
+            const ref = useRef(null);
+            useLayoutEffect(() => {
+                if (ref.current && window.lucide && window.lucide.icons[name]) {
+                    const iconElement = window.lucide.createElement(window.lucide.icons[name]);
+                    if (props.className) {
+                        const existingClass = iconElement.getAttribute('class') || '';
+                        iconElement.setAttribute('class', `${existingClass} ${props.className}`);
+                    }
+                    if (props.size) {
+                        iconElement.setAttribute('width', props.size);
+                        iconElement.setAttribute('height', props.size);
+                    }
+                    ref.current.innerHTML = '';
+                    ref.current.appendChild(iconElement);
+                }
+            }, [name, props.className, props.size]);
+            return <span ref={ref} style={{ display: 'inline-flex', verticalAlign: 'middle' }} />;
+        };
+
+        const createIconComponent = (name) => (props) => <IconWrapper name={name} {...props} />;
+        
+        const Brain = createIconComponent('Brain');
+        const Heart = createIconComponent('Heart');
+        const Activity = createIconComponent('Activity');
+        const ChevronDown = createIconComponent('ChevronDown');
+        const ChevronUp = createIconComponent('ChevronUp');
+        const ShieldAlert = createIconComponent('ShieldAlert');
+        const Repeat = createIconComponent('Repeat');
+        const Clock = createIconComponent('Clock');
+        const Compass = createIconComponent('Compass');
+        const Lightbulb = createIconComponent('Lightbulb');
+        const HelpCircle = createIconComponent('HelpCircle');
+        const ClipboardList = createIconComponent('ClipboardList');
+        const HeartPulse = createIconComponent('HeartPulse');
+        const Crosshair = createIconComponent('Crosshair');
+        const AlertCircle = createIconComponent('AlertCircle');
+
+        // --- DEPARTMENT LOGO (SVG REPLICA) ---
+        const DepartmentLogo = ({ className = "w-10 h-10" }) => (
+            <svg viewBox="0 0 100 120" className={className} xmlns="http://www.w3.org/2000/svg">
+                <path d="M 5 80 C 15 100 40 110 60 105 C 80 100 95 85 95 75 C 95 70 85 65 75 75 C 65 85 50 90 35 85 C 25 80 15 75 5 80 Z" fill="#004a8f" />
+                <path d="M 30 85 C 45 92 60 90 75 80" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                <path d="M 40 78 C 55 85 70 80 85 70" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                <path d="M 50 65 L 53 72 L 58 67 L 58 57 C 58 52 64 50 64 45 C 64 43 60 41 60 39 L 68 37 C 70 36 70 34 68 32 C 65 31 62 32 60 29 C 60 15 48 5 35 10" stroke="#004a8f" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                <g stroke="#1e1b4b" strokeWidth="1.5" fill="none">
+                    <circle cx="35" cy="22" r="9" />
+                    <circle cx="28" cy="35" r="9" />
+                    <circle cx="42" cy="35" r="9" />
+                </g>
+                <text x="35" y="24.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">C</text>
+                <text x="28" y="37.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">C</text>
+                <text x="42" y="37.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">A</text>
+            </svg>
+        );
+
+        // --- FACULTY LOGO (SVG REPLICA) ---
+        const FacultyLogo = ({ className = "w-24 h-28" }) => (
+            <svg viewBox="0 0 100 130" className={className} xmlns="http://www.w3.org/2000/svg">
+                <path d="M 2 2 L 98 2 L 98 65 C 98 110 50 128 50 128 C 50 128 2 110 2 65 Z" fill="#24335c" />
+                <path d="M 4 4 L 96 4 L 96 65 C 96 108 50 125 50 125 C 50 125 4 108 4 65 Z" fill="#ffffff" />
+                <path d="M 6 6 L 94 6 L 94 65 C 94 106 50 122 50 122 C 50 122 6 106 6 65 Z" fill="#66c5f4" />
+                <path d="M 6 75 L 94 75 C 94 106 50 122 50 122 C 50 122 6 106 6 75 Z" fill="#1da2d8" />
+                <g stroke="#1a2f57" strokeWidth="0.8">
+                    <line x1="50" y1="18" x2="15" y2="12" />
+                    <line x1="50" y1="18" x2="10" y2="20" />
+                    <line x1="50" y1="18" x2="10" y2="28" />
+                    <line x1="50" y1="18" x2="15" y2="35" />
+                    <line x1="50" y1="18" x2="85" y2="12" />
+                    <line x1="50" y1="18" x2="90" y2="20" />
+                    <line x1="50" y1="18" x2="90" y2="28" />
+                    <line x1="50" y1="18" x2="85" y2="35" />
+                </g>
+                <g fill="#c49341" stroke="#1a2f57" strokeWidth="1.2" strokeLinejoin="round">
+                    <polygon points="12,60 10,75 22,75 20,60" />
+                    <rect x="10" y="56" width="12" height="4" />
+                    <rect x="11" y="53" width="10" height="3" />
+                    <rect x="20" y="63" width="18" height="12" />
+                    <polygon points="80,60 78,75 90,75 88,60" />
+                    <rect x="78" y="56" width="12" height="4" />
+                    <rect x="79" y="53" width="10" height="3" />
+                    <rect x="62" y="63" width="18" height="12" />
+                    <polygon points="40,40 33,75 67,75 60,40" />
+                    <rect x="38" y="38" width="24" height="4" />
+                    <rect x="42" y="24" width="16" height="14" />
+                    <rect x="40" y="22" width="20" height="3" />
+                    <rect x="45" y="14" width="10" height="8" />
+                    <rect x="44" y="12" width="12" height="2" />
+                    <polygon points="47,12 48,7 52,7 53,12" />
+                </g>
+                <g fill="none" stroke="#1a2f57" strokeWidth="1.2">
+                    <rect x="22" y="66" width="3" height="4" />
+                    <rect x="27" y="66" width="3" height="4" />
+                    <rect x="32" y="66" width="3" height="4" />
+                    <rect x="65" y="66" width="3" height="4" />
+                    <rect x="70" y="66" width="3" height="4" />
+                    <rect x="75" y="66" width="3" height="4" />
+                    <rect x="47" y="64" width="6" height="11" />
+                    <rect x="48" y="54" width="4" height="5" />
+                    <rect x="48" y="46" width="4" height="5" />
+                    <rect x="44" y="27" width="4" height="4" />
+                    <rect x="52" y="27" width="4" height="4" />
+                </g>
+                <g fill="#1a2f57" stroke="none">
+                    <path d="M 12 85 Q 16 87 20 85 L 20 87 Q 16 89 12 87 Z" />
+                    <path d="M 28 85 Q 32 87 36 85 L 36 87 Q 32 89 28 87 Z" />
+                    <path d="M 44 85 Q 48 87 52 85 L 52 87 Q 48 89 44 87 Z" />
+                    <path d="M 60 85 Q 64 87 68 85 L 68 87 Q 64 89 60 87 Z" />
+                    <path d="M 76 85 Q 80 87 84 85 L 84 87 Q 80 89 76 87 Z" />
+                    <path d="M 20 95 Q 24 97 28 95 L 28 97 Q 24 99 20 97 Z" />
+                    <path d="M 36 95 Q 40 97 44 95 L 44 97 Q 40 99 36 97 Z" />
+                    <path d="M 52 95 Q 56 97 60 95 L 60 97 Q 56 99 52 97 Z" />
+                    <path d="M 68 95 Q 72 97 76 95 L 76 97 Q 72 99 68 97 Z" />
+                    <path d="M 28 105 Q 32 107 36 105 L 36 107 Q 32 109 28 107 Z" />
+                    <path d="M 44 105 Q 48 107 52 105 L 52 107 Q 48 109 44 107 Z" />
+                    <path d="M 60 105 Q 64 107 68 105 L 68 107 Q 64 109 60 107 Z" />
+                    <path d="M 40 115 Q 44 117 48 115 L 48 117 Q 44 119 40 117 Z" />
+                    <path d="M 52 115 Q 56 117 60 115 L 60 117 Q 56 119 52 117 Z" />
+                </g>
+            </svg>
+        );
+
+        // --- 15+ CUSTOM SVG ILLUSTRATIONS ---
+
+        // 1. Separation Anxiety
+        const SVGSeparation = () => (
+            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full text-blue-500">
+                <circle cx="40" cy="30" r="12" />
+                <path d="M40 42 v30 M25 72 l15 -30 l15 30" />
+                <circle cx="70" cy="50" r="8" />
+                <path d="M70 58 v20 M60 78 l10 -20 l10 20 M60 65 l10 -10 l10 10" />
+            </svg>
+        );
+
+        // 2. Selective Mutism
+        const SVGMuting = () => (
+            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full text-slate-500">
+                <circle cx="50" cy="50" r="40" />
+                <circle cx="35" cy="40" r="4" fill="currentColor" />
+                <circle cx="65" cy="40" r="4" fill="currentColor" />
+                <line x1="35" y1="65" x2="65" y2="65" />
+                <line x1="40" y1="60" x2="45" y2="70" />
+                <line x1="50" y1="60" x2="55" y2="70" />
+                <line x1="60" y1="60" x2="65" y2="70" />
+            </svg>
+        );
+
+        // 3. Phobia (Spider)
+        const SVGPhobia = () => (
+            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full text-red-500">
+                <path d="M10 10 L90 90 M10 90 L90 10 M50 5 L50 95 M5 50 L95 50" strokeOpacity="0.3"/>
+                <path d="M25 25 Q50 15 75 25 Q85 50 75 75 Q50 85 25 75 Q15 50 25 25" strokeOpacity="0.3"/>
+                <circle cx="60" cy="60" r="10" fill="currentColor" />
+                <circle cx="53" cy="53" r="5" fill="currentColor" />
+                <path d="M60 60 Q70 45 80 50 M60 60 Q80 60 85 70 M60 60 Q70 75 60 85 M60 60 Q45 70 40 80 M60 60 Q40 60 30 50 M60 60 Q45 45 50 30" />
+            </svg>
+        );
+
+        // 4. Social Anxiety
+        const SVGSocialAnxiety = () => (
+            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full text-indigo-500">
+                <circle cx="50" cy="50" r="12" fill="currentColor" fillOpacity="0.2"/>
+                <path d="M50 62 v20 M40 82 l10 -20 l10 20 M40 70 l10 -10 l10 10" />
+                <path d="M10 30 Q20 20 30 30 Q20 40 10 30 Z" /> <circle cx="20" cy="30" r="3" fill="currentColor"/>
+                <path d="M70 30 Q80 20 90 30 Q80 40 70 30 Z" /> <circle cx="80" cy="30" r="3" fill="currentColor"/>
+                <path d="M10 70 Q20 60 30 70 Q20 80 10 70 Z" /> <circle cx="20" cy="70" r="3" fill="currentColor"/>
+                <path d="M70 70 Q80 60 90 70 Q80 80 70 70 Z" /> <circle cx="80" cy="70" r="3" fill="currentColor"/>
+                <path d="M40 15 Q50 5 60 15 Q50 25 40 15 Z" /> <circle cx="50" cy="15" r="3" fill="currentColor"/>
+            </svg>
+        );
+
+        // 5. Agoraphobia
+        const SVGAgoraphobia = () => (
+            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full text-orange-500">
+                <path d="M20 50 L50 20 L80 50 v40 H20 Z" />
+                <rect x="40" y="60" width="20" height="30" />
+                <circle cx="25" cy="25" r="8" />
+                <path d="M25 10 v5 M25 35 v5 M10 25 h5 M35 25 h5" />
+                <circle cx="50" cy="70" r="5" fill="currentColor" />
+            </svg>
+        );
+
+        // 6. Panic Attack
+        const SVGPanic = () => (
+            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full text-red-600">
+                <path d="M50 85 C20 60 10 40 10 25 C10 10 30 5 50 25 C70 5 90 10 90 25 C90 40 80 60 50 85 Z" fill="currentColor" fillOpacity="0.1"/>
+                <polyline points="20,50 35,50 45,20 55,80 65,50 80,50" strokeWidth="5"/>
+                <path d="M85 15 Q90 25 85 30 Q80 25 85 15 Z" fill="currentColor"/>
+                <path d="M15 15 Q20 25 15 30 Q10 25 15 15 Z" fill="currentColor"/>
+            </svg>
+        );
+
+        // 7. Body Dysmorphic
+        const SVGBDD = () => (
+            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full text-purple-500">
+                <rect x="50" y="10" width="40" height="80" rx="5" />
+                <circle cx="25" cy="40" r="8" />
+                <path d="M25 48 v25 M15 73 l10 -25 l10 25 M15 55 l10 -5 l10 5" />
+                <path d="M70 25 Q90 25 90 45 Q90 65 70 85 Q50 65 50 45 Q50 25 70 25 Z" strokeDasharray="4 4"/>
+            </svg>
+        );
+
+        // 8. Hoarding
+        const SVGHHoarding = () => (
+            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full text-amber-700">
+                <rect x="10" y="70" width="30" height="20" />
+                <rect x="45" y="60" width="40" height="30" />
+                <rect x="20" y="45" width="25" height="25" />
+                <rect x="50" y="30" width="30" height="30" />
+                <rect x="30" y="20" width="20" height="25" />
+                <rect x="55" y="10" width="20" height="20" />
+                <path d="M15 80 h20 M50 75 h30 M25 55 h15 M55 45 h20 M35 30 h10 M60 20 h10" strokeWidth="2"/>
+            </svg>
+        );
+
+        // 9. PTSD Flashback
+        const SVGPTSD = () => (
+            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full text-slate-700">
+                <path d="M30 90 v-15 c0 -20 10 -30 20 -30 c15 0 25 15 25 30 v15" />
+                <circle cx="50" cy="45" r="25" strokeDasharray="5 5" />
+                <path d="M45 35 l-10 15 h15 l-10 15" stroke="red" strokeWidth="5" />
+            </svg>
+        );
+
+        // 10. Neurobiology
+        const SVGBiology = () => (
+            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full text-teal-500">
+                <path d="M10 20 Q30 50 10 80 M10 50 h30" />
+                <path d="M90 20 Q70 50 90 80 M90 50 h-30" />
+                <circle cx="50" cy="35" r="3" fill="currentColor"/>
+                <circle cx="50" cy="50" r="3" fill="currentColor"/>
+                <circle cx="50" cy="65" r="3" fill="currentColor"/>
+                <circle cx="42" cy="42" r="3" fill="currentColor"/>
+                <circle cx="58" cy="58" r="3" fill="currentColor"/>
+            </svg>
+        );
+
+        // 11. Psychoanalytic (Iceberg)
+        const SVGIceberg = () => (
+            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full text-cyan-600">
+                <path d="M10 40 h80" strokeDasharray="5 5" strokeWidth="2"/>
+                <path d="M40 40 L50 10 L60 40" fill="currentColor" fillOpacity="0.2"/>
+                <path d="M60 40 L75 70 L50 90 L25 70 Z" fill="currentColor" fillOpacity="0.5"/>
+            </svg>
+        );
+
+        // 12. Systematic Desensitization
+        const SVGStairs = () => (
+            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full text-green-600">
+                <polyline points="10,90 30,90 30,70 50,70 50,50 70,50 70,30 90,30" />
+                <circle cx="40" cy="55" r="6" />
+                <path d="M40 61 v10 M35 71 h10" />
+                <path d="M80 15 l5 -5 l5 5 l-5 5 Z" fill="currentColor" />
+            </svg>
+        );
+
+        // 13. Biofeedback
+        const SVGBiofeedback = () => (
+            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full text-blue-700">
+                <rect x="50" y="20" width="40" height="30" rx="3" />
+                <path d="M55 35 Q65 20 75 35 T90 35" stroke="green" strokeWidth="4"/>
+                <path d="M60 50 v10 h20 v-10" />
+                <circle cx="20" cy="50" r="12" />
+                <path d="M20 62 v20" />
+                <path d="M25 40 Q40 30 50 35" strokeDasharray="4 4"/>
+            </svg>
+        );
+
+        // 14. Therapy Session
+        const SVGTherapy = () => (
+            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full text-indigo-700">
+                <path d="M10 70 h20 M15 70 v20 M25 70 v20 M10 50 v20 M30 50 v20" />
+                <path d="M90 70 h-20 M85 70 v20 M75 70 v20 M90 50 v20 M70 50 v20" />
+                <circle cx="20" cy="35" r="8" />
+                <circle cx="80" cy="35" r="8" />
+                <path d="M35 25 Q50 15 65 25" strokeDasharray="3 3"/>
+            </svg>
+        );
+
+        // 15. Skin Picking / Trichotillomania
+        const SVGTension = () => (
+            <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full text-rose-500">
+                <path d="M30 50 Q50 10 70 50" />
+                <path d="M20 60 Q50 20 80 60" />
+                <path d="M10 70 Q50 30 90 70" />
+                <path d="M50 40 l-10 20 h20 Z" fill="currentColor"/>
+            </svg>
+        );
+
+
+        // --- APPLICATION DATA (VERBATIM BUT STRUCTURED FOR READABILITY) ---
+
+        const LECTURE_DATA = {
+            intro: {
+                title: "I. Introduction",
+                text: [
+                    "Anxiety disorders include disorders that share features of excessive fear and anxiety and related behavioral disturbances.",
+                    "Fear is the emotional response to real or perceived imminent threat, whereas anxiety is anticipation of future threat.",
+                    "Obviously, these two states overlap, but they also differ:",
+                    "• Fear is more often associated with surges of autonomic arousal necessary for fight or flight, thoughts of immediate danger, and escape behaviors.",
+                    "• Anxiety is more often associated with muscle tension and vigilance in preparation for future danger and cautious or avoidant behaviors."
+                ]
+            },
+            stats: {
+                title: "II. Epidemiological Statistics",
+                text: [
+                    "Anxiety disorders are the most common of all psychiatric illnesses and result in considerable functional impairment and distress.",
+                    "Statistics vary widely, but most agree that anxiety disorders are more common in women than in men by at least 2 to 1.",
+                    "Prevalence rates for anxiety disorders within the general population have been given at:",
+                    "• 3 to 5 percent for generalized anxiety disorder and panic disorder.",
+                    "• 13 percent for social anxiety disorder.",
+                    "• 25 percent for phobias.",
+                    "• Obsessive compulsive disorders account for 2 to 3 percent.",
+                    "In relation to trauma related disorders, it was found that women are more likely to experience sexual assault and childhood sexual abuse, whereas men are more likely to experience accidents, physical assaults, combat, or to witness death or injury.",
+                    "Although the exposure to trauma is high, less than 10 percent of trauma victims develop PTSD. The disorder appears more common in women than in men."
+                ]
+            }
+        };
+
+        const DISORDERS_DATA = {
+            anxiety: {
+                title: "A. Types of Anxiety Disorders",
+                items: [
+                    {
+                        term: "1. Separation Anxiety Disorder",
+                        details: [
+                            "The essential feature of separation anxiety disorder is excessive fear or anxiety concerning separation from home or attachment figures.",
+                            "The anxiety exceeds what may be expected given the person's developmental level.",
+                            "Individuals with separation anxiety disorder have symptoms as:",
+                            "• They experience recurrent excessive distress when separation from home or major attachment figures is anticipated or occurs.",
+                            "• They worry about the well-being or death of attachment figures, particularly when separated from them.",
+                            "• They also worry about untoward events to themselves, such as getting lost, being kidnapped, or having an accident.",
+                            "Individuals with separation anxiety disorder are reluctant or refuse to go out by themselves because of separation fears."
+                        ],
+                        svg: <SVGSeparation />
+                    },
+                    {
+                        term: "2. Selective Mutism",
+                        details: [
+                            "When encountering other individuals in social interactions, children with selective mutism do not initiate speech or reciprocally respond when spoken to by others.",
+                            "Lack of speech occurs in social interactions with children or adults.",
+                            "Children with selective mutism will speak in their home in the presence of immediate family members but often not even in front of close friends or second-degree relatives, such as grandparents or cousins.",
+                            "The disturbance is often marked by high social anxiety.",
+                            "Children with selective mutism often refuse to speak at school, leading to academic or educational impairment, as teachers often find it difficult to assess skills such as reading."
+                        ],
+                        svg: <SVGMuting />
+                    },
+                    {
+                        term: "3. Phobic Disorders",
+                        details: [
+                            "Phobia is a persistent and irrational fear of an event, situation, activity or object.",
+                            "The client recognizes this fear as irrational but is unable to prevent it.",
+                            "The client controls the anxiety by avoiding the source of the phobic response with which the anxiety is associated.",
+                            "He seeks the treatment, and a diagnosis is made when the avoidance behavior becomes extreme and interferes with the person's normal functioning.",
+                            "Phobic disorders are classified into three main types:"
+                        ],
+                        subItems: [
+                            {
+                                term: "Specific Phobia:",
+                                details: [
+                                    "It is marked by fear or anxiety about a specific object or situation (e.g., flying, heights, and animals, receiving an injection, seeing blood).",
+                                    "The phobic object or situation almost always provokes immediate fear or anxiety and is actively avoided or endured with intense fear.",
+                                    "The fear, anxiety, or avoidance typically lasting for 6 months or more and causes clinically significant distress or impairment in social, occupational, or other important areas of functioning."
+                                ]
+                            },
+                            {
+                                term: "Social Anxiety Disorder (Social Phobia):",
+                                details: [
+                                    "The essential feature of social anxiety disorder is a marked, or intense, fear or anxiety of social situations in which the individual may be scrutinized by others.",
+                                    "Examples include social interactions (e.g., having a conversation, meeting unfamiliar people), being observed (e.g., eating or drinking), and performing in front of others (e.g., giving a speech).",
+                                    "The individual fears that he or she will act in a way or show anxiety symptoms that will be negatively evaluated (i.e., will be humiliating or embarrassing; will lead to rejection or offend others).",
+                                    "The social situations almost always provoke fear or anxiety which is out of proportion to the actual threat posed by the social situation and to the sociocultural context.",
+                                    "The fear, anxiety, or avoidance is persistent, typically lasting for 6 months or more and causes clinically significant distress or impairment in social, occupational functioning."
+                                ],
+                                svg: <SVGSocialAnxiety />
+                            },
+                            {
+                                term: "Agoraphobia:",
+                                details: [
+                                    "The essential feature of agoraphobia fear or anxiety about two (or more) of the following five situations:",
+                                    "1. using public transportation, such as automobiles, buses, trains, ships, or planes.",
+                                    "2. being in open spaces, such as parking lots, marketplaces, or bridges.",
+                                    "3. being in enclosed spaces, such as shops, theaters, or cinemas.",
+                                    "4. standing in line or being in a crowd.",
+                                    "5. being outside of the home alone.",
+                                    "The individual fears or avoids these situations because of thoughts that escape might be difficult or help might not be available in the event of developing panic-like symptoms or other incapacitating or embarrassing symptoms (e.g., fear of falling in the elderly; fear of incontinence)."
+                                ],
+                                svg: <SVGAgoraphobia />
+                            }
+                        ],
+                        svg: <SVGPhobia />
+                    },
+                    {
+                        term: "4. Panic Disorder",
+                        details: [
+                            "Panic disorder refers to recurrent unexpected panic attacks.",
+                            "A panic attack is an abrupt surge of intense fear or intense discomfort that reaches a peak within minutes and during which time four (or more) of the following symptoms occur:",
+                            "• Palpitations, sweating, trembling or shaking.",
+                            "• Sensations of shortness of breath, feelings of choking.",
+                            "• Chest pain or discomfort, nausea or abdominal distress.",
+                            "• Feeling dizzy, unsteady, light-headed, or faint.",
+                            "• Chills or heat sensations, paresthesia (numbness or tingling sensations).",
+                            "• Derealization (feelings of unreality) or depersonalization (being detached from oneself).",
+                            "• Fear of losing control or \"going crazy\" and fear of dying.",
+                            "The attack usually lasts for minutes, more rarely hours. It may occur several times a week or even daily.",
+                            "Panic disorder may or may not be accompanied by agoraphobia."
+                        ],
+                        svg: <SVGPanic />
+                    },
+                    {
+                        term: "5. Generalized Anxiety Disorder (GAD)",
+                        details: [
+                            "The essential feature of generalized anxiety disorder is Excessive anxiety and worry (apprehensive expectation), occurring more days than not for at least 6 months, about a number of events or activities (such as work or school performance).",
+                            "The anxiety and worry are associated with three (or more) of the following six symptoms:",
+                            "• Restlessness or feeling keyed up or on edge.",
+                            "• Being easily fatigued.",
+                            "• Difficulty concentrating or mind going blank.",
+                            "• Irritability, muscle tension and sleep disturbance.",
+                            "The anxiety, worry, or physical symptoms cause clinically significant distress or impairment in social, occupational, or other important areas of functioning."
+                        ]
+                    },
+                    {
+                        term: "6. Anxiety Disorder Due to another Medical Condition and Substance",
+                        details: [
+                            "The symptoms associated with these disorders are judged to be the direct physiological consequence of another medical condition or due to the direct physiological effects of substance intoxication or withdrawal or exposure to a medication."
+                        ]
+                    }
+                ]
+            },
+            ocd: {
+                title: "B. Obsessive-Compulsive Disorder and related disorders",
+                items: [
+                    {
+                        term: "1. Obsessive-Compulsive Disorder",
+                        details: [
+                            "The characteristic symptoms of OCD are the presence of obsessions and compulsions.",
+                            "Obsessions are defined by recurrent and persistent thoughts, urges, or images that are experienced, at some time during the disturbance, as intrusive and unwanted, and that in most individuals cause marked anxiety or distress.",
+                            "The individual attempts to ignore or suppress such thoughts, urges, or images, or to neutralize them with some other thought or action (i.e., by performing a compulsion).",
+                            "Compulsions are defined by repetitive behaviors (e.g., hand washing, ordering, checking) or mental acts (e.g., praying, counting, repeating words silently) that the individual feels driven to perform in response to an obsession or according to rules that must be applied rigidly.",
+                            "The behaviors or mental acts are aimed at preventing or reducing anxiety or distress, or preventing some dreaded event or situation; however, these behaviors or mental acts are not connected in a realistic way with what they are designed to neutralize or prevent or are clearly excessive.",
+                            "The obsessions or compulsions are time-consuming (e.g., take more than 1 hour per day) or cause clinically significant distress or impairment in social, occupational, or other important areas of functioning."
+                        ]
+                    },
+                    {
+                        term: "2. Body Dysmorphic Disorder",
+                        details: [
+                            "Individuals with body dysmorphic disorder (formerly known as dysmorphophobia) are preoccupation with one or more perceived defects or flaws in physical appearance that are not observable or appear slight to others.",
+                            "The individual performs repetitive behaviors (e.g., mirror checking, excessive grooming, skin picking, reassurance seeking) or mental acts (e.g., comparing his or her appearance with that of others) in response to the appearance concerns.",
+                            "The preoccupation causes clinically significant distress or impairment in social and occupational functioning."
+                        ],
+                        svg: <SVGBDD />
+                    },
+                    {
+                        term: "3. Trichotillomania (Hair-Pulling Disorder)",
+                        details: [
+                            "The DSM-5 defines trichotillomania as the recurrent pulling out of one's hair that result in hair loss.",
+                            "The impulse is preceded by an increasing sense of tension and results in a sense of release or gratification from pulling out the hair.",
+                            "The most common sites for hair pulling are the scalp, eyebrows, and eyelashes but may occur in any area of the body on which hair grows."
+                        ],
+                        svg: <SVGTension />
+                    },
+                    {
+                        term: "4. Hoarding Disorder",
+                        details: [
+                            "The DSM-5 defines the essential feature of hoarding disorder as \"persistent difficulties discarding or parting with possessions, regardless of their actual value.\"",
+                            "This difficulty is due to a perceived need to save the items and to distress associated with discarding them which results in the accumulation of possessions that congest and clutter active living areas and substantially compromises their intended use.",
+                            "If living areas are uncluttered, it is only because of the interventions of third parties (e.g., family members, cleaners, authorities).",
+                            "It causes clinically significant distress or impairment in social, occupational functioning."
+                        ],
+                        svg: <SVGHHoarding />
+                    },
+                    {
+                        term: "5. Excoriation (Skin-Picking) Disorder",
+                        details: [
+                            "The essential feature of excoriation (skin-picking) disorder is recurrent picking at one's own skin.",
+                            "The most commonly picked sites are the face, arms, and hands, but many individuals pick from multiple body sites.",
+                            "Individuals with excoriation disorder make repeated attempts to decrease or stop skin picking.",
+                            "The skin picking causes clinically significant distress or impairment in social, occupational functioning."
+                        ]
+                    }
+                ]
+            },
+            trauma: {
+                title: "C. Trauma- and Stressor-related disorders",
+                items: [
+                    {
+                        term: "1. Reactive Attachment Disorder",
+                        details: [
+                            "Reactive attachment disorder of infancy or early childhood is characterized by a consistent pattern of inhibited, emotionally withdrawn behavior toward adult caregivers.",
+                            "A persistent social and emotional disturbance characterized by: minimal social and emotional responsiveness to others, limited positive affect and episodes of unexplained irritability, sadness, or fearfulness that are evident even during nonthreatening interactions with adult caregivers.",
+                            "A diagnosis of reactive attachment disorder should not be made in children who are developmentally unable to form selective attachments.",
+                            "For this reason, the child must have a developmental age of at least 9 months."
+                        ]
+                    },
+                    {
+                        term: "2. Disinhibited Social Engagement Disorder",
+                        details: [
+                            "The essential feature of disinhibited social engagement disorder is a pattern of behavior that involves culturally inappropriate, overly familiar behavior with relative strangers.",
+                            "This overly familiar behavior violates the social boundaries of the culture.",
+                            "A diagnosis of disinhibited social engagement disorder should not be made before children are developmentally able to form selective attachments.",
+                            "For this reason, the child must have a developmental age of at least 9 months."
+                        ]
+                    },
+                    {
+                        term: "3. Posttraumatic Stress Disorder",
+                        details: [
+                            "The Diagnostic and Statistical Manual of Mental Disorders, Fifth Edition (DSM-5) describes the essential feature of PTSD as \"the development of characteristic symptoms following exposure to one or more traumatic events.\"",
+                            "The trauma may be experienced by the individual or witnessed as it occurred to others, or the symptoms may be in response to having learned about a traumatic event having occurred to a significant other.",
+                            "Symptoms include inability to recall aspects of trauma; then, the event is persistently re-experienced by:",
+                            "• Recurrent and intrusive recollections of the event (images, or thoughts), distressing dreams, and flashbacks.",
+                            "• Persistent avoidance of stimuli associated with trauma (conversations, people, places, or activities).",
+                            "• Difficulty falling sleep, irritability, and difficulty concentrating.",
+                            "Symptoms of the disturbance have been endured for more than 1 month; or, in the event of delayed expression, the full diagnostic criteria may not have occurred until at least 6 months after the trauma.",
+                            "The disturbance causes clinically significant distress or impairment in social, occupational, or other important areas of functioning."
+                        ],
+                        svg: <SVGPTSD />
+                    },
+                    {
+                        term: "4. Acute Stress Disorder",
+                        details: [
+                            "Acute stress disorder (ASD) is described by the DSM-5 as a trauma related disorder similar to PTSD.",
+                            "The similarities between the two disorders occur in terms of precipitating traumatic events and symptomatology; however, in ASD, the symptoms are time limited, up to 1 month following the trauma.",
+                            "By definition, if the symptoms last longer than 1 month, the diagnosis would be PTSD."
+                        ]
+                    },
+                    {
+                        term: "5. Adjustment Disorder",
+                        details: [
+                            "An adjustment disorder is characterized by a maladaptive reaction to an identifiable stressor or stressors that results in the development of clinically significant emotional or behavioral symptoms.",
+                            "The response occurs within 3 months after onset of the stressor and has persisted for no longer than 6 months after the stressor or its consequences have ended.",
+                            "The individual shows impairment in social and occupational functioning or exhibits symptoms that are in excess of an expected reaction to the stressor.",
+                            "The symptoms are expected to remit soon after the stressor is relieved, or if the stressor persists, when a new level of adaptation is achieved."
+                        ]
+                    }
+                ]
+            }
+        };
+
+        const ETIOLOGY_DATA = [
+            {
+                title: "1. Biological Theory",
+                svg: <SVGBiology />,
+                details: [
+                    "Data from family and twins studies seem to support the idea that a predisposition to develop these disorders may be partially hereditary.",
+                    "It was reported that about 25% of the first-degree relatives of clients with generalized anxiety disorder (GAD) are affected. It was found that 37% of clients with obsessive compulsive disorder (OCD) have first-degree relatives with the disorder.",
+                    "Twins studies showed that if one identical twin suffers from panic disorder, the chance that the other twin will develop the illness is 80-90%, while for fraternal twins the chance is 10-15%.",
+                    "It was found that dysfunction in the regulation of neurotransmitters, such as gamma-aminobutyric acid (GABA) and serotonin may play a role in the development of anxiety disorders.",
+                    "Studies suggest that physiological arousal initiated by reexposure to trauma-like situations enhances production of endogenous opioid peptides and results in increased feelings of comfort and control.",
+                    "When the stressor terminates, the individual may experience opioid withdrawal, the symptoms of which bear strong resemblance to those of PTSD."
+                ]
+            },
+            {
+                title: "2. Psychoanalytical Theory",
+                svg: <SVGIceberg />,
+                details: [
+                    "It emphasizes that unconscious childhood conflicts are the basis for development of anxiety disorders. \"Freud\" suggested that anxiety resulted from the threatened emergence of repressed ideas or emotions from the unconscious into consciousness.",
+                    "Ego defense mechanisms are used by the individual to reduce anxiety. Examples of defense mechanisms used in anxiety disorders are:",
+                    "• Undoing: used in compulsion, since performing a symbolic act cancels out an unacceptable act or idea, e.g., repetitive hand-washing to remove guilt.",
+                    "• Reaction Formation: used in obsession, since anxiety producing unacceptable thoughts or feelings are kept out of awareness by the opposite feeling or idea.",
+                    "• Displacement: used in phobias, as anxiety is reduced when strong feelings about the original object are directed at a less threatening object and that object is avoided.",
+                    "• Repression: used in post-traumatic stress disorder, in which the individual unconsciously pushes an anxiety-producing idea or feeling out of awareness.",
+                    "Also, some proponents of psychoanalytic theory view trauma related disorders as a maladaptive response to stress that is caused by early childhood trauma, increased dependency, and retarded ego development."
+                ]
+            },
+            {
+                title: "3. Learning Theory",
+                details: [
+                    "Theorists viewed anxiety as a learned response that can be unlearned.",
+                    "Some individuals may learn to be anxious from the modeling provided by parents or peers.",
+                    "For example, a mother who is fearful of heights may transmit her anxiety to her child who will continue to adopt her behavior even into adult life."
+                ]
+            },
+            {
+                title: "4. Cognitive Theory",
+                details: [
+                    "Cognitive theorists believe that anxiety disorders are caused by distortions in the way the individual thinks and perceives.",
+                    "E.g., people with social phobia believe that they must be approved all the time by everyone. They must never make mistakes, and when they do, they believe it is a catastrophe and respond with acute anxiety.",
+                    "This theory also postulates that an individual is vulnerable to trauma-related disorders when his or her fundamental beliefs about the self and the world are invalidated by a trauma that cannot be comprehended and a sense of helplessness and hopelessness prevail."
+                ]
+            },
+            {
+                title: "5. Socio-cultural Theory",
+                details: [
+                    "It suggests that anxiety disorders are more commonly noted in societies with high technology.",
+                    "It was found that anxiety disorders occur more frequently among urban populations than among rural ones.",
+                    "It is probably safe to infer that when a society undergoes rapid changes, the stress induced by the changes places the group at risk for the development of anxiety disorders."
+                ]
+            }
+        ];
+
+        const TREATMENT_DATA = [
+            {
+                title: "I. Psychotherapy",
+                svg: <SVGTherapy />,
+                items: [
+                    {
+                        term: "Individual Psychotherapy:",
+                        details: [
+                            "Most clients experience a marked lessening of anxiety when given the opportunity to discuss their difficulties with a concerned and sympathetic therapist.",
+                            "The psychotherapist also can use logical and rational explanations to increase the client's understanding about various situations that create anxiety in his or her life."
+                        ]
+                    },
+                    {
+                        term: "Cognitive Therapy:",
+                        details: [
+                            "The cognitive model relates how individuals respond in stressful situations to their subjective cognitive appraisal of the event.",
+                            "Cognitive therapy strives to assist the individual to reduce anxiety responses by altering cognitive distortions.",
+                            "Anxiety is described as being the result of exaggerated, automatic thinking."
+                        ]
+                    },
+                    {
+                        term: "Behavior Therapy (Relaxation techniques):",
+                        details: [
+                            "Involve deep breathing exercises, progressive muscle relaxation, mental imagery, and meditation."
+                        ]
+                    },
+                    {
+                        term: "Behavior Therapy (Systematic Desensitization):",
+                        svg: <SVGStairs />,
+                        details: [
+                            "In systematic desensitization, the client is gradually exposed to the phobic stimulus, either in a real or imagined situation.",
+                            "The individual is instructed in the art of relaxation using techniques most effective for him or her (e.g., progressive relaxation, mental imagery, tense and relax, meditation).",
+                            "When the individual has mastered the relaxation technique, exposure to the phobic stimulus is initiated.",
+                            "He or she is asked to present a hierarchal arrangement of situations pertaining to the phobic stimulus in order from most disturbing to least disturbing.",
+                            "While in a state of maximum relaxation, the client may be asked to imagine the phobic stimulus.",
+                            "Initial exposure is focused on a concept of the phobic stimulus that produces the least amount of fear or anxiety.",
+                            "In subsequent sessions, the individual is gradually exposed to stimuli that are more fearful.",
+                            "Sessions may be executed in fantasy, in real-life (in vivo) situations, or sometimes in a combination of both."
+                        ]
+                    },
+                    {
+                        term: "Behavior Therapy (Implosion Therapy / Flooding):",
+                        details: [
+                            "Implosion therapy, or flooding, is a therapeutic process in which the client must imagine situations or participate in real-life situations that he or she finds extremely frightening, for a prolonged period of time.",
+                            "Relaxation training is not a part of this technique. Plenty of time must be allowed for these sessions because brief periods may be ineffective or even harmful.",
+                            "A session is terminated when the client responds with considerably less anxiety than at the beginning of the session."
+                        ]
+                    }
+                ]
+            },
+            {
+                title: "II. Biofeedback",
+                svg: <SVGBiofeedback />,
+                items: [
+                    {
+                        details: [
+                            "It means using a machine to reduce anxiety and modify behavioral responses.",
+                            "Small electrodes connected to the biofeedback equipment are attached to the patient's forehead.",
+                            "Brain waves, muscle tension, body temperature, heart rate, and blood pressure can then be monitored for small changes.",
+                            "These changes are communicated to the patient by auditory and visual means.",
+                            "The more relaxed the patient becomes, the more pleasant are the sounds or sights presented.",
+                            "These pleasant sights and sounds stop when the patient stops relaxing, and they resume when the patient again achieves the relaxed state.",
+                            "After developing the ability to relax, the patient is encouraged to apply the technique during stressful situations."
+                        ]
+                    }
+                ]
+            },
+            {
+                title: "III. Psycho-education",
+                items: [
+                    {
+                        details: [
+                            "Education is important in promoting the patient's adaptive responses to anxiety.",
+                            "The nurse can identify the health teaching needs of each patient and then formulate a plan to meet those needs.",
+                            "Plans should be designed to increase patients knowledge of their own predisposing and precipitating stressors, coping resources, and adaptive and maladaptive responses.",
+                            "Alternative coping strategies can be identified and explored.",
+                            "Health teaching also should address the beneficial aspects of mild levels of anxiety in motivating learning and producing growth and creativity.",
+                            "Specifically, patients can be told that anxiety disorders are related to the normal fight-or-flight response, which is important to survival.",
+                            "Most importantly, patients should be told that anxiety disorders can be successfully treated by a variety of evidence-based treatments. This information can give patients a sense of control over anxieties."
+                        ]
+                    }
+                ]
+            },
+            {
+                title: "IV. Psycho-pharmacotherapy",
+                items: [
+                    {
+                        details: [
+                            "Drug classes commonly used for anxiety disorders include anti-anxiety drugs (anxiolytics), antidepressants, and beta-blockers."
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        const NURSING_DATA = {
+            anxiety: {
+                title: "I. Nursing Diagnoses, Goals, and Interventions for clients with anxiety disorders",
+                plans: [
+                    {
+                        diagnosis: "1. Anxiety (Panic)",
+                        relatedTo: "Unconscious conflict about essential values and goals of life, Situational and maturational crises, [Real or perceived] threat to self-concept, [Real or perceived] threat of death.",
+                        evidencedBy: "Increased respiration, Increased pulse, Confusion, Increased perspiration, Decreased or increased blood pressure, Faintness, Trembling or shaking, Nausea.",
+                        goal: "The client will verbalize ways to intervene in escalating anxiety.",
+                        interventions: [
+                            "Maintain a calm, nonthreatening manner while working with client.",
+                            "Reassure client of his or her safety and security. This can be conveyed by physical presence of nurse. Do not leave client alone at this time.",
+                            "Use simple words and brief messages, spoken calmly and clearly, to explain hospital experiences to client.",
+                            "Hyperventilation may occur during periods of extreme anxiety. It causes the amount of carbon dioxide (CO2) in the blood to decrease, possibly resulting in light-headedness, rapid heart rate, shortness of breath, numbness or tingling in the hands or feet, and syncope. If hyperventilation occurs, assist the client to breathe into a small paper bag held over the mouth and nose. The client should take 6 to 12 natural breaths, alternating with short periods of diaphragmatic breathing.",
+                            "Keep the immediate surroundings low in stimuli (dim lighting, few people, simple decor).",
+                            "Administer tranquilizing medication, as ordered by physician.",
+                            "When level of anxiety has been reduced, explore with the client possible reasons for occurrence. Recognition of precipitating factor(s) is the first step in teaching the client to interrupt escalation of the anxiety.",
+                            "Teach the client signs and symptoms of escalating anxiety and ways to interrupt its progression (e.g., relaxation techniques, deep-breathing exercises, physical exercises, brisk walks, jogging, and meditation). The client will determine which method is most appropriate for him or her."
+                        ]
+                    },
+                    {
+                        diagnosis: "2. Ineffective individual coping",
+                        relatedTo: "anxiety and inadequate support system.",
+                        evidencedBy: "increased muscle tension and restlessness, reports feeling apprehensive, verbalizing inability to cope, stating \"no one seems to understand\", sweating, frequent urination, pulse elevated, cold pale skin.",
+                        goal: "The client will recognize his own anxiety and cope effectively with symptoms associated with anxiety.",
+                        interventions: [
+                            "Acknowledge the client's anxiety.",
+                            "Encourage verbalization of feelings.",
+                            "Stay with the client and listen.",
+                            "Speak slowly and calmly. Use short and simple sentences.",
+                            "Assure client that you are available and can assist him or her.",
+                            "Give brief directions.",
+                            "Decrease excessive stimuli and provide quiet environment.",
+                            "Walk with the client who is pacing to give him support.",
+                            "Increase level of supervision for acutely anxious client to minimize self-injury or loss of control.",
+                            "Help client recognize anxiety by teaching him/her signs and symptoms of anxiety, this will promote accurate perceptions.",
+                            "The nurse must monitor and control her/his own feelings, anxiety is contagious.",
+                            "Link the client's behavior to feelings.",
+                            "Ask questions that clarify and promote logical thinking, e.g., \"Are you basing that conclusion on fact or feeling?\", \"What is the worst thing that could happen?\".",
+                            "Give positive reinforcement for the use of healthy behavior.",
+                            "Provide support while new coping measures are learned.",
+                            "Have client use positive self-talk, e.g., \"I can handle this\" or \"I can cope\"."
+                        ]
+                    },
+                    {
+                        diagnosis: "3. Sleep pattern disturbance",
+                        relatedTo: "physiologic disturbances caused by anxiety.",
+                        evidencedBy: "difficulty getting in sleep.",
+                        goal: "The client will achieve adequate sleep.",
+                        interventions: [
+                            "Ask what the client perceives as the reasons for the disturbed sleep pattern.",
+                            "Encourage verbalization of problems associated with anxiety.",
+                            "Provide measures appropriate to reduce insomnia, if indicated:",
+                            "• Quiet and Secure environnement.",
+                            "• Relaxation techniques.",
+                            "• Decreased number of distractions.",
+                            "• Structure bedtime routine for the client, e.g., bath, reading, warm milk, music, and back message.",
+                            "• Maximum measures for comfort of bed and clothing.",
+                            "• Consistent structured daytime activities that include physical exercise as tolerated.",
+                            "Discourage day napping."
+                        ]
+                    }
+                ]
+            },
+            ocd: {
+                title: "II. Nursing Diagnoses, Goals and Interventions for clients with OCD and related disorders",
+                plans: [
+                    {
+                        diagnosis: "1. Anxiety",
+                        relatedTo: "earlier life conflicts and biochemical imbalance.",
+                        evidencedBy: "recurring thoughts (e.g., about contamination with dirt and germs), repetitive actions (e.g., hand washing), and decreased social role functioning.",
+                        goal: "The client will verbalize understanding of the significance of ritualistic behavior and relationship to anxiety, and cope effectively with stressful situations without resorting to obsessive thoughts or compulsive behavior.",
+                        interventions: [
+                            "Establish therapeutic relationship through use of empathy, warmth and respect.",
+                            "Show interest in the client as a person.",
+                            "Speak in gentle voice, presenting calm, accepting atmosphere to decrease anxiety.",
+                            "Listen carefully and with patience and try to hear the feelings within the flood of words and help to express these feelings.",
+                            "Acknowledge the repetitive behavior without focusing attention on it.",
+                            "Verbalize empathy toward client's experience rather than disapproval or criticism. Better to say, \"I see you wash your hands 10 times every morning. That must be tiring for you\" rather than \"Try to wash your hands 5 times only\".",
+                            "Keep the environment calm to decrease stress and to help the client feel less anxious.",
+                            "Assist the client to learn stress management techniques, e.g., relaxation techniques.",
+                            "Engage in constructive activities and give positive reinforcement for non-compulsive behavior.",
+                            "Help significant others learn the values of not focusing on the ritualistic behavior.",
+                            "Assist the client to find ways to set limits on one's behavior. At the same time allow adequate time during the daily routine for the rituals.",
+                            "Gradually encourage the client to decrease the time allotted for the performance of rituals.",
+                            "Avoid argument or angry discussion.",
+                            "Be a genuine person to the client as spontaneity on your part may promote a feeling of connection.",
+                            "Silence should be used and not maintained for a long period.",
+                            "N.B. The nursing diagnosis \"anxiety\" can be grouped together with the nursing diagnosis \"ineffective individual coping\" because the goal in both is to help the client to cope effectively with situations without resorting to obsessive-compulsive thought, using the same approach."
+                        ]
+                    },
+                    {
+                        diagnosis: "2. Disturbed body image",
+                        relatedTo: "severe level of anxiety, repressed.",
+                        evidencedBy: "preoccupation with real or imagined change in bodily structure or function.",
+                        goal: "Client will verbalize understanding that changes in bodily structure or function are exaggerated out of proportion to the change that actually exists.",
+                        interventions: [
+                            "Establish trusting relationship with client.",
+                            "If there is actual change in structure or function, encourage client to progress through stages of grieving.",
+                            "Assess level of knowledge and provide information regarding normal grieving process and associated feelings.",
+                            "Identify misperceptions or distortions client has regarding body image.",
+                            "Correct inaccurate perceptions in a matter of fact, nonthreatening manner.",
+                            "Withdraw attention when preoccupation with distorted image persists.",
+                            "Help client recognize personal body boundaries. Use of touch may help him or her recognize acceptance of the individual by others and reduce fear of rejection because of changes in bodily structure or function.",
+                            "Encourage independent self-care activities, providing assistance as required."
+                        ]
+                    },
+                    {
+                        diagnosis: "3. Impaired skin integrity (potential for)",
+                        relatedTo: "repetitive behaviors of cleansing such as hand washing, brushing teeth, showering.",
+                        evidencedBy: "skin excoriation, dryness and change in color of skin.",
+                        goal: "The client will identify risk factors and demonstrate behaviors or techniques to prevent skin breakdown.",
+                        interventions: [
+                            "Assess changes in skin, e.g., edema, dryness, excoriation, altered circulation and presence of infections.",
+                            "Encourage use of mild soap and hand creams during and after ritualistic behavior.",
+                            "Implement the previously mentioned nursing interventions to reduce client's anxiety.",
+                            "Discuss measures client can take during/after cleaning behaviors (e.g., use of rubber gloves and application of antiseptic cream)."
+                        ]
+                    }
+                ],
+                otherDiagnoses: [
+                    "Ineffective impulse control.",
+                    "Altered role performance.",
+                    "Ineffective individual coping.",
+                    "Social isolation.",
+                    "Self-care deficit regarding feeding, dressing, grooming or toileting. It is related to ritualistic behaviors."
+                ]
+            },
+            trauma: {
+                title: "III. Nursing Diagnoses, Goals, and Interventions for clients with trauma related disorders",
+                plans: [
+                    {
+                        diagnosis: "1. Post-trauma syndrome",
+                        relatedTo: "Distressing event considered to be outside the range of usual human experience.",
+                        evidencedBy: "Flashbacks, intrusive recollections, nightmares, psychological numbness related to the event, dissociation, or amnesia.",
+                        goal: "The client will begin a healthy grief resolution, initiating the process of psychological healing (within time frame specific to individual).",
+                        interventions: [
+                            "Assign the same staff as often as possible.",
+                            "Use a nonthreatening, matter-of-fact, but friendly approach.",
+                            "Respect client's wishes regarding interaction with individuals of the opposite gender at this time (especially important if the trauma was rape).",
+                            "Be consistent; keep all promises; convey acceptance; spend time with client.",
+                            "Stay with client during periods of flashbacks and nightmares. Offer reassurance of safety and security and that these symptoms are not uncommon following a trauma of the magnitude he or she has experienced.",
+                            "Obtain accurate history from significant others about the trauma and the client's specific response.",
+                            "Encourage the client to talk about the trauma at his or her own pace.",
+                            "Provide a nonthreatening, private environment, and include a significant other if the client wishes.",
+                            "Acknowledge and validate client's feelings as they are expressed.",
+                            "Discuss coping strategies used in response to the trauma, as well as those used during stressful situations in the past. Determine those that have been most helpful and discuss alternative strategies for the future.",
+                            "Include available support systems, including religious and cultural influences.",
+                            "Identify maladaptive coping strategies (e.g., substance use, psychosomatic responses) and practice more adaptive coping strategies for possible future post-trauma responses.",
+                            "Assist the individual to try to comprehend the trauma if possible. Discuss feelings of vulnerability and the individual's \"place\" in the world following the trauma."
+                        ]
+                    },
+                    {
+                        diagnosis: "2. Complicated Grieving",
+                        definition: "Complicated grieving is defined as \"a disorder that occurs after the death of a significant other [or any other loss of significance to the individual], in which the experience of distress accompanying bereavement fails to follow normative expectations and manifests in functional impairment\".",
+                        relatedTo: "having experienced a trauma outside the range of usual human experience.",
+                        evidencedBy: "Verbal expression of distress at loss.",
+                        goal: "Client will verbalize feelings associated with the trauma.",
+                        interventions: [
+                            "Develop a trusting relationship with the client. Show empathy and caring. Be honest and keep all promises. Trust is the basis for a therapeutic relationship.",
+                            "Convey an accepting attitude so that the client is not afraid to express feelings openly. An accepting attitude conveys to the client that you believe he or she is a worthwhile person. Trust is enhanced.",
+                            "Acknowledge feelings of guilt or self-blame that client may express. The client needs to discuss these feelings and recognize that he or she is not responsible for what happened but must take responsibility for own recovery.",
+                            "Allow the client to express anger. Do not become defensive if the initial expression of anger is displaced on the nurse or therapist. Help the client explore angry feelings so that they may be directed toward the intended object or person.",
+                            "Assist the client to discharge pent-up anger through participation in large motor activities (e.g., brisk walks, jogging, physical exercises, volleyball, punching bag, exercise bike).",
+                            "Communicate to the client that crying is acceptable.",
+                            "The use of touch is therapeutic and appropriate with most clients.",
+                            "Help the client to solve problems as he or she attempts to determine methods for more adaptive coping with the stressor. Provide positive feedback for strategies identified and decisions made.",
+                            "Encourage the client to reach out for spiritual support during this time in whatever form is desirable. For some individuals, spiritual support can enhance successful adaptation to painful life experiences.",
+                            "Identify available community resources from which the individual may seek assistance if problems with complicated grieving persist."
+                        ]
+                    }
+                ]
+            }
+        };
+
+        const QUIZ_QUESTIONS = [
+            {
+                q: "The essential feature of generalized anxiety disorder is Excessive anxiety and worry occurring more days than not for at least:",
+                options: ["1 month", "3 months", "6 months", "12 months"],
+                correct: 2
+            },
+            {
+                q: "A defense mechanism used in obsession, since anxiety producing unacceptable thoughts are kept out of awareness by the opposite feeling:",
+                options: ["Undoing", "Reaction Formation", "Displacement", "Repression"],
+                correct: 1
+            },
+            {
+                q: "A diagnosis of reactive attachment disorder should not be made in children who have a developmental age less than:",
+                options: ["6 months", "9 months", "12 months", "2 years"],
+                correct: 1
+            },
+            {
+                q: "Which therapy involves placing small electrodes on the forehead to monitor physiological changes like brain waves and muscle tension?",
+                options: ["Systematic Desensitization", "Cognitive Therapy", "Implosion Therapy", "Biofeedback"],
+                correct: 3
+            },
+            {
+                q: "What is the appropriate initial nursing intervention for a client experiencing hyperventilation during a panic attack?",
+                options: [
+                    "Administer tranquilizing medication immediately.",
+                    "Assist the client to breathe into a small paper bag.",
+                    "Explore with the client possible reasons for occurrence.",
+                    "Encourage brisk walks or jogging."
+                ],
+                correct: 1
+            }
+        ];
+
+        // --- UI COMPONENTS ---
+
+        const Card = ({ children, className = "" }) => (
+            <div className={`bg-white rounded-xl shadow-sm border border-slate-200 p-4 lg:p-6 ${className}`}>
+                {children}
+            </div>
+        );
+
+        const SectionHeader = ({ title, icon, color }) => (
+            <div className={`flex items-center gap-3 mb-6 p-4 rounded-xl ${color} shadow-sm`}>
+                <div className={`p-2 rounded-lg bg-white shadow-sm text-current`}>
+                    {icon}
+                </div>
+                <h2 className="text-xl md:text-2xl font-bold text-slate-800">{title}</h2>
+            </div>
+        );
+
+        const TermItem = ({ term, details, subItems, svg, isRoot = true }) => {
+            const [isOpen, setIsOpen] = useState(false);
+            const hasContent = details || subItems || svg;
+            
+            return (
+                <div className={`mb-3 border-l-4 ${isRoot ? 'border-blue-400 bg-slate-50' : 'border-slate-300 bg-white ml-2 md:ml-6'} rounded-r-lg overflow-hidden transition-all duration-300`}>
+                    <div 
+                        className={`p-3 md:p-4 flex justify-between items-start ${hasContent ? 'cursor-pointer hover:bg-slate-100' : ''}`}
+                        onClick={() => hasContent && setIsOpen(!isOpen)}
+                    >
+                        <div className="flex items-start gap-3 w-full">
+                            <div className="flex-1">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                                    <h4 className={`font-bold text-slate-800 ${isRoot ? 'text-lg' : 'text-md'}`}>{term}</h4>
+                                </div>
+                                <div className="flex items-center justify-between mt-2">
+                                    {hasContent && !isOpen && <p className="text-xs font-semibold text-blue-500 bg-blue-50 inline-block px-2 py-0.5 rounded">View details...</p>}
+                                </div>
+                            </div>
+                        </div>
+                        {hasContent && (
+                            <button className="text-slate-400 hover:text-blue-600 ml-2 mt-1 flex-shrink-0">
+                                {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                            </button>
+                        )}
+                    </div>
+                    
+                    {isOpen && hasContent && (
+                        <div className="bg-white p-3 md:p-4 border-t border-slate-200 text-sm animate-in fade-in slide-in-from-top-1">
+                            {svg && (
+                                <div className="float-right ml-4 mb-4 w-24 h-24 p-2 bg-slate-50 border border-slate-200 rounded-lg">
+                                    {svg}
+                                </div>
+                            )}
+                            {details && (
+                                <div className="space-y-2 text-slate-700 mb-3">
+                                    {details.map((item, i) => (
+                                        <p key={i} className={`leading-relaxed ${item.startsWith('•') ? 'ml-4' : ''}`}>
+                                            {item}
+                                        </p>
+                                    ))}
+                                </div>
+                            )}
+                            {subItems && (
+                                <div className="mt-4 space-y-2 clear-both">
+                                    {subItems.map((sub, idx) => (
+                                        <TermItem key={idx} {...sub} isRoot={false} />
+                                    ))}
+                                </div>
+                            )}
+                            <div className="clear-both"></div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const NursingPlan = ({ plan }) => {
+            const [isOpen, setIsOpen] = useState(false);
+            return (
+                <div className="mb-4 bg-white rounded-xl border border-teal-200 shadow-sm overflow-hidden">
+                    <div 
+                        className="bg-teal-50 p-4 cursor-pointer hover:bg-teal-100 transition flex justify-between items-center"
+                        onClick={() => setIsOpen(!isOpen)}
+                    >
+                        <div>
+                            <h4 className="font-bold text-teal-900 text-lg flex items-center gap-2">
+                                <ClipboardList className="text-teal-600" />
+                                {plan.diagnosis}
+                            </h4>
+                            {!isOpen && <span className="text-xs font-bold text-teal-600 mt-1 inline-block bg-white px-2 py-0.5 rounded border border-teal-200">Show Care Plan</span>}
+                        </div>
+                        <button className="text-teal-700">
+                            {isOpen ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
+                        </button>
+                    </div>
+                    
+                    {isOpen && (
+                        <div className="p-4 md:p-6 space-y-4 animate-in fade-in">
+                            {plan.definition && (
+                                <div>
+                                    <span className="font-bold text-slate-700 text-xs uppercase tracking-wider">Definition</span>
+                                    <p className="text-sm text-slate-600 italic mt-1">{plan.definition}</p>
+                                </div>
+                            )}
+                            <div className="grid md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                <div>
+                                    <span className="font-bold text-slate-700 text-xs uppercase tracking-wider block mb-1">Related To</span>
+                                    <p className="text-sm text-slate-700 leading-relaxed">{plan.relatedTo}</p>
+                                </div>
+                                <div>
+                                    <span className="font-bold text-slate-700 text-xs uppercase tracking-wider block mb-1">Evidenced By</span>
+                                    <p className="text-sm text-slate-700 leading-relaxed">{plan.evidencedBy}</p>
+                                </div>
+                            </div>
+                            
+                            <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                                <span className="font-bold text-green-800 text-xs uppercase tracking-wider block mb-1">Goal</span>
+                                <p className="text-sm text-green-800 font-medium">{plan.goal}</p>
+                            </div>
+
+                            <div>
+                                <span className="font-bold text-slate-800 text-sm border-b pb-1 mb-3 block flex items-center gap-2">
+                                    <Crosshair size={16} /> Interventions
+                                </span>
+                                <ul className="space-y-2">
+                                    {plan.interventions.map((int, idx) => (
+                                        <li key={idx} className={`text-sm text-slate-700 ${int.startsWith('•') ? 'ml-6' : 'flex gap-3 items-start'}`}>
+                                            {!int.startsWith('•') && <div className="w-1.5 h-1.5 rounded-full bg-teal-500 mt-1.5 flex-shrink-0"></div>}
+                                            <span className="leading-relaxed block">{int}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const SECTIONS = {
+            INTRO: 'intro',
+            DISORDERS: 'disorders',
+            ETIOLOGY: 'etiology',
+            TREATMENT: 'treatment',
+            NURSING: 'nursing',
+            QUIZ: 'quiz'
+        };
+
+        // --- MAIN APP COMPONENT ---
+
+        function App() {
+            const [activeSection, setActiveSection] = useState(SECTIONS.INTRO);
+            const [quizScore, setQuizScore] = useState(0);
+            const [quizSubmitted, setQuizSubmitted] = useState(false);
+            const [quizAnswers, setQuizAnswers] = useState({});
+
+            const handleNavClick = (section) => {
+                setActiveSection(section);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const handleQuizOption = (qIndex, optIndex) => {
+                if (quizSubmitted) return;
+                setQuizAnswers(prev => ({ ...prev, [qIndex]: optIndex }));
+            };
+
+            const submitQuiz = () => {
+                let score = 0;
+                QUIZ_QUESTIONS.forEach((q, i) => {
+                    if (quizAnswers[i] === q.correct) score++;
+                });
+                setQuizScore(score);
+                setQuizSubmitted(true);
+            };
+
+            const resetQuiz = () => {
+                setQuizAnswers({});
+                setQuizSubmitted(false);
+                setQuizScore(0);
+            };
+
+            const IntroView = () => (
+                <div className="space-y-8 animate-in fade-in duration-500">
+                    <div className="bg-gradient-to-br from-blue-700 to-indigo-900 text-white p-6 md:p-10 rounded-2xl shadow-xl relative overflow-hidden">
+                        <div className="relative z-10">
+                            <h1 className="text-3xl md:text-5xl font-extrabold mb-4 leading-tight">Anxiety, Obsessive-Compulsive, and Trauma Related Disorders</h1>
+                            <p className="text-blue-100 text-lg md:text-xl max-w-3xl opacity-90">
+                                Comprehensive nursing lecture covering etiology, classification, treatment, and management.
+                            </p>
+                            <div className="mt-8 flex flex-wrap gap-4">
+                                <button onClick={() => handleNavClick(SECTIONS.DISORDERS)} className="bg-white text-blue-800 px-6 py-3 rounded-full font-bold hover:bg-blue-50 transition shadow-md">Explore Disorders</button>
+                                <button onClick={() => handleNavClick(SECTIONS.QUIZ)} className="bg-indigo-800 bg-opacity-50 text-white border border-indigo-400 px-6 py-3 rounded-full font-bold hover:bg-indigo-700 transition">Take Quiz</button>
+                            </div>
+                        </div>
+                        <Brain className="absolute top-10 right-10 text-white opacity-10 w-48 h-48 md:w-64 md:h-64" />
+                    </div>
+
+                    <SectionHeader title={LECTURE_DATA.intro.title} icon={<AlertCircle size={28}/>} color="bg-slate-100 text-slate-700" />
+                    <Card className="bg-blue-50/30">
+                        <div className="space-y-3">
+                            {LECTURE_DATA.intro.text.map((paragraph, index) => (
+                                <p key={index} className={`text-slate-700 leading-relaxed text-lg ${paragraph.startsWith('•') ? 'ml-6' : ''}`}>
+                                    {paragraph}
+                                </p>
+                            ))}
+                        </div>
+                    </Card>
+
+                    <SectionHeader title={LECTURE_DATA.stats.title} icon={<Activity size={28}/>} color="bg-slate-100 text-slate-700" />
+                    <Card className="bg-purple-50/30">
+                        <div className="space-y-3">
+                            {LECTURE_DATA.stats.text.map((paragraph, index) => (
+                                <p key={index} className={`text-slate-700 leading-relaxed text-lg ${paragraph.startsWith('•') ? 'ml-6' : ''}`}>
+                                    {paragraph}
+                                </p>
+                            ))}
+                        </div>
+                    </Card>
+                </div>
+            );
+
+            const DisordersView = () => (
+                <div className="animate-in slide-in-from-right-4 duration-500">
+                    <div className="mb-6 flex flex-wrap gap-2 sticky top-16 z-40 bg-slate-50 p-2 border-b border-slate-200">
+                        <span className="font-bold text-sm text-slate-500 py-2 mr-2">Jump to:</span>
+                        <a href="#anxiety" className="bg-orange-100 text-orange-700 px-3 py-1.5 rounded-full text-sm font-bold hover:bg-orange-200 transition">Anxiety</a>
+                        <a href="#ocd" className="bg-purple-100 text-purple-700 px-3 py-1.5 rounded-full text-sm font-bold hover:bg-purple-200 transition">OCD</a>
+                        <a href="#trauma" className="bg-slate-200 text-slate-700 px-3 py-1.5 rounded-full text-sm font-bold hover:bg-slate-300 transition">Trauma</a>
+                    </div>
+
+                    <div className="space-y-12">
+                        {Object.entries(DISORDERS_DATA).map(([key, section]) => (
+                            <section id={key} key={key} className="scroll-mt-32">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 p-4 rounded-xl bg-slate-100 border border-slate-200">
+                                    <div className="flex items-center gap-3">
+                                        <h2 className="text-xl md:text-2xl font-bold text-slate-800">{section.title}</h2>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                    {section.items.map((item, idx) => (
+                                        <TermItem key={idx} {...item} />
+                                    ))}
+                                </div>
+                            </section>
+                        ))}
+                    </div>
+                </div>
+            );
+
+            const EtiologyView = () => (
+                <div className="animate-in slide-in-from-right-4 duration-500">
+                    <SectionHeader title="IV. Etiology of Anxiety, OCD, and Trauma Related Disorders" icon={<Brain size={32} className="text-teal-600" />} color="bg-teal-100 text-teal-800" />
+                    
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {ETIOLOGY_DATA.map((theory, idx) => (
+                            <Card key={idx} className="flex flex-col border-t-4 border-t-teal-500 hover:shadow-md transition">
+                                <h3 className="font-bold text-lg text-teal-900 mb-4 flex items-center justify-between border-b pb-2">
+                                    {theory.title}
+                                </h3>
+                                {theory.svg && (
+                                    <div className="w-full h-24 mb-4 flex items-center justify-center bg-teal-50 rounded">
+                                        {theory.svg}
+                                    </div>
+                                )}
+                                <div className="space-y-3 flex-1">
+                                    {theory.details.map((detail, dIdx) => (
+                                        <p key={dIdx} className={`text-sm text-slate-700 leading-relaxed ${detail.startsWith('•') ? 'ml-4' : ''}`}>
+                                            {detail}
+                                        </p>
+                                    ))}
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                </div>
+            );
+
+            const TreatmentView = () => (
+                <div className="animate-in slide-in-from-right-4 duration-500">
+                    <SectionHeader title="V. Treatment Modalities" icon={<Activity size={32} className="text-blue-600"/>} color="bg-blue-100 text-blue-800" />
+                    
+                    <div className="space-y-8">
+                        {TREATMENT_DATA.map((section, idx) => (
+                            <section key={idx}>
+                                <h3 className="text-xl font-bold text-slate-800 mb-4">{section.title}</h3>
+                                {section.items && (
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        {section.items.map((item, itemIdx) => (
+                                            <Card key={itemIdx} className="bg-white border-slate-200">
+                                                {item.term && <h4 className="font-bold text-blue-800 mb-3 border-b pb-2">{item.term}</h4>}
+                                                <div className="space-y-2">
+                                                    {item.details.map((detail, dIdx) => (
+                                                        <p key={dIdx} className="text-sm text-slate-700 leading-relaxed">
+                                                            {detail}
+                                                        </p>
+                                                    ))}
+                                                </div>
+                                                {item.svg && (
+                                                    <div className="mt-4 w-full h-32 bg-blue-50 rounded flex justify-center p-2 border border-blue-100">
+                                                        {item.svg}
+                                                    </div>
+                                                )}
+                                            </Card>
+                                        ))}
+                                    </div>
+                                )}
+                            </section>
+                        ))}
+                    </div>
+                </div>
+            );
+
+            const NursingView = () => (
+                <div className="animate-in slide-in-from-right-4 duration-500">
+                    <SectionHeader title="VI. Nursing Management" icon={<ClipboardList size={32} className="text-teal-600"/>} color="bg-teal-100 text-teal-800" />
+
+                    <div className="space-y-10">
+                        {Object.entries(NURSING_DATA).map(([key, category]) => (
+                            <section key={key}>
+                                <h3 className="text-xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-slate-200">{category.title}</h3>
+                                <div>
+                                    {category.plans.map((plan, idx) => (
+                                        <NursingPlan key={idx} plan={plan} />
+                                    ))}
+                                </div>
+                                {category.otherDiagnoses && (
+                                    <div className="mt-4 p-4 bg-slate-100 rounded-lg border border-slate-200 text-sm text-slate-700">
+                                        <span className="font-bold text-slate-800 block mb-2">Other nursing diagnoses are:</span>
+                                        <ul className="list-disc list-inside space-y-1">
+                                            {category.otherDiagnoses.map((d, i) => <li key={i}>{d}</li>)}
+                                        </ul>
+                                    </div>
+                                )}
+                            </section>
+                        ))}
+                    </div>
+                </div>
+            );
+
+            const QuizView = () => (
+                <div className="animate-in slide-in-from-right-4 duration-500 max-w-3xl mx-auto">
+                    <SectionHeader title="Knowledge Check" icon={<Lightbulb size={32} className="text-indigo-600"/>} color="bg-indigo-100 text-indigo-800" />
+                    
+                    {!quizSubmitted ? (
+                        <div className="space-y-6">
+                            {QUIZ_QUESTIONS.map((q, qIndex) => (
+                                <Card key={qIndex} className="p-6 border-slate-200">
+                                    <h4 className="font-bold text-lg mb-4 text-slate-800">{qIndex + 1}. {q.q}</h4>
+                                    <div className="space-y-2">
+                                        {q.options.map((opt, optIndex) => (
+                                            <button
+                                                key={optIndex}
+                                                onClick={() => handleQuizOption(qIndex, optIndex)}
+                                                className={`w-full text-left p-3 rounded-lg border transition-all duration-200 ${
+                                                    quizAnswers[qIndex] === optIndex 
+                                                        ? 'bg-indigo-50 border-indigo-400 text-indigo-900 shadow-sm font-medium' 
+                                                        : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700'
+                                                }`}
+                                            >
+                                                <div className="flex gap-3">
+                                                    <span className={`w-6 h-6 rounded-full border flex items-center justify-center flex-shrink-0 text-xs ${quizAnswers[qIndex] === optIndex ? 'border-indigo-500 bg-indigo-500 text-white' : 'border-slate-300'}`}>
+                                                        {String.fromCharCode(65 + optIndex)}
+                                                    </span>
+                                                    <span>{opt}</span>
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </Card>
+                            ))}
+                            <button 
+                                onClick={submitQuiz}
+                                disabled={Object.keys(quizAnswers).length < QUIZ_QUESTIONS.length}
+                                className="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-indigo-700 transition shadow-md"
+                            >
+                                Submit Answers
+                            </button>
+                        </div>
+                    ) : (
+                        <Card className="text-center p-10 border-indigo-100 bg-indigo-50/50">
+                            <div className="text-6xl mb-6">{quizScore >= 4 ? '🏆' : '📚'}</div>
+                            <h2 className="text-3xl font-bold mb-2 text-indigo-900">You scored {quizScore} / {QUIZ_QUESTIONS.length}</h2>
+                            <p className="text-slate-700 mb-8 text-lg">
+                                {quizScore === 5 ? "Excellent! You have mastered the concepts of this lecture." : 
+                                 quizScore >= 3 ? "Good job! Review the sections to strengthen your knowledge." :
+                                 "Keep studying! Review the lecture material and try again."}
+                            </p>
+                            
+                            <div className="text-left mb-8 space-y-4">
+                                <h3 className="font-bold text-slate-800 border-b pb-2">Review:</h3>
+                                {QUIZ_QUESTIONS.map((q, i) => (
+                                    <div key={i} className={`p-3 rounded border ${quizAnswers[i] === q.correct ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                                        <p className="text-sm font-bold text-slate-700 mb-1">{i+1}. {q.q}</p>
+                                        <p className="text-sm">
+                                            {quizAnswers[i] === q.correct ? 
+                                                <span className="text-green-700 flex items-center gap-1"><span className="text-lg">✓</span> Correct: {q.options[q.correct]}</span> : 
+                                                <span className="text-red-700 flex items-center gap-1"><span className="text-lg">✗</span> Incorrect. The correct answer is: <strong>{q.options[q.correct]}</strong></span>
+                                            }
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <button onClick={resetQuiz} className="bg-indigo-600 text-white px-8 py-3 rounded-full font-bold hover:bg-indigo-700 transition shadow-md">
+                                Retake Quiz
+                            </button>
+                        </Card>
+                    )}
+                </div>
+            );
+
+            const NAV_ITEMS = [
+                { id: SECTIONS.INTRO, label: 'Intro', icon: <Compass size={18}/> },
+                { id: SECTIONS.DISORDERS, label: 'Disorders', icon: <Brain size={18}/> },
+                { id: SECTIONS.ETIOLOGY, label: 'Etiology', icon: <HelpCircle size={18}/> },
+                { id: SECTIONS.TREATMENT, label: 'Treatment', icon: <Activity size={18}/> },
+                { id: SECTIONS.NURSING, label: 'Nursing', icon: <ClipboardList size={18}/> },
+                { id: SECTIONS.QUIZ, label: 'Quiz', icon: <Lightbulb size={18}/> },
+            ];
+
+            return (
+                <div className="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col">
+                    <nav className="bg-white shadow-sm sticky top-0 z-50">
+                        <div className="max-w-7xl mx-auto px-4">
+                            <div className="h-16 flex items-center justify-between">
+                                <div className="flex items-center gap-3 font-bold text-sm md:text-lg text-blue-900 cursor-pointer" onClick={() => handleNavClick(SECTIONS.INTRO)}>
+                                    <DepartmentLogo className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0" />
+                                    <span className="hidden sm:block leading-tight">
+                                        Psychiatric & Mental Health<br/><span className="text-xs text-slate-500 font-normal">Nursing Department</span>
+                                    </span>
+                                </div>
+                                
+                                <div className="hidden lg:flex gap-1 overflow-x-auto">
+                                    {NAV_ITEMS.map(nav => (
+                                        <button
+                                            key={nav.id}
+                                            onClick={() => handleNavClick(nav.id)}
+                                            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                                                activeSection === nav.id 
+                                                    ? 'bg-blue-100 text-blue-800' 
+                                                    : 'text-slate-600 hover:bg-slate-100'
+                                            }`}
+                                        >
+                                            {nav.icon} {nav.label}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className="lg:hidden flex text-slate-500 text-sm font-bold">Menu below</div>
+                            </div>
+                        </div>
+                        <div className="lg:hidden border-t border-slate-100 bg-white">
+                            <div className="flex overflow-x-auto py-2 px-2 gap-2 snap-x">
+                                {NAV_ITEMS.map(nav => (
+                                    <button
+                                        key={nav.id}
+                                        onClick={() => handleNavClick(nav.id)}
+                                        className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold snap-start ${
+                                            activeSection === nav.id 
+                                                ? 'bg-blue-100 text-blue-800' 
+                                                : 'bg-slate-100 text-slate-600'
+                                        }`}
+                                    >
+                                        {nav.icon} {nav.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </nav>
+
+                    <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-8">
+                        {activeSection === SECTIONS.INTRO && <IntroView />}
+                        {activeSection === SECTIONS.DISORDERS && <DisordersView />}
+                        {activeSection === SECTIONS.ETIOLOGY && <EtiologyView />}
+                        {activeSection === SECTIONS.TREATMENT && <TreatmentView />}
+                        {activeSection === SECTIONS.NURSING && <NursingView />}
+                        {activeSection === SECTIONS.QUIZ && <QuizView />}
+                    </main>
+
+                    {/* Footer */}
+                    <footer className="bg-slate-900 text-slate-300 py-10 mt-12 border-t-4 border-indigo-600">
+                        <div className="max-w-5xl mx-auto px-6 flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
+                                <FacultyLogo className="w-24 h-28 flex-shrink-0 drop-shadow-md" />
+                                <div className="mt-2">
+                                    <p className="mb-1 text-lg font-bold text-white">Psychiatric Nursing & Mental Health</p>
+                                    <p className="text-sm text-slate-400 max-w-xs">Introduction to Psychiatric and Mental Health Nursing • Educational Material</p>
+                                </div>
+                            </div>
+                            
+                            <div className="text-center md:text-right space-y-2 text-sm border-t md:border-t-0 border-slate-700 pt-6 md:pt-0 w-full md:w-auto">
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Dean of The Faculty:</span> <span className="text-slate-200">Prof. Dr. Hanan Hosny El-Sherbiny</span></p>
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Acting Head of Department:</span> <span className="text-slate-200">Asst. Prof. Dr. Mayar Ezz-Eldin El-Naqeeb</span></p>
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Created by:</span> <span className="font-semibold text-white">M.Abdallah Abozaid</span></p>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

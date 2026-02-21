@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Substance-Related and Addictive Disorders</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX compilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Lucide Icons (Vanilla) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
+        html { scroll-behavior: smooth; }
+        
+        /* Custom Animations */
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slide-in-right { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .animate-in { animation: fade-in 0.5s ease-out forwards; }
+        .slide-in { animation: slide-in-right 0.5s ease-out forwards; }
+        
+        /* Custom scrollbar for inner scrolling areas */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useLayoutEffect } = React;
+
+        // --- ICON SYSTEM SETUP ---
+        const IconWrapper = ({ name, ...props }) => {
+            const ref = useRef(null);
+            useLayoutEffect(() => {
+                if (ref.current && window.lucide && window.lucide.icons[name]) {
+                    const iconElement = window.lucide.createElement(window.lucide.icons[name]);
+                    if (props.className) iconElement.setAttribute('class', (iconElement.getAttribute('class') || '') + ' ' + props.className);
+                    if (props.size) { iconElement.setAttribute('width', props.size); iconElement.setAttribute('height', props.size); }
+                    ref.current.innerHTML = ''; ref.current.appendChild(iconElement);
+                }
+            }, [name, props.className, props.size]);
+            return <span ref={ref} style={{ display: 'inline-flex', verticalAlign: 'middle' }} />;
+        };
+        const createIconComponent = (name) => (props) => <IconWrapper name={name} {...props} />;
+
+        // Standard Icons
+        const Brain = createIconComponent('Brain');
+        const Activity = createIconComponent('Activity');
+        const BookOpen = createIconComponent('BookOpen');
+        const ChevronDown = createIconComponent('ChevronDown');
+        const ChevronUp = createIconComponent('ChevronUp');
+        const AlertCircle = createIconComponent('AlertCircle');
+        const Layers = createIconComponent('Layers');
+        const Clock = createIconComponent('Clock');
+        const Compass = createIconComponent('Compass');
+        const Lightbulb = createIconComponent('Lightbulb');
+        const MessageSquare = createIconComponent('MessageSquare');
+        const Shield = createIconComponent('Shield');
+        const Pill = createIconComponent('Pill');
+        const FlaskConical = createIconComponent('FlaskConical');
+        const Stethoscope = createIconComponent('Stethoscope');
+        const ClipboardList = createIconComponent('ClipboardList');
+        const CheckCircle = createIconComponent('CheckCircle');
+        const Target = createIconComponent('Target');
+        const Zap = createIconComponent('Zap');
+        const Search = createIconComponent('Search');
+
+        // --- 1. DEPARTMENT LOGO (SVG REPLICA) ---
+        const DepartmentLogo = ({ className = "w-10 h-10" }) => (
+            <svg viewBox="0 0 100 120" className={className} xmlns="http://www.w3.org/2000/svg">
+                <path d="M 5 80 C 15 100 40 110 60 105 C 80 100 95 85 95 75 C 95 70 85 65 75 75 C 65 85 50 90 35 85 C 25 80 15 75 5 80 Z" fill="#004a8f" />
+                <path d="M 30 85 C 45 92 60 90 75 80" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                <path d="M 40 78 C 55 85 70 80 85 70" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                <path d="M 50 65 L 53 72 L 58 67 L 58 57 C 58 52 64 50 64 45 C 64 43 60 41 60 39 L 68 37 C 70 36 70 34 68 32 C 65 31 62 32 60 29 C 60 15 48 5 35 10" stroke="#004a8f" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                <g stroke="#1e1b4b" strokeWidth="1.5" fill="none">
+                    <circle cx="35" cy="22" r="9" />
+                    <circle cx="28" cy="35" r="9" />
+                    <circle cx="42" cy="35" r="9" />
+                </g>
+                <text x="35" y="24.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">C</text>
+                <text x="28" y="37.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">C</text>
+                <text x="42" y="37.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">A</text>
+            </svg>
+        );
+
+        // --- 2. FACULTY LOGO (SVG REPLICA) ---
+        const FacultyLogo = ({ className = "w-24 h-28" }) => (
+            <svg viewBox="0 0 100 130" className={className} xmlns="http://www.w3.org/2000/svg">
+                {/* Outer Borders */}
+                <path d="M 2 2 L 98 2 L 98 65 C 98 110 50 128 50 128 C 50 128 2 110 2 65 Z" fill="#24335c" />
+                <path d="M 4 4 L 96 4 L 96 65 C 96 108 50 125 50 125 C 50 125 4 108 4 65 Z" fill="#ffffff" />
+                {/* Sky & Sea */}
+                <path d="M 6 6 L 94 6 L 94 65 C 94 106 50 122 50 122 C 50 122 6 106 6 65 Z" fill="#66c5f4" />
+                <path d="M 6 75 L 94 75 C 94 106 50 122 50 122 C 50 122 6 106 6 75 Z" fill="#1da2d8" />
+                {/* Beams */}
+                <g stroke="#1a2f57" strokeWidth="0.8">
+                    <line x1="50" y1="18" x2="15" y2="12" />
+                    <line x1="50" y1="18" x2="10" y2="20" />
+                    <line x1="50" y1="18" x2="10" y2="28" />
+                    <line x1="50" y1="18" x2="15" y2="35" />
+                    <line x1="50" y1="18" x2="85" y2="12" />
+                    <line x1="50" y1="18" x2="90" y2="20" />
+                    <line x1="50" y1="18" x2="90" y2="28" />
+                    <line x1="50" y1="18" x2="85" y2="35" />
+                </g>
+                {/* Fortress & Lighthouse */}
+                <g fill="#c49341" stroke="#1a2f57" strokeWidth="1.2" strokeLinejoin="round">
+                    <polygon points="12,60 10,75 22,75 20,60" />
+                    <rect x="10" y="56" width="12" height="4" />
+                    <rect x="11" y="53" width="10" height="3" />
+                    <rect x="20" y="63" width="18" height="12" />
+                    <polygon points="80,60 78,75 90,75 88,60" />
+                    <rect x="78" y="56" width="12" height="4" />
+                    <rect x="79" y="53" width="10" height="3" />
+                    <rect x="62" y="63" width="18" height="12" />
+                    <polygon points="40,40 33,75 67,75 60,40" />
+                    <rect x="38" y="38" width="24" height="4" />
+                    <rect x="42" y="24" width="16" height="14" />
+                    <rect x="40" y="22" width="20" height="3" />
+                    <rect x="45" y="14" width="10" height="8" />
+                    <rect x="44" y="12" width="12" height="2" />
+                    <polygon points="47,12 48,7 52,7 53,12" />
+                </g>
+                {/* Details (Windows/Doors) */}
+                <g fill="none" stroke="#1a2f57" strokeWidth="1.2">
+                    <rect x="22" y="66" width="3" height="4" />
+                    <rect x="27" y="66" width="3" height="4" />
+                    <rect x="32" y="66" width="3" height="4" />
+                    <rect x="65" y="66" width="3" height="4" />
+                    <rect x="70" y="66" width="3" height="4" />
+                    <rect x="75" y="66" width="3" height="4" />
+                    <rect x="47" y="64" width="6" height="11" />
+                    <rect x="48" y="54" width="4" height="5" />
+                    <rect x="48" y="46" width="4" height="5" />
+                    <rect x="44" y="27" width="4" height="4" />
+                    <rect x="52" y="27" width="4" height="4" />
+                </g>
+                {/* Wave styling */}
+                <g fill="#1a2f57" stroke="none">
+                    <path d="M 12 85 Q 16 87 20 85 L 20 87 Q 16 89 12 87 Z" />
+                    <path d="M 28 85 Q 32 87 36 85 L 36 87 Q 32 89 28 87 Z" />
+                    <path d="M 44 85 Q 48 87 52 85 L 52 87 Q 48 89 44 87 Z" />
+                    <path d="M 60 85 Q 64 87 68 85 L 68 87 Q 64 89 60 87 Z" />
+                    <path d="M 76 85 Q 80 87 84 85 L 84 87 Q 80 89 76 87 Z" />
+                    <path d="M 20 95 Q 24 97 28 95 L 28 97 Q 24 99 20 97 Z" />
+                    <path d="M 36 95 Q 40 97 44 95 L 44 97 Q 40 99 36 97 Z" />
+                    <path d="M 52 95 Q 56 97 60 95 L 60 97 Q 56 99 52 97 Z" />
+                    <path d="M 68 95 Q 72 97 76 95 L 76 97 Q 72 99 68 97 Z" />
+                    <path d="M 28 105 Q 32 107 36 105 L 36 107 Q 32 109 28 107 Z" />
+                    <path d="M 44 105 Q 48 107 52 105 L 52 107 Q 48 109 44 107 Z" />
+                    <path d="M 60 105 Q 64 107 68 105 L 68 107 Q 64 109 60 107 Z" />
+                    <path d="M 40 115 Q 44 117 48 115 L 48 117 Q 44 119 40 117 Z" />
+                    <path d="M 52 115 Q 56 117 60 115 L 60 117 Q 56 119 52 117 Z" />
+                </g>
+            </svg>
+        );
+
+        // --- 3. DSM5 Severity Meter SVG ---
+        const DSM5SeverityMeter = () => (
+            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm my-6 text-center">
+                <h5 className="font-bold text-slate-800 mb-6 flex items-center justify-center gap-2">
+                    <Target className="text-blue-500" /> DSM-5 Severity Scale
+                </h5>
+                <div className="flex flex-col md:flex-row justify-center items-center gap-4">
+                    <div className="flex-1 w-full bg-green-50 rounded-lg p-4 border-2 border-green-200">
+                        <div className="text-3xl font-black text-green-500 mb-2">2-3</div>
+                        <div className="font-bold text-green-800">Mild</div>
+                        <div className="text-xs text-green-600 mt-1">Symptoms Identified</div>
+                    </div>
+                    <div className="text-slate-300 hidden md:block">▶</div>
+                    <div className="flex-1 w-full bg-yellow-50 rounded-lg p-4 border-2 border-yellow-200">
+                        <div className="text-3xl font-black text-yellow-500 mb-2">4-5</div>
+                        <div className="font-bold text-yellow-800">Moderate</div>
+                        <div className="text-xs text-yellow-600 mt-1">Symptoms Identified</div>
+                    </div>
+                    <div className="text-slate-300 hidden md:block">▶</div>
+                    <div className="flex-1 w-full bg-red-50 rounded-lg p-4 border-2 border-red-200">
+                        <div className="text-3xl font-black text-red-500 mb-2">6+</div>
+                        <div className="font-bold text-red-800">Severe</div>
+                        <div className="text-xs text-red-600 mt-1">Symptoms Identified</div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        // --- 4. Etiology Flow Chart SVG ---
+        const EtiologyFlowChart = () => (
+            <div className="my-8 flex justify-center overflow-x-auto pb-4">
+                <div className="min-w-[600px] w-full max-w-3xl">
+                    <svg viewBox="0 0 600 250" className="w-full h-auto drop-shadow-sm font-sans">
+                        <rect x="250" y="10" width="100" height="40" rx="8" fill="#eff6ff" stroke="#3b82f6" strokeWidth="2" />
+                        <text x="300" y="35" fontSize="12" fill="#1e3a8a" textAnchor="middle" fontWeight="bold">Precipitating Event</text>
+                        <path d="M 300 50 L 300 80" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow)" />
+                        
+                        <rect x="50" y="70" width="140" height="60" rx="8" fill="#fef3c7" stroke="#d97706" strokeWidth="2" />
+                        <text x="120" y="90" fontSize="12" fill="#92400e" textAnchor="middle" fontWeight="bold">Predisposing Factors</text>
+                        <text x="120" y="105" fontSize="10" fill="#92400e" textAnchor="middle">- Genetics / Bio</text>
+                        <text x="120" y="118" fontSize="10" fill="#92400e" textAnchor="middle">- Past Experiences</text>
+                        <path d="M 190 100 L 240 100" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow)" />
+
+                        <rect x="250" y="80" width="100" height="40" rx="8" fill="#f3e8ff" stroke="#9333ea" strokeWidth="2" />
+                        <text x="300" y="105" fontSize="12" fill="#581c87" textAnchor="middle" fontWeight="bold">Cognitive Appraisal</text>
+                        <path d="M 300 120 L 300 150" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow)" />
+
+                        <rect x="230" y="150" width="140" height="40" rx="8" fill="#fee2e2" stroke="#ef4444" strokeWidth="2" />
+                        <text x="300" y="168" fontSize="11" fill="#991b1b" textAnchor="middle" fontWeight="bold">Weak Ego / Defense Mech.</text>
+                        <text x="300" y="182" fontSize="9" fill="#991b1b" textAnchor="middle">(Denial, Projection)</text>
+                        <path d="M 300 190 L 300 220" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#arrow)" />
+
+                        <rect x="230" y="220" width="140" height="40" rx="8" fill="#d1fae5" stroke="#10b981" strokeWidth="2" />
+                        <text x="300" y="245" fontSize="14" fill="#065f46" textAnchor="middle" fontWeight="bold">Substance Use</text>
+                        <defs>
+                            <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                                <path d="M0,0 L0,6 L9,3 z" fill="#94a3b8" />
+                            </marker>
+                        </defs>
+                    </svg>
+                </div>
+            </div>
+        );
+
+        // --- CUSTOM EDUCATIONAL SVGs (15+ Total) ---
+
+        // 5. DNA Helix (Genetics)
+        const DNAHelixSVG = ({className="w-16 h-16"}) => (
+            <svg viewBox="0 0 100 100" className={className} xmlns="http://www.w3.org/2000/svg">
+                <path d="M30 10 Q50 30 70 50 T30 90" fill="none" stroke="#ef4444" strokeWidth="4" strokeLinecap="round"/>
+                <path d="M70 10 Q50 30 30 50 T70 90" fill="none" stroke="#3b82f6" strokeWidth="4" strokeLinecap="round"/>
+                <line x1="40" y1="20" x2="60" y2="20" stroke="#94a3b8" strokeWidth="3"/>
+                <line x1="32" y1="35" x2="68" y2="35" stroke="#94a3b8" strokeWidth="3"/>
+                <line x1="50" y1="50" x2="50" y2="50" stroke="#94a3b8" strokeWidth="4" strokeLinecap="round"/>
+                <line x1="32" y1="65" x2="68" y2="65" stroke="#94a3b8" strokeWidth="3"/>
+                <line x1="40" y1="80" x2="60" y2="80" stroke="#94a3b8" strokeWidth="3"/>
+            </svg>
+        );
+
+        // 6. Neuro Synapse (Neurobiology)
+        const SynapseSVG = ({className="w-16 h-16"}) => (
+            <svg viewBox="0 0 100 100" className={className} xmlns="http://www.w3.org/2000/svg">
+                <path d="M 30 10 C 30 40 10 50 10 60 C 10 70 90 70 90 60 C 90 50 70 40 70 10" fill="#dbeafe" stroke="#3b82f6" strokeWidth="3"/>
+                <path d="M 10 85 C 30 75 70 75 90 85 C 90 95 10 95 10 85" fill="#fce7f3" stroke="#ec4899" strokeWidth="3"/>
+                <circle cx="30" cy="50" r="4" fill="#eab308"/>
+                <circle cx="50" cy="55" r="4" fill="#eab308"/>
+                <circle cx="70" cy="45" r="4" fill="#eab308"/>
+                <circle cx="40" cy="70" r="4" fill="#eab308"/>
+                <circle cx="60" cy="65" r="4" fill="#eab308"/>
+            </svg>
+        );
+
+        // 7. Tolerance Graph
+        const ToleranceGraphSVG = ({className="w-16 h-16"}) => (
+            <svg viewBox="0 0 100 100" className={className} xmlns="http://www.w3.org/2000/svg">
+                <line x1="10" y1="90" x2="90" y2="90" stroke="#64748b" strokeWidth="3"/>
+                <line x1="10" y1="90" x2="10" y2="10" stroke="#64748b" strokeWidth="3"/>
+                <path d="M 10 80 L 30 70 L 50 50 L 70 30 L 90 10" fill="none" stroke="#ef4444" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M 10 50 L 90 50" fill="none" stroke="#3b82f6" strokeWidth="3" strokeDasharray="5,5"/>
+                <text x="50" y="45" fontSize="10" fill="#3b82f6" fontWeight="bold">Effect</text>
+                <text x="70" y="25" fontSize="10" fill="#ef4444" fontWeight="bold">Dose</text>
+            </svg>
+        );
+
+        // 8. Alcohol Bottle & Glass
+        const AlcoholSVG = ({className="w-12 h-12"}) => (
+            <svg viewBox="0 0 100 100" className={className} xmlns="http://www.w3.org/2000/svg">
+                <rect x="25" y="40" width="20" height="50" rx="3" fill="#fbbf24" stroke="#b45309" strokeWidth="2"/>
+                <rect x="30" y="10" width="10" height="30" fill="#fbbf24" stroke="#b45309" strokeWidth="2"/>
+                <rect x="29" y="8" width="12" height="4" fill="#b45309"/>
+                <path d="M 55 40 L 65 90 L 85 90 L 95 40 Z" fill="#fef3c7" stroke="#b45309" strokeWidth="2"/>
+                <path d="M 60 65 L 80 65 L 83 85 L 57 85 Z" fill="#fbbf24"/>
+                <rect x="25" y="55" width="20" height="15" fill="#ffffff" stroke="#b45309" strokeWidth="1"/>
+            </svg>
+        );
+
+        // 9. Coffee Cup (Caffeine)
+        const CoffeeCupSVG = ({className="w-12 h-12"}) => (
+            <svg viewBox="0 0 100 100" className={className} xmlns="http://www.w3.org/2000/svg">
+                <path d="M 20 40 C 20 80 80 80 80 40 Z" fill="#78350f" stroke="#451a03" strokeWidth="3"/>
+                <path d="M 80 45 C 95 45 95 65 80 65" fill="none" stroke="#451a03" strokeWidth="3"/>
+                <path d="M 35 30 Q 40 10 45 25 T 50 10" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M 55 30 Q 60 10 65 25 T 70 10" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+        );
+
+        // 10. Cannabis Leaf
+        const CannabisSVG = ({className="w-12 h-12"}) => (
+            <svg viewBox="0 0 100 100" className={className} xmlns="http://www.w3.org/2000/svg">
+                <path d="M 50 90 L 50 50" stroke="#16a34a" strokeWidth="4" strokeLinecap="round"/>
+                <path d="M 50 50 Q 30 30 50 10 Q 70 30 50 50 Z" fill="#22c55e" stroke="#16a34a" strokeWidth="2"/>
+                <path d="M 50 50 Q 20 40 15 25 Q 40 20 50 50 Z" fill="#22c55e" stroke="#16a34a" strokeWidth="2"/>
+                <path d="M 50 50 Q 80 40 85 25 Q 60 20 50 50 Z" fill="#22c55e" stroke="#16a34a" strokeWidth="2"/>
+                <path d="M 50 50 Q 20 60 10 55 Q 30 40 50 50 Z" fill="#22c55e" stroke="#16a34a" strokeWidth="2"/>
+                <path d="M 50 50 Q 80 60 90 55 Q 70 40 50 50 Z" fill="#22c55e" stroke="#16a34a" strokeWidth="2"/>
+            </svg>
+        );
+
+        // 11. Inhalants (Spray Can & Tube)
+        const InhalantSVG = ({className="w-12 h-12"}) => (
+            <svg viewBox="0 0 100 100" className={className} xmlns="http://www.w3.org/2000/svg">
+                <rect x="35" y="30" width="30" height="60" rx="5" fill="#cbd5e1" stroke="#64748b" strokeWidth="3"/>
+                <rect x="40" y="20" width="20" height="10" fill="#94a3b8" stroke="#64748b" strokeWidth="3"/>
+                <circle cx="50" cy="15" r="5" fill="#ef4444"/>
+                <path d="M 60 15 Q 80 5 90 20 T 70 30" fill="none" stroke="#94a3b8" strokeWidth="2" strokeDasharray="3,3"/>
+                <rect x="35" y="50" width="30" height="20" fill="#3b82f6"/>
+            </svg>
+        );
+
+        // 12. Opioids (Syringe)
+        const OpioidSVG = ({className="w-12 h-12"}) => (
+            <svg viewBox="0 0 100 100" className={className} xmlns="http://www.w3.org/2000/svg" transform="rotate(45)">
+                <rect x="40" y="30" width="20" height="40" fill="#f8fafc" stroke="#64748b" strokeWidth="3"/>
+                <rect x="40" y="50" width="20" height="20" fill="#3b82f6"/>
+                <rect x="45" y="10" width="10" height="20" fill="#cbd5e1" stroke="#64748b" strokeWidth="3"/>
+                <rect x="35" y="70" width="30" height="5" fill="#64748b"/>
+                <line x1="50" y1="75" x2="50" y2="95" stroke="#64748b" strokeWidth="2"/>
+                <circle cx="50" cy="100" r="3" fill="#3b82f6"/>
+                <line x1="45" y1="40" x2="55" y2="40" stroke="#64748b" strokeWidth="1"/>
+                <line x1="45" y1="50" x2="55" y2="50" stroke="#64748b" strokeWidth="1"/>
+            </svg>
+        );
+
+        // 13. Sedatives (Pills)
+        const PillsSVG = ({className="w-12 h-12"}) => (
+            <svg viewBox="0 0 100 100" className={className} xmlns="http://www.w3.org/2000/svg">
+                <circle cx="35" cy="65" r="20" fill="#fecaca" stroke="#dc2626" strokeWidth="3"/>
+                <line x1="20" y1="65" x2="50" y2="65" stroke="#dc2626" strokeWidth="3"/>
+                <rect x="45" y="20" width="40" height="20" rx="10" fill="#bfdbfe" stroke="#2563eb" strokeWidth="3" transform="rotate(30 65 30)"/>
+                <line x1="60" y1="15" x2="70" y2="45" stroke="#2563eb" strokeWidth="3" transform="rotate(30 65 30)"/>
+            </svg>
+        );
+
+        // 14. Stimulants (Lightning Brain)
+        const StimulantSVG = ({className="w-12 h-12"}) => (
+            <svg viewBox="0 0 100 100" className={className} xmlns="http://www.w3.org/2000/svg">
+                <path d="M 20 50 C 20 20 80 20 80 50 C 80 70 60 80 50 90 C 40 80 20 70 20 50 Z" fill="#fef08a" stroke="#ca8a04" strokeWidth="3"/>
+                <path d="M 55 25 L 40 55 L 55 55 L 45 80 L 65 45 L 50 45 Z" fill="#ef4444" stroke="#991b1b" strokeWidth="2"/>
+            </svg>
+        );
+
+        // 15. Tobacco (Cigarette)
+        const CigaretteSVG = ({className="w-12 h-12"}) => (
+            <svg viewBox="0 0 100 100" className={className} xmlns="http://www.w3.org/2000/svg">
+                <rect x="20" y="40" width="60" height="15" fill="#f8fafc" stroke="#64748b" strokeWidth="3"/>
+                <rect x="60" y="40" width="20" height="15" fill="#f59e0b" stroke="#b45309" strokeWidth="3"/>
+                <path d="M 20 40 L 15 47 L 20 55" fill="#ef4444"/>
+                <path d="M 15 35 Q 5 20 20 10 T 10 0" fill="none" stroke="#94a3b8" strokeWidth="3" strokeLinecap="round"/>
+                <path d="M 25 35 Q 15 20 30 10" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+        );
+
+        // 16. Hallucinogens (Swirl Eye)
+        const HallucinogenSVG = ({className="w-12 h-12"}) => (
+            <svg viewBox="0 0 100 100" className={className} xmlns="http://www.w3.org/2000/svg">
+                <path d="M 10 50 Q 50 10 90 50 Q 50 90 10 50 Z" fill="#f3e8ff" stroke="#9333ea" strokeWidth="3"/>
+                <circle cx="50" cy="50" r="20" fill="#ffffff" stroke="#9333ea" strokeWidth="3"/>
+                <path d="M 50 35 A 15 15 0 0 1 65 50 A 15 15 0 0 1 50 65 A 10 10 0 0 1 40 50 A 5 5 0 0 1 50 45" fill="none" stroke="#db2777" strokeWidth="4" strokeLinecap="round"/>
+            </svg>
+        );
+
+        // --- APPLICATION DATA ---
+        // VERBATIM TEXT USED THROUGHOUT
+
+        const SECTIONS = { INTRO: 'intro', CLASSES: 'classes', SIGNS: 'signs', ETIOLOGY: 'etiology', NURSING: 'nursing', QUIZ: 'quiz' };
+
+        const TERMINOLOGY_DATA = [
+            { term: "Physical dependence", def: "It occurs when the cessation of a drug causes adverse physical effects; these ill effects are typically greater and more intense when the cessation of the drug is rapid and abrupt. Some of the drugs that are most often associated with physical dependence include cocaine, opioid drugs, alcohol and benzodiazepines." },
+            { term: "Psychological Dependence", def: "It is defined as \"the person's need to continue the use of the substance to avoid any unpleasant feelings and experiences that can occur when the substance is not taken\". Amphetamines and hallucinogenic drugs like LSD are often associated with psychological dependence." },
+            { term: "Substance withdrawal", def: "Physiological, behavioral, cognitive, and affective symptoms occur after reduction or discontinuance of a drug that has been used heavily over a long period of time. Withdrawal symptoms are specific for each drug." },
+            { term: "Tolerance", def: "Is the need for increasingly larger or more frequent doses of a substance in order to obtain the desired effects originally produced by a lower dose.", icon: <ToleranceGraphSVG className="w-8 h-8"/> },
+            { term: "Relapse", def: "Refers to recurrence of drug taking after some effective treatment regimen." },
+            { term: "Abuse", def: "Use of any drug, usually by self-administration, in a manner that deviates from approved social or medical patterns." },
+            { term: "Drug/Substance abuse", def: "Is an intense desire to use increasing amounts of a particular substance or substances to the exclusion of other activities. Is a maladaptive pattern of substance use leading to clinically significant impairment or distress?" },
+            { term: "Craving", def: "Is an intense, urgent, or abnormal desire or longing." },
+            { term: "Habituation", def: "implies an emotional dependence on a drug or a desire or compulsion to continue taking a drug." },
+            { term: "Substance intoxication", def: "Intoxication is a state in which a person has consumed enough alcohol or drugs that their mood and physical & mental abilities are noticeably affected. For example, a person has reached the point of alcohol intoxication when the alcohol produces mental or physical impairments, such as slurred speech, difficulty walking, or disorientation." }
+        ];
+
+        const DSM5_CRITERIA = [
+            "1. Took more extensive amounts/extended time. Using the substance in larger amounts or for longer than it's meant to be.",
+            "2. Repeated efforts to control the use or quit. Want to cut down or stop using the substance but not succeed.",
+            "3. Full-time spent using. Consuming a lot of time getting, using, or recovering from the use of the substance.",
+            "4. Craving. Desires and urges to use the substance.",
+            "5. Disregarded major roles. Not accomplishing what is needed to be done at work, home, or school because of substance use.",
+            "6. Social or interpersonal dilemmas. Resuming use even when it causes problems in relationships.",
+            "7. Missed activities. Giving up significant social, occupational, or recreational activities because of substance use.",
+            "8. Hazardous use. Using substances again and again even when it places the person in danger.",
+            "9. Physical or psychological problems. Extending the use even if physical or psychological problems arise.",
+            "10. Tolerance. Requires more of the substance to get the effect the person desires.",
+            "11. Withdrawal. Development of withdrawal symptoms, which can be alleviated by taking more of the substance."
+        ];
+
+        const DRUG_CLASSES = [
+            {
+                term: "1. Alcohol-Related Disorders",
+                def: "Alcohol is a central nervous system depressant that is absorbed rapidly into the bloodstream; initially, its effect is relaxation and loss of inhibition. With intoxication, there is slurred speech, unsteady gait, lack of coordination and impaired attention, concentration, memory & judgment.",
+                icon: <AlcoholSVG className="w-12 h-12" />
+            },
+            {
+                term: "2. Caffeine-Related Disorders",
+                def: "Caffeine is a stimulant found commonly in coffee, energy drinks, and some carbonated beverages like soda. Caffeine use disorder is characterized by a desire to cut down on caffeine consumption due to its adverse health effects, but the inability to do so.",
+                icon: <CoffeeCupSVG className="w-12 h-12" />
+            },
+            {
+                term: "3. Cannabis-Related Disorders",
+                def: "Cannabis is the most widely used illicit substance in United States. Research has shown that cannabis has short-term effects of lowering intraocular pressure. Prolonged and heavy cannabis use can alter brain circuitry. However, the specific pathophysiological mechanisms are yet unclear. At a symptomatic level; heavy use modifies consciousness experienced by altering the brain's network for self-awareness, reducing anxiety and impairing memory. It also affects motivation and personal experience. Symptoms of intoxication include impaired motor coordination, inappropriate laughter, impaired judgment & short-term memory, and distortions of time & perception.",
+                icon: <CannabisSVG className="w-12 h-12" />
+            },
+            {
+                term: "4. Hallucinogen-Related Disorders",
+                def: "Hallucinogens are substances that distort the user's perception of reality and produce symptoms similar to psychosis, including hallucinations and depersonalization. Hallucinogen intoxication is marked by several maladaptive behavioral or psychological changes including anxiety, depression, paranoid ideation, ideas of reference, fear of losing one's mind, and potentially dangerous behavior such as jumping out from the window in the belief that one could fly.",
+                icon: <HallucinogenSVG className="w-12 h-12" />
+            },
+            {
+                term: "5. Inhalant-Related Disorders",
+                def: "Inhalants are a diverse group of drugs that includes anesthetics, nitrates, and organic solvents. The most common substances in this category are aliphatic and aromatic hydrocarbons found in gasoline, glue, paint thinner, and spray paint. Most inhalants are short-acting CNS depressants. They affect central nervous system and slow down brain activity.",
+                details: [
+                    "Short-term health effects: include slurred or distorted speech, lack of coordination, and euphoria (feeling \"high\"). Inhalants produce a rapid high, with initial excitation followed by drowsiness, dizziness, dis-inhibition, lightheadedness, and agitation. Generally, people experience mild highs that last for a short time—normally in the order of minutes so they tend to be taken repeatedly to extend the high. If sufficient amounts are inhaled, nearly all solvents and gases produce anesthesia a loss of sensation and can lead to unconsciousness. Hallucinations may accompany large doses of certain inhalants particularly medical gases like nitrous oxide, commonly found in whipped cream cans.",
+                    "Long-term health effects: may include liver and kidney damage, loss of coordination, limb spasms, delayed behavioral development, and brain damage.",
+                    "Intoxication: Inhalant intoxication involves dizziness, nystagmus, lack of coordination, slurred speech, unsteady gait, tremor, muscle weakness, and blurred vision."
+                ],
+                icon: <InhalantSVG className="w-12 h-12" />
+            },
+            {
+                term: "6. Opioid-Related Disorders",
+                def: "Opioids are popular drugs of abuse because they desensitize the user to both physiologic and psychological pain and induce a sense of euphoria and well-being. Opioids and opiates include prescription painkillers such as OxyContin, or naturally-derived substances such as Heroin. Opioid intoxication develops soon after the initial euphoric feeling. Symptoms include apathy, lethargy, impaired judgment, psychomotor retardation or agitation, constricted pupils, drowsiness, slurred speech, and impaired attention & memory.",
+                icon: <OpioidSVG className="w-12 h-12" />
+            },
+            {
+                term: "7. Sedative-, Hypnotic-, or Anxiolytic-Related Disorders",
+                def: "This class of drugs includes all central nervous system depressants, barbiturates, non-barbiturate hypnotics, and anxiolytics, particularly benzodiazepines (Effects of these drugs, symptoms of intoxication, and withdrawal symptoms are similar to those of alcohol). People with sedative-hypnotic or anxiolytic use disorders misuse these drugs and experience withdrawal symptoms.",
+                icon: <PillsSVG className="w-12 h-12" />
+            },
+            {
+                term: "8. Stimulant-Related Disorders",
+                def: "Stimulants are drugs that stimulate or excite the central nervous system. While each person who abuses stimulants will have differing signs and symptoms based on the stimulant being used, the length of use, and personality patterns, the following are some common symptoms of abuse:",
+                details: [
+                    "Psychosocial symptoms: include high or euphoric feeling, hyperactivity, hyper-vigilance, talkativeness, anxiety, grandiosity, hallucinations, stereotypic or repetitive behavior, anger/aggressiveness, fighting, impaired judgment, and increased confidence.",
+                    "Behavioral symptoms: include exhibiting excessive energy or motivation, aggressive or angry outbursts and risky or impulsive behaviors.",
+                    "Cognitive symptoms: include hyper-focus, flight of ideas, enhanced sensory awareness, racing thoughts, confusion, paranoia, hallucinations, delusions, and poor judgment & decision-making.",
+                    "Physical symptoms: include changes (usually decreases) in appetite, rapid heartbeat, elevated blood pressure, weight loss, hair loss, sweating, and skin problems.",
+                    "Intoxication from stimulants develops rapidly. Signs and symptoms of intoxication that develop during or shortly after use of a stimulant include behavioral or psychological changes e.g., euphoria or affective blunting changes in sociability, hyper-vigilance; interpersonal sensitivity, anxiety, tension, or anger, stereotyped behaviors; psychomotor agitation or retardation, and impaired judgment. physiological changes e.g. tachycardia or bradycardia, pupillary dilation, elevated or lowered blood pressure, perspiration or chills, nausea or vomiting, evidence of weight loss, muscular weakness, respiratory depression, chest pain, cardiac arrhythmias, confusion, seizures, dyskinesia, dystonia, and coma."
+                ],
+                icon: <StimulantSVG className="w-12 h-12" />
+            },
+            {
+                term: "9. Tobacco-Related Disorders",
+                def: "Tobacco use disorder is an addiction to nicotine in tobacco products. These include cigarettes, loose-leaf tobacco such as dip, hookah, and snus pouches. This is the most common substance use disorder in the United States. Signs and symptoms of nicotine addiction include irritability and frustration, anger, restlessness, impatience, trouble sleeping (insomnia or sleeping too much), trouble concentrating, anxiety & panic attacks, depression, increased appetite and weight gain.",
+                icon: <CigaretteSVG className="w-12 h-12" />
+            },
+            {
+                term: "10. Other (or Unknown) Substance-Related Disorders",
+                def: "The DSM-5 classifies substance use disorders that use other controlled substances as an \"other use disorder\". This includes substances not otherwise specified in any other categories, but that still cause significant distress and disruption to a person's life. This diagnosis is used when a person meets the same criteria that apply to all substance use disorders but the substance is not listed in the above nine specific types. One example is anabolic steroids, in which some athletes' abuse. Some common street names are Arnolds, gym candy, pumpers, roids, stackers, weight trainers, and juice. Another example is nitrous oxide, also known as laughing gas.",
+                icon: <AlertCircle className="w-12 h-12 text-slate-400" />
+            }
+        ];
+
+        const SIGNS_SYMPTOMS_DATA = [
+            {
+                term: "Cocaine",
+                intoxication: "Euphoria, Increased level of activity, Irritability, Blurred vision, Hallucinations, Seizures, High fever, Hypertension, Tachycardia, and Cardiac standstill.",
+                withdrawal: "Excessive sleep or insomnia, Depression, Agitation or decreased psychomotor movements, Nightmares, and Possible suicidal ideation.",
+                icon: <StimulantSVG className="w-8 h-8" />
+            },
+            {
+                term: "Opioids: Heroin, Codeine and Morphine",
+                intoxication: "Pupil constriction, Impaired coordination and gait, Confusion, Euphoria, Sedation, Slurring of speech, Loss of memory, Poor attention span, Diaphoresis. Tremors, muscular pain and spasms, Diarrhea, and Goose bumps (piloerection).",
+                withdrawal: "Piloerection, Insomnia, Fever, Nausea, Vomiting, Muscular spasms, Weakness, and Dilated pupils.",
+                icon: <OpioidSVG className="w-8 h-8" />
+            },
+            {
+                term: "Alcohol",
+                intoxication: "Decreased level of consciousness, Stupor, Coma, Respiratory arrest, Tremors, Tachycardia, Vomiting. Abdominal cramps, Hepatic disease, Gastritis, Pancreatitis, Blackouts, Gastrointestinal hemorrhage and bleeding, Collapse of the peripheral venous system, and Death.",
+                withdrawal: "Tachycardia, Hypertension which can be very pronounced, Loss of orientation, Tremors, Insomnia, Hallucinations, Anxiety, Cardiac arrhythmias, Delirium, and Psychotic symptoms.",
+                icon: <AlcoholSVG className="w-8 h-8" />
+            },
+            {
+                term: "Sedatives and Hypnotics",
+                intoxication: "Anxiety, Nausea & vomiting, Seizures, Agitation, Respiratory depression, loss of coordination, and Slurring of speech.",
+                withdrawal: "Tremors, Hallucinations, Agitation, Seizures, Diaphoresis, Increased levels of anxiety, and Agitation.",
+                icon: <PillsSVG className="w-8 h-8" />
+            },
+            {
+                term: "Cannabis",
+                intoxication: "Euphoria, Irritability, Impaired coordination, Tremors, Increased sensory, functioning (visual and auditory), Aggression, Tachycardia, Hypertension, Reddened eyes, Dry mouth, increased appetite, and Paranoia.",
+                withdrawal: "Increased levels of anxiety, irritability, tremors, fever, emotional depression, loss of appetite, insomnia, and aggression.",
+                icon: <CannabisSVG className="w-8 h-8" />
+            },
+            {
+                term: "Barbiturates and Benzodiazepines",
+                intoxication: "Hypotension, Dizziness, Depression, Respiratory depression. Impaired coordination, Drowsiness, Slurring of speech, Euphoria, Impaired mentation, inability to concentrate, Poor memory, and Nystagmus.",
+                withdrawal: "Sometimes life threatening symptoms e.g. High temperature, Seizures, Hallucinations, Agitation, Tremors, and Insomnia.",
+                icon: <PillsSVG className="w-8 h-8" />
+            },
+            {
+                term: "Amphetamines",
+                intoxication: "Hyper-vigilance, Irritability, Hypertension, Cravings, Depression, Increased energy and possible aggression, Increased level of alertness, Dilated pupils, Irritability, Weight loss, Impaired judgment and mentation, Insomnia, Paranoia, Excessive speech, Pupil dilation, Hallucinations, Delusions, Rapid or rambling speech, and Depression with withdrawal.",
+                withdrawal: "Similar to cocaine withdrawal with signs and symptoms such as depression, sleepiness and fatigue.",
+                icon: <StimulantSVG className="w-8 h-8" />
+            },
+            {
+                term: "Hallucinogenic Drugs (LSD)",
+                intoxication: "Anxiety, Tachycardia, Depression, Hallucinations, Poor impulse control, Emotional mood swings, Flashbacks which can occur over the long term, Tachycardia, Hypertension, Rapid shifts in emotions, Tremors. Pupil dilation. Panic, lack of pain sensation, Impaired memory and mentation, Seizures and even coma, Problems with thinking and memory, Problems speaking, Impaired judgment, Intolerance to loud noise, and Sometimes seizures or coma.",
+                withdrawal: "Flash back hallucinations and other visual disturbances that can persist for years and are often referred to Hallucinogenic Drug Persisting Perception Disorder.",
+                icon: <HallucinogenSVG className="w-8 h-8" />
+            },
+            {
+                term: "Nicotine",
+                intoxication: "Hypertension, Cerebrovascular accidents, and Lung cancer.",
+                withdrawal: "Irritability, restlessness, increased anxiety, depression, cravings, poor ability to concentrate, increased appetite and anger.",
+                icon: <CigaretteSVG className="w-8 h-8" />
+            }
+        ];
+
+        const ETIOLOGY_DATA = {
+            biological: [
+                { term: "A. Genetic predisposition", def: "Substance-related disorders are heterogeneous. Twin and adoptees have been studied to determine the role of genetics, and it has been found that: Alcoholism clearly runs in families, with inheritability estimates of 40% to 60%. The genetic susceptibility is complicated and involves multiple genes. Each gene alone may not have power to cause alcoholism, but a group of genes acting together has a stronger influence. Up to 70% of the risk for becoming addicted to cocaine is due to genetic factors.", icon: <DNAHelixSVG className="w-12 h-12" /> },
+                { term: "B. Neurobiology", def: "Substances move normal brain process into an exaggerated state. Certain drugs interfere with the work of some neurotransmitters; the focus is on the drug cocaine. Cocaine dependence is primarily associated with a deficiency in dopamine and nor-epinephrine. So, by correcting this deficiency an individual's craving for and withdrawal symptoms from cocaine can be reduced. Some individuals may begin with low levels of neurotransmitters (e.g., dopamine, GABA, glutamate, serotonin, nor-epinephrine and endorphins). The first use of a substance corrects for this deficiency, which explains why people often enjoy their first experience with the alcohol or drug. The problem is that the psychoactive substance then creates an even greater deficiency of neurotransmitters, which contributes to craving for more of the substance.", icon: <SynapseSVG className="w-12 h-12" /> },
+                { term: "C. Biochemical aspects", def: "The discovery of endogenous encephalin and pituitary endorphins (the body's own opiate-like substance) has stimulated interest and information regarding biochemical mechanism underlying opiate action and effects. The opiate receptors are found in the brain. Under normal conditions, the persons opiate receptors are exposed to certain levels of endorphins and encephalin. When a person takes certain narcotics, those drugs block the body's opiate receptors, and the body ceases to produce its own natural opiate-like substances (endorphins and encephalin). When the opiate-like effects of the ingested substance cease, the body's own endorphin levels remain low, leaving the person dysphoric and in withdrawal state." }
+            ],
+            psychological: [
+                { term: "a) Developmental influence", def: "\"Freud\" described the drug dependent person as being fixated in the oral stage of development and as one who seeks satisfaction through oral gratification. Under stress this person regresses to this stage to solve problems. \"Freud\" also postulated that this person has severe ego impairment and disturbances in sense of self. He is characterized by highly dependent personality, poor impulse control, low frustration tolerance, and low self-esteem." },
+                { term: "b) Personality factors", def: "Certain personality traits may play an important part in both the development and maintenance of drug dependency. These traits are impulsivity, immaturity, negative self-concept, weak ego, low social conformity, neuroticism, introversion, antisocial personality and depressive response style." }
+            ],
+            sociological: [
+                { term: "A. Social learning", def: "Children and adolescents are more likely to use substances if they have parents who provide a model for substance use. This usually occurs through modeling, imitation, and identification. Peers also exert a great deal of influence in the life of the child or adolescent. Modeling may continue to be a factor in the use of substances once the individual enters the work force." },
+                { term: "B. Conditioning", def: "It refers to the effect of the substance itself. Many substances create a pleasurable experience that encourages the user to repeat it. Through multiple repetitions, the person is conditioned, and tries to seek out their use again and again. If the environment in which the substance is taken is pleasurable, it will reinforce the act and substance use is usually increased. Aversive stimuli within an environment are thought to be associated with a decrease in substance use within that environment. For example aversion therapy is used with people who have drinking problems; it is used to prevent a relapse into drinking after abstinence. \"Disulfiram\" (Antabuse) can be taken in tablet daily. If alcohol is then consumed, nausea, vomiting, headache, fainting and abdominal cramps may then result, these symptoms are sufficiently unpleasant to avoid further drinking." },
+                { term: "C. Cultural and peer pressure", def: "Especially during adolescence, appear to contribute to drug abuse. The process of becoming adult can be very difficult for youth today and cause frustrations. The use of substance may help these young people to overcome their frustrations especially if they have also a biological and/or psychological predisposition. Factors within an individual's culture help to establish patterns of substance use by modeling attitudes, influencing patterns of consumption based on cultural acceptance, and the availability of the substance." },
+                { term: "D. Socioeconomic class", def: "Being a drug addict can give a person a place in a subculture where he or she can be accepted. This is most true in economically deprived and highly stressed and unstable environments, where drugs are taken to numb pervasive feelings of helplessness and to provide a person with a sense of belonging and identity." },
+                { term: "E. Self-medication", def: "The myths that happiness should be an enduring state, and that anxiety, depression and loneliness are un-natural and should be avoided. Drug abuse especially poly-drug abuse often is an attempt to treat depression, solve problems and escape from intolerable situations." },
+                { term: "F. Medical jobs hazards and Easy availability of drugs", def: "Among other jobs, medical staff including nurses are more predisposed to chemical dependence, this is because of: The nature of the work itself which is stressful and demanding. A variety of mood-altering drugs are ready available due to their widespread use in medical practice and self-medication can be tempting and simple." }
+            ]
+        };
+
+        const NURSING_DATA = {
+            assessment: [
+                "History. Client with a parent or other family members with substance abuse problems may report a chaotic family life, although this is not always the case.",
+                "Thought process and content. During the assessment of thought process and content, clients are likely to minimize their substance abuse, blame others for their problems, and rationalize their behavior. Denial, rationalization, and projection are three defense mechanisms common to substance abusers. These defense mechanisms complicate the assessment.",
+                "Sensorium and intellectual process. Clients generally are oriented and alert unless they are experiencing lingering effects of withdrawal.",
+                "General appearance and motor behavior. Assessment of general appearance and behavior usually reveals appearance and speech to be normal.",
+                "Self-concept. Clients generally have low self-esteem, which they may express directly or cover with grandiose behavior.",
+                "Subjective data: Conduct a thorough, nonjudgmental substance use assessment. Include the following interview questions: 1. How many packs of cigarettes do you smoke? 2. Do you take any prescription drug now? 3. Do you drink alcohol each day? 4. Do you have a drug habit? 5. What drugs do you use?",
+                "Motivation for treatment nurses need to consider as an important psychosocial issue when clients come for treatment. Clients may enter a treatment program voluntarily. This situation is best, because they are internally motivated and therefore have a better chance of success. However, they may be coerced by family, friends, physicians, or the police to undergo treatment. Coerced treatment inevitably causes anger and resentment.",
+                "Objective data: An assessment of behavioral changes (as mentioned before) can cue to drug use. Assess physical findings as dry skin, malnutrition, ascites, elevated blood pressure, and the smell of alcohol or an inhalant on the client's breath. As alcoholism progress, be alert to signs and symptoms of liver cirrhosis. Elevated laboratory test values (urine and blood) are only one of the alerting factors for drinking problem."
+            ],
+            diagnoses: [
+                "1. Denial related to weak, underdeveloped ego evidenced by \"I don't have a problem with (substance). I can quit any time I want to\".",
+                "2. Ineffective individual coping related to inadequate coping skills and weak ego evidenced by use of substances as coping mechanism.",
+                "3. Altered nutrition less than body requirements/fluid volume deficit related to drinking or taking drugs instead of eating, evidenced by loss of weight, pale conjunctiva and mucous membranes, electrolyte imbalance, anemia, and other signs and symptoms of malnutrition/dehydration.",
+                "4. Risk for infection related to malnutrition and altered immune condition.",
+                "5. Self-esteem disturbance related to weak ego, lack of positive feedback evidenced by criticism of self and others and use of substances as coping mechanism (self-destructive behavior).",
+                "6. Knowledge deficit (effects of substance abuse on the body) related to denial of problems with substances evidenced by abuse of substances."
+            ],
+            interventions: [
+                "1. Convey an attitude of acceptance.",
+                "2. Ensure that client understands it is not the person but the behavior that is unacceptable.",
+                "3. Correct any misconceptions, such as, \"I don't have a drinking problem. I can quit any time I want to.\" Do this in a matter-of-fact, nonjudgmental manner.",
+                "4. Identify recent maladaptive behaviors or situations that have occurred in the client's life, and discuss how use of substances may be a contributing factor.",
+                "5. Do not allow client to rationalize or blame others for behaviors associated with substance use.",
+                "6. Set limits on manipulative behavior.",
+                "7. Administer consequences when limits are violated.",
+                "8. Obtain routine urine samples for laboratory analysis of substances.",
+                "9. Explore options available to assist with stress rather than resorting to substance use.",
+                "10. Give positive reinforcement for ability to delay gratification and respond to stress with adaptive coping strategies.",
+                "11. Parenteral support may be required initially to correct fluid and electrolyte imbalance, hypoglycemia, and some vitamin deficiencies.",
+                "12. Encourage cessation of smoking in an effort to repair Gastro-Intestinal (GI) damage.",
+                "13. Consult dietitian.",
+                "14. Determine the number of calories required based on body size and level of activity.",
+                "15. Document intake and output and calorie count and weigh client daily to maintain ongoing nutritional assessment.",
+                "16. Ensure that amount of protein in diet is correct for individual client condition.",
+                "17. Protein intake should be adequate to maintain nitrogen equilibrium, but should be drastically decreased or eliminated if there is potential for hepatic coma.",
+                "18. Sodium may need to be restricted if fluid retention (e.g., ascites and edema) is a problem.",
+                "19. Provide foods that are nonirritating to clients with esophageal varices, to avoid irritation and bleeding of these swollen blood vessels.",
+                "20. Provide small frequent feeding of client's favorite foods.",
+                "21. Supplement nutritious meals with multiple vitamin and mineral tablet."
+            ]
+        };
+
+        const QUIZ_QUESTIONS = [
+            {
+                q: "According to DSM-5, how many symptoms indicate a 'Moderate' substance use disorder?",
+                options: ["2 or 3", "4 or 5", "6 or more", "1 only"],
+                correct: 1
+            },
+            {
+                q: "Which defense mechanisms are most commonly used by clients with substance abusers?",
+                options: ["Repression, Isolation, Undoing", "Denial, Rationalization, Projection", "Reaction formation, Sublimation", "Suppression, Displacement"],
+                correct: 1
+            },
+            {
+                q: "A patient experiencing 'piloerection' (goose bumps), severe muscle spasms, and dilated pupils is likely withdrawing from:",
+                options: ["Alcohol", "Cannabis", "Opioids (Heroin)", "Inhalants"],
+                correct: 2
+            },
+            {
+                q: "Which neurotransmitter deficiency is primarily associated with cocaine dependence?",
+                options: ["Serotonin and GABA", "Dopamine and Nor-epinephrine", "Acetylcholine", "Glutamate"],
+                correct: 1
+            }
+        ];
+
+        // --- UI COMPONENTS ---
+
+        const Card = ({ children, className = "" }) => (
+            <div className={`bg-white rounded-xl shadow-sm border border-slate-200 p-5 ${className}`}>
+                {children}
+            </div>
+        );
+
+        const SectionHeader = ({ title, icon, color }) => (
+            <div className={`flex items-center gap-3 mb-6 p-4 rounded-lg ${color} bg-opacity-10`}>
+                <div className={`p-2 rounded-full bg-white shadow-sm ${color.replace('bg-', 'text-')}`}>
+                    {icon}
+                </div>
+                <h2 className="text-2xl font-bold text-slate-800">{title}</h2>
+            </div>
+        );
+
+        const TermItem = ({ term, def, icon, details }) => {
+            const [isOpen, setIsOpen] = useState(false);
+            const hasExtra = details && details.length > 0;
+            return (
+                <div className={`mb-3 border-l-4 border-blue-500 bg-slate-50 rounded-r-lg overflow-hidden transition-all duration-300`}>
+                    <div className={`p-4 flex justify-between items-start ${hasExtra ? 'cursor-pointer hover:bg-slate-100' : ''}`} onClick={() => hasExtra && setIsOpen(!isOpen)}>
+                        <div className="flex items-start gap-4">
+                            {icon && <div className="mt-1 flex-shrink-0">{icon}</div>}
+                            <div>
+                                <h4 className="font-bold text-slate-800 text-lg mb-1">{term}</h4>
+                                <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">{def}</p>
+                                {hasExtra && !isOpen && <p className="text-xs text-blue-600 mt-2 font-semibold">Click to view more details...</p>}
+                            </div>
+                        </div>
+                        {hasExtra && (
+                            <button className="text-slate-400 hover:text-blue-600 mt-1">
+                                {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                            </button>
+                        )}
+                    </div>
+                    {isOpen && hasExtra && (
+                        <div className="bg-white p-4 border-t border-slate-200 text-sm animate-in slide-in">
+                            <ul className="space-y-3 text-slate-700">
+                                {details.map((item, i) => (
+                                    <li key={i} className="flex gap-2 leading-relaxed">
+                                        <div className="mt-1"><AlertCircle size={14} className="text-blue-500"/></div>
+                                        <span>{item}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const SignsItem = ({ term, intoxication, withdrawal, icon }) => (
+            <Card className="border-l-4 border-l-indigo-500 mb-4">
+                <div className="flex items-center gap-3 mb-3 border-b pb-2">
+                    {icon && <div className="flex-shrink-0">{icon}</div>}
+                    <h3 className="font-bold text-lg text-indigo-900">{term}</h3>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                    <div className="bg-orange-50 p-3 rounded border border-orange-100">
+                        <h4 className="font-bold text-orange-800 text-sm mb-1">Intoxication Signs and Symptoms:</h4>
+                        <p className="text-slate-700 text-sm">{intoxication}</p>
+                    </div>
+                    <div className="bg-red-50 p-3 rounded border border-red-100">
+                        <h4 className="font-bold text-red-800 text-sm mb-1">Withdrawal Signs and Symptoms:</h4>
+                        <p className="text-slate-700 text-sm">{withdrawal}</p>
+                    </div>
+                </div>
+            </Card>
+        );
+
+        // --- MAIN APP COMPONENT ---
+        function SubstanceDisordersApp() {
+            const [activeSection, setActiveSection] = useState(SECTIONS.INTRO);
+            const [quizScore, setQuizScore] = useState(0);
+            const [quizSubmitted, setQuizSubmitted] = useState(false);
+            const [quizAnswers, setQuizAnswers] = useState({});
+
+            const handleNavClick = (section) => {
+                setActiveSection(section);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const handleQuizOption = (qIndex, optIndex) => {
+                if (quizSubmitted) return;
+                setQuizAnswers(prev => ({ ...prev, [qIndex]: optIndex }));
+            };
+
+            const submitQuiz = () => {
+                let score = 0;
+                QUIZ_QUESTIONS.forEach((q, i) => { if (quizAnswers[i] === q.correct) score++; });
+                setQuizScore(score); setQuizSubmitted(true);
+            };
+
+            const resetQuiz = () => { setQuizAnswers({}); setQuizSubmitted(false); setQuizScore(0); };
+
+            // --- Views ---
+
+            const IntroView = () => (
+                <div className="space-y-8 animate-in slide-in">
+                    <div className="bg-gradient-to-r from-blue-800 to-indigo-900 text-white p-8 rounded-2xl shadow-xl relative overflow-hidden">
+                        <div className="relative z-10">
+                            <div className="inline-block bg-blue-700 bg-opacity-50 px-3 py-1 rounded-full text-xs font-bold mb-4 tracking-wider uppercase">Unit 2 • Chapter 8</div>
+                            <h1 className="text-3xl md:text-4xl font-extrabold mb-4 leading-tight">Substance-Related and Addictive Disorders</h1>
+                            <p className="text-blue-100 text-lg max-w-2xl mb-6">
+                                Introduction: Many people use substances recreationally to modify mood or behavior. There are however wide socio-cultural variations in the acceptability of chemical use. Using the substance is not, by itself, a disorder. It becomes a disorder when its use eludes control and interferes with functioning. Substance abuse is a complex public health issue. It increases the crime rate, auto accident deaths, and suicide rate. Individuals and families are destroyed. Every part of a substance abuser's life is affected (Social life, family life, work productivity, relationships, and physical health). Substance abuse in the work environment increases accidents, workers' compensation claims, absenteeism, and theft while decreasing the quality of life for other workers and potentially the quality of the work performed overall.
+                            </p>
+                        </div>
+                        <Brain className="absolute -bottom-10 -right-10 text-white opacity-10 w-64 h-64" />
+                    </div>
+
+                    <div className="grid lg:grid-cols-2 gap-6">
+                        <Card className="border-t-4 border-t-indigo-500">
+                            <h3 className="text-xl font-bold mb-4 text-slate-800 flex items-center gap-2">
+                                <BookOpen className="text-indigo-500" /> Commonly used terms and terminology
+                            </h3>
+                            <div className="space-y-2 h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                                {TERMINOLOGY_DATA.map((item, idx) => (
+                                    <TermItem key={idx} {...item} />
+                                ))}
+                            </div>
+                        </Card>
+
+                        <div className="space-y-6">
+                            <Card className="bg-blue-50 border-blue-200">
+                                <h3 className="text-xl font-bold mb-4 text-blue-900 flex items-center gap-2">
+                                    <ClipboardList className="text-blue-600" /> Diagnostic criteria for substance abuse (DSM-5)
+                                </h3>
+                                <p className="text-sm text-blue-800 mb-4">
+                                    In order to be diagnosed with this disorder, a person must exhibit <strong>at least two</strong> of the following 11 symptoms within a 12-month period:
+                                </p>
+                                <div className="bg-white p-4 rounded-lg border border-blue-100 h-[300px] overflow-y-auto custom-scrollbar">
+                                    <ul className="space-y-3 text-sm text-slate-700">
+                                        {DSM5_CRITERIA.map((criterion, idx) => (
+                                            <li key={idx} className="flex items-start gap-2">
+                                                <CheckCircle className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                                                <span>{criterion}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </Card>
+                            
+                            <DSM5SeverityMeter />
+                            <div className="text-sm text-slate-600 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                                <strong>Severity of Substance Use Disorders:</strong> The DSM 5 allows clinicians to specify how severe or how much of a problem the substance use disorder is, depending on how many symptoms are identified. Two or three symptoms indicate a mild substance use disorder; four or five symptoms indicate a moderate substance use disorder, and six or more symptoms indicate a severe substance use disorder.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            const ClassesView = () => (
+                <div className="animate-in slide-in">
+                    <SectionHeader title="Classes of Substance-Related Disorders" icon={<FlaskConical size={32} />} color="bg-violet-100 text-violet-700" />
+                    <p className="mb-6 text-slate-600 text-lg">
+                        The DSM 5 recognizes substance-related disorders resulting from the use of 10 separate classes of drugs:
+                    </p>
+                    
+                    <div className="space-y-4">
+                        {DRUG_CLASSES.map((drug, idx) => (
+                            <TermItem key={idx} {...drug} />
+                        ))}
+                    </div>
+                </div>
+            );
+
+            const SignsView = () => (
+                <div className="animate-in slide-in">
+                    <SectionHeader title="Signs and Symptoms of Various Substances" icon={<Activity size={32} />} color="bg-indigo-100 text-indigo-700" />
+                    
+                    <div className="space-y-4">
+                        {SIGNS_SYMPTOMS_DATA.map((item, idx) => (
+                            <SignsItem key={idx} {...item} />
+                        ))}
+                    </div>
+                </div>
+            );
+
+            const EtiologyView = () => (
+                <div className="animate-in slide-in">
+                    <SectionHeader title="Etiological / Predisposing Factors" icon={<Layers size={32} />} color="bg-amber-100 text-amber-600" />
+                    
+                    <p className="text-slate-600 mb-4">
+                        A number of factors have been implicated in the pre-disposition to abuse of substance. At present, there is no single factor that can adequately explain the etiology of this problem.
+                    </p>
+
+                    <EtiologyFlowChart />
+
+                    <div className="grid lg:grid-cols-3 gap-6 mt-8">
+                        <Card className="border-t-4 border-t-red-400">
+                            <h3 className="text-lg font-bold text-red-800 mb-4 flex items-center gap-2">
+                                <Activity className="text-red-500" /> Biological factors
+                            </h3>
+                            <div className="space-y-4">
+                                {ETIOLOGY_DATA.biological.map((item, idx) => (
+                                    <div key={idx} className="text-sm">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            {item.icon && <div className="flex-shrink-0">{item.icon}</div>}
+                                            <strong className="text-slate-800">{item.term}</strong>
+                                        </div>
+                                        <p className="text-slate-600 leading-relaxed">{item.def}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </Card>
+
+                        <Card className="border-t-4 border-t-blue-400">
+                            <h3 className="text-lg font-bold text-blue-800 mb-4 flex items-center gap-2">
+                                <Brain className="text-blue-500" /> Psychological factors
+                            </h3>
+                            <div className="space-y-4">
+                                {ETIOLOGY_DATA.psychological.map((item, idx) => (
+                                    <div key={idx} className="text-sm">
+                                        <strong className="text-slate-800 block mb-1">{item.term}</strong>
+                                        <p className="text-slate-600 leading-relaxed">{item.def}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </Card>
+
+                        <Card className="border-t-4 border-t-green-400">
+                            <h3 className="text-lg font-bold text-green-800 mb-4 flex items-center gap-2">
+                                <Layers className="text-green-500" /> Sociological factors
+                            </h3>
+                            <div className="space-y-4">
+                                {ETIOLOGY_DATA.sociological.map((item, idx) => (
+                                    <div key={idx} className="text-sm border-b border-slate-100 last:border-0 pb-2 last:pb-0">
+                                        <strong className="text-slate-800 block mb-1">{item.term}</strong>
+                                        <p className="text-slate-600 leading-relaxed">{item.def}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </Card>
+                    </div>
+                </div>
+            );
+
+            const NursingView = () => (
+                <div className="animate-in slide-in">
+                    <SectionHeader title="Nursing Care for Clients with Substance-Related Disorders" icon={<Stethoscope size={32} />} color="bg-teal-100 text-teal-700" />
+                    
+                    <div className="bg-teal-50 border border-teal-200 rounded-xl p-6 mb-8 text-teal-900 leading-relaxed">
+                        <h3 className="font-bold text-lg mb-2 flex items-center gap-2"><Shield /> Pre-introductory Phase Self-Assessment</h3>
+                        <p className="text-sm">
+                            In the pre-introductory phase of relationship development, the nurse must examine his/her feelings about working with a client who abuses substances. If these behaviors are viewed as morally wrong and the nurse has internalized these attitudes very early in life, it may be very difficult to suppress judgmental feelings. The role that alcohol or other substances have played (or plays) in the life of the nurse will most certainly affect the way in which he or she approaches interaction with the substance-abusing client. Unless nurses fully understand and accept their own attitudes and feelings, they cannot be empathetic toward clients' problems. Clients in recovery need to know they are accepted for themselves, regardless of past behaviors. Nurses must be able to separate the client from the behavior and to accept that individual with unconditional positive regard.
+                        </p>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-6">
+                            <Card className="border-l-4 border-l-orange-400">
+                                <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                    <Search className="text-orange-500" /> a) Assessment
+                                </h3>
+                                <ul className="space-y-4">
+                                    {NURSING_DATA.assessment.map((item, idx) => (
+                                        <li key={idx} className="flex gap-3 text-sm text-slate-700">
+                                            <AlertCircle className="text-orange-400 flex-shrink-0 w-5 h-5 mt-0.5" />
+                                            <span>{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </Card>
+
+                            <Card className="border-l-4 border-l-red-500">
+                                <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                    <ClipboardList className="text-red-500" /> b) Nursing diagnosis
+                                </h3>
+                                <p className="text-sm text-slate-600 mb-3">The individual who abuses or is dependent on substances will undoubtedly have many unmet physical and emotional needs. Possible nursing diagnoses include:</p>
+                                <ul className="space-y-3 text-sm text-slate-700">
+                                    {NURSING_DATA.diagnoses.map((item, idx) => (
+                                        <li key={idx} className="flex items-start gap-2">
+                                            <div className="bg-red-100 text-red-700 w-5 h-5 rounded-full flex items-center justify-center font-bold flex-shrink-0 mt-0.5 text-xs">
+                                                {idx + 1}
+                                            </div>
+                                            <span>{item.replace(/^\d+\.\s*/, '')}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </Card>
+                        </div>
+
+                        <Card className="border-t-4 border-t-teal-500 bg-white">
+                            <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                <CheckCircle className="text-teal-500" /> Nursing Interventions
+                            </h3>
+                            <div className="mb-4 text-sm text-slate-700 font-semibold">
+                                c) Outcome identification/Goal:<br/>
+                                • Client identifies personal adverse consequences of substance abuse, and accepts responsibility for own recovery.<br/>
+                                • Client identifies high risk situations, develops strategies for preventing relapse, and maintains a substance-free lifestyle.
+                            </div>
+                            <div className="space-y-3 h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                                {NURSING_DATA.interventions.map((item, idx) => (
+                                    <div key={idx} className="bg-slate-50 p-3 rounded-lg border border-slate-100 text-sm text-slate-700 flex gap-3">
+                                        <div className="bg-teal-100 text-teal-700 w-6 h-6 rounded-full flex items-center justify-center font-bold flex-shrink-0 mt-0.5 text-xs">
+                                            {idx + 1}
+                                        </div>
+                                        <div>{item.replace(/^\d+\.\s*/, '')}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </Card>
+                    </div>
+                </div>
+            );
+
+            const QuizView = () => (
+                <div className="animate-in slide-in max-w-2xl mx-auto">
+                    <SectionHeader title="Knowledge Check" icon={<Lightbulb size={32} />} color="bg-yellow-100 text-yellow-600" />
+                    
+                    {!quizSubmitted ? (
+                        <div className="space-y-6">
+                            {QUIZ_QUESTIONS.map((q, qIndex) => (
+                                <Card key={qIndex} className="p-6">
+                                    <h4 className="font-bold text-lg mb-4 text-slate-800">{qIndex + 1}. {q.q}</h4>
+                                    <div className="space-y-2">
+                                        {q.options.map((opt, optIndex) => (
+                                            <button
+                                                key={optIndex}
+                                                onClick={() => handleQuizOption(qIndex, optIndex)}
+                                                className={`w-full text-left p-3 rounded border transition-colors ${
+                                                    quizAnswers[qIndex] === optIndex 
+                                                        ? 'bg-blue-100 border-blue-500 text-blue-800 font-medium' 
+                                                        : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                                                }`}
+                                            >
+                                                {opt}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </Card>
+                            ))}
+                            <button 
+                                onClick={submitQuiz}
+                                disabled={Object.keys(quizAnswers).length < QUIZ_QUESTIONS.length}
+                                className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-lg disabled:opacity-50 hover:bg-blue-700 transition shadow-lg"
+                            >
+                                Submit Answers
+                            </button>
+                        </div>
+                    ) : (
+                        <Card className="text-center p-10 bg-gradient-to-b from-white to-blue-50 border-blue-200">
+                            <div className="text-6xl mb-6">{quizScore >= 3 ? '🏆' : '📚'}</div>
+                            <h2 className="text-3xl font-black text-slate-800 mb-2">You scored {quizScore} / {QUIZ_QUESTIONS.length}</h2>
+                            <p className="text-slate-600 text-lg mb-8">
+                                {quizScore === QUIZ_QUESTIONS.length ? "Excellent! You have mastered the core concepts." : "Good effort! Review the sections to reinforce your knowledge."}
+                            </p>
+                            <button onClick={resetQuiz} className="bg-slate-800 text-white px-8 py-3 rounded-full font-bold hover:bg-slate-700 transition shadow">Take Quiz Again</button>
+                        </Card>
+                    )}
+                </div>
+            );
+
+            return (
+                <div className="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col">
+                    <nav className="bg-white shadow-sm sticky top-0 z-50 border-b border-slate-200">
+                        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+                            <div className="flex items-center gap-3 font-bold text-sm md:text-lg text-blue-900 cursor-pointer hover:text-blue-700 transition-colors" onClick={() => handleNavClick(SECTIONS.INTRO)}>
+                                <DepartmentLogo className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0" />
+                                <span className="hidden sm:block">Psychiatric & Mental Health Nursing</span>
+                                <span className="sm:hidden">Psych Nursing</span>
+                            </div>
+                            
+                            <div className="hidden lg:flex gap-1">
+                                {[
+                                    { id: SECTIONS.INTRO, label: 'Intro & Criteria', icon: <BookOpen size={16}/> },
+                                    { id: SECTIONS.CLASSES, label: 'Drug Classes', icon: <FlaskConical size={16}/> },
+                                    { id: SECTIONS.SIGNS, label: 'Signs & Symptoms', icon: <Activity size={16}/> },
+                                    { id: SECTIONS.ETIOLOGY, label: 'Etiology', icon: <Layers size={16}/> },
+                                    { id: SECTIONS.NURSING, label: 'Nursing Care', icon: <Stethoscope size={16}/> },
+                                    { id: SECTIONS.QUIZ, label: 'Quiz', icon: <Lightbulb size={16}/> },
+                                ].map(nav => (
+                                    <button
+                                        key={nav.id}
+                                        onClick={() => handleNavClick(nav.id)}
+                                        className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold transition-all ${
+                                            activeSection === nav.id 
+                                                ? 'bg-blue-100 text-blue-700 shadow-sm' 
+                                                : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
+                                        }`}
+                                    >
+                                        {nav.icon} {nav.label}
+                                    </button>
+                                ))}
+                            </div>
+                            
+                            <div className="lg:hidden">
+                                <select 
+                                    className="bg-slate-100 border-none text-sm font-bold rounded-lg p-2 text-slate-700 outline-none"
+                                    value={activeSection}
+                                    onChange={(e) => handleNavClick(e.target.value)}
+                                >
+                                    <option value={SECTIONS.INTRO}>Introduction</option>
+                                    <option value={SECTIONS.CLASSES}>Drug Classes</option>
+                                    <option value={SECTIONS.SIGNS}>Signs & Symptoms</option>
+                                    <option value={SECTIONS.ETIOLOGY}>Etiology</option>
+                                    <option value={SECTIONS.NURSING}>Nursing Care</option>
+                                    <option value={SECTIONS.QUIZ}>Quiz</option>
+                                </select>
+                            </div>
+                        </div>
+                    </nav>
+
+                    <main className="max-w-6xl w-full mx-auto px-4 py-8 flex-grow">
+                        {activeSection === SECTIONS.INTRO && <IntroView />}
+                        {activeSection === SECTIONS.CLASSES && <ClassesView />}
+                        {activeSection === SECTIONS.SIGNS && <SignsView />}
+                        {activeSection === SECTIONS.ETIOLOGY && <EtiologyView />}
+                        {activeSection === SECTIONS.NURSING && <NursingView />}
+                        {activeSection === SECTIONS.QUIZ && <QuizView />}
+                    </main>
+
+                    {/* Footer */}
+                    <footer className="bg-slate-900 text-slate-300 py-10 mt-12 border-t-4 border-indigo-600">
+                        <div className="max-w-5xl mx-auto px-6 flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
+                                <FacultyLogo className="w-24 h-28 flex-shrink-0 drop-shadow-md" />
+                                <div className="mt-2">
+                                    <p className="mb-1 text-lg font-bold text-white">Psychiatric Nursing & Mental Health</p>
+                                    <p className="text-sm text-slate-400 max-w-xs">Introduction to Psychiatric and Mental Health Nursing • Educational Material</p>
+                                </div>
+                            </div>
+                            
+                            <div className="text-center md:text-right space-y-2 text-sm border-t md:border-t-0 border-slate-700 pt-6 md:pt-0 w-full md:w-auto">
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Dean of The Faculty:</span> <span className="text-slate-200">Prof. Dr. Hanan Hosny El-Sherbiny</span></p>
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Acting Head of Department:</span> <span className="text-slate-200">Asst. Prof. Dr. Mayar Ezz-Eldin El-Naqeeb</span></p>
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Created by:</span> <span className="font-semibold text-white">M.Abdallah Abozaid</span></p>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<SubstanceDisordersApp />);
+    </script>
+</body>
+</html>
