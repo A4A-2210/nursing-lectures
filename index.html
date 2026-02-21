@@ -3,24 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nursing Platform - Home</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-50 font-sans text-slate-800 flex flex-col min-h-screen">
+    <title>Psychiatric & Mental Health Nursing</title>
     
-    <main class="flex-grow flex items-center justify-center p-6">
-        <div class="bg-white rounded-2xl shadow-xl p-10 max-w-lg text-center border border-slate-200">
-            <div class="bg-indigo-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg class="w-10 h-10 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-            </div>
-            <h1 class="text-3xl font-extrabold text-slate-800 mb-4">Psychiatric & Mental Health Nursing</h1>
-            <p class="text-slate-600 mb-8 leading-relaxed">Welcome to the interactive learning platform. Access your lectures, quizzes, and clinical materials here.</p>
-            
-            <a href="lectures.html" class="inline-block bg-indigo-600 text-white font-bold py-3 px-8 rounded-full hover:bg-indigo-700 transition shadow-md">
-                View Lectures Index
-            </a>
-        </div>
-    </main>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
 
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // --- DEPARTMENT LOGO (SVG REPLICA) ---
+        const DepartmentLogo = ({ className = "w-10 h-10" }) => (
+            <svg viewBox="0 0 100 120" className={className} xmlns="http://www.w3.org/2000/svg">
+                <path d="M 5 80 C 15 100 40 110 60 105 C 80 100 95 85 95 75 C 95 70 85 65 75 75 C 65 85 50 90 35 85 C 25 80 15 75 5 80 Z" fill="#004a8f" />
+                <path d="M 30 85 C 45 92 60 90 75 80" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                <path d="M 40 78 C 55 85 70 80 85 70" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                <path d="M 50 65 L 53 72 L 58 67 L 58 57 C 58 52 64 50 64 45 C 64 43 60 41 60 39 L 68 37 C 70 36 70 34 68 32 C 65 31 62 32 60 29 C 60 15 48 5 35 10" stroke="#004a8f" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                <g stroke="#1e1b4b" strokeWidth="1.5" fill="none">
+                    <circle cx="35" cy="22" r="9" />
+                    <circle cx="28" cy="35" r="9" />
+                    <circle cx="42" cy="35" r="9" />
+                </g>
+                <text x="35" y="24.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">C</text>
+                <text x="28" y="37.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">C</text>
+                <text x="42" y="37.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">A</text>
+            </svg>
+        );
+
+        // --- FACULTY LOGO (SVG REPLICA) ---
+        const FacultyLogo = ({ className = "w-24 h-28" }) => (
+            <svg viewBox="0 0 100 130" className={className} xmlns="http://www.w3.org/2000/svg">
+                <path d="M 2 2 L 98 2 L 98 65 C 98 110 50 128 50 128 C 50 128 2 110 2 65 Z" fill="#24335c" />
+                <path d="M 4 4 L 96 4 L 96 65 C 96 108 50 125 50 125 C 50 125 4 108 4 65 Z" fill="#ffffff" />
+                <path d="M 6 6 L 94 6 L 94 65 C 94 106 50 122 50 122 C 50 122 6 106 6 65 Z" fill="#66c5f4" />
+                <path d="M 6 75 L 94 75 C 94 106 50 122 50 122 C 50 122 6 106 6 75 Z" fill="#1da2d8" />
+                <g stroke="#1a2f57" strokeWidth="0.8">
+                    <line x1="50" y1="18" x2="15" y2="12" />
+                    <line x1="50" y1="18" x2="10" y2="20" />
+                    <line x1="50" y1="18" x2="10" y2="28" />
+                    <line x1="50" y1="18" x2="15" y2="35" />
+                    <line x1="50" y1="18" x2="85" y2="12" />
+                    <line x1="50" y1="18" x2="90" y2="20" />
+                    <line x1="50" y1="18" x2="90" y2="28" />
+                    <line x1="50" y1="18" x2="85" y2="35" />
+                </g>
+                <g fill="#c49341" stroke="#1a2f57" strokeWidth="1.2" strokeLinejoin="round">
+                    <polygon points="12,60 10,75 22,75 20,60" />
+                    <rect x="10" y="56" width="12" height="4" />
+                    <rect x="11" y="53" width="10" height="3" />
+                    <rect x="20" y="63" width="18" height="12" />
+                    <polygon points="80,60 78,75 90,75 88,60" />
+                    <rect x="78" y="56" width="12" height="4" />
+                    <rect x="79" y="53" width="10" height="3" />
+                    <rect x="62" y="63" width="18" height="12" />
+                    <polygon points="40,40 33,75 67,75 60,40" />
+                    <rect x="38" y="38" width="24" height="4" />
+                    <rect x="42" y="24" width="16" height="14" />
+                    <rect x="40" y="22" width="20" height="3" />
+                    <rect x="45" y="14" width="10" height="8" />
+                    <rect x="44" y="12" width="12" height="2" />
+                    <polygon points="47,12 48,7 52,7 53,12" />
+                </g>
+                <g fill="none" stroke="#1a2f57" strokeWidth="1.2">
+                    <rect x="22" y="66" width="3" height="4" />
+                    <rect x="27" y="66" width="3" height="4" />
+                    <rect x="32" y="66" width="3" height="4" />
+                    <rect x="65" y="66" width="3" height="4" />
+                    <rect x="70" y="66" width="3" height="4" />
+                    <rect x="75" y="66" width="3" height="4" />
+                    <rect x="47" y="64" width="6" height="11" />
+                    <rect x="48" y="54" width="4" height="5" />
+                    <rect x="48" y="46" width="4" height="5" />
+                    <rect x="44" y="27" width="4" height="4" />
+                    <rect x="52" y="27" width="4" height="4" />
+                </g>
+                <g fill="#1a2f57" stroke="none">
+                    <path d="M 12 85 Q 16 87 20 85 L 20 87 Q 16 89 12 87 Z" />
+                    <path d="M 28 85 Q 32 87 36 85 L 36 87 Q 32 89 28 87 Z" />
+                    <path d="M 44 85 Q 48 87 52 85 L 52 87 Q 48 89 44 87 Z" />
+                    <path d="M 60 85 Q 64 87 68 85 L 68 87 Q 64 89 60 87 Z" />
+                    <path d="M 76 85 Q 80 87 84 85 L 84 87 Q 80 89 76 87 Z" />
+                    <path d="M 20 95 Q 24 97 28 95 L 28 97 Q 24 99 20 97 Z" />
+                    <path d="M 36 95 Q 40 97 44 95 L 44 97 Q 40 99 36 97 Z" />
+                    <path d="M 52 95 Q 56 97 60 95 L 60 97 Q 56 99 52 97 Z" />
+                    <path d="M 68 95 Q 72 97 76 95 L 76 97 Q 72 99 68 97 Z" />
+                    <path d="M 28 105 Q 32 107 36 105 L 36 107 Q 32 109 28 107 Z" />
+                    <path d="M 44 105 Q 48 107 52 105 L 52 107 Q 48 109 44 107 Z" />
+                    <path d="M 60 105 Q 64 107 68 105 L 68 107 Q 64 109 60 107 Z" />
+                    <path d="M 40 115 Q 44 117 48 115 L 48 117 Q 44 119 40 117 Z" />
+                    <path d="M 52 115 Q 56 117 60 115 L 60 117 Q 56 119 52 117 Z" />
+                </g>
+            </svg>
+        );
+
+        function HomeApp() {
+            return (
+                <div className="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col">
+                    {/* Top Navigation */}
+                    <nav className="bg-white shadow-sm sticky top-0 z-50">
+                        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+                            <div className="flex items-center gap-2 font-bold text-sm md:text-lg text-indigo-800">
+                                <DepartmentLogo className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 drop-shadow-sm" />
+                                <span className="hidden sm:inline">Psychiatric and Mental Health Nursing Department</span>
+                                <span className="sm:hidden">Psychiatric Nursing</span>
+                            </div>
+                            <a href="lectures.html" className="text-sm font-bold text-slate-500 hover:text-indigo-600 transition">
+                                Course Modules &rarr;
+                            </a>
+                        </div>
+                    </nav>
+
+                    {/* Main Content Area */}
+                    <main className="flex-grow flex items-center justify-center p-6">
+                        <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl shadow-xl p-10 max-w-2xl text-center border border-slate-200">
+                            <DepartmentLogo className="w-24 h-24 mx-auto mb-6 drop-shadow-md" />
+                            <h1 className="text-4xl md:text-5xl font-extrabold text-slate-800 mb-6 leading-tight">Interactive Learning Platform</h1>
+                            <p className="text-slate-600 text-lg mb-8 leading-relaxed max-w-lg mx-auto">
+                                Welcome to the official educational hub for Psychiatric & Mental Health Nursing. Access interactive lectures, theoretical frameworks, and clinical guidelines.
+                            </p>
+                            <a href="lectures.html" className="inline-block bg-indigo-600 text-white font-bold py-3 px-10 rounded-full hover:bg-indigo-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                Enter Course Index
+                            </a>
+                        </div>
+                    </main>
+
+                    {/* Footer */}
+                    <footer className="bg-slate-900 text-slate-300 py-10 mt-12 border-t-4 border-indigo-600">
+                        <div className="max-w-5xl mx-auto px-6 flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
+                                <FacultyLogo className="w-24 h-28 flex-shrink-0 drop-shadow-md" />
+                                <div className="mt-2">
+                                    <p className="mb-1 text-lg font-bold text-white">Psychiatric Nursing & Mental Health</p>
+                                    <p className="text-sm text-slate-400 max-w-xs">Educational Material Hub</p>
+                                </div>
+                            </div>
+                            
+                            <div className="text-center md:text-right space-y-2 text-sm border-t md:border-t-0 border-slate-700 pt-6 md:pt-0 w-full md:w-auto">
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Dean of The Faculty:</span> <span className="text-slate-200">Prof. Dr. Hanan Hosny El-Sherbiny</span></p>
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Acting Head of Department:</span> <span className="text-slate-200">Asst. Prof. Dr. Mayar Ezz-Eldin El-Naqeeb</span></p>
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Created by:</span> <span className="font-semibold text-white">M.Abdallah Abozaid</span></p>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<HomeApp />);
+    </script>
 </body>
 </html>
