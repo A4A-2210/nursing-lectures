@@ -3,97 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Psychiatric Nursing - Lectures Index</title>
+    <title>Course Modules Index</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800">
+<body>
+    <div id="root"></div>
 
-    <nav class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-            <h1 class="font-bold text-lg text-indigo-800 flex items-center gap-2">
-                <i data-lucide="brain" class="text-indigo-600"></i> Course Modules
-            </h1>
-            <a href="index.html" class="text-sm font-bold text-slate-500 hover:text-indigo-600 flex items-center gap-1 transition">
-                <i data-lucide="home" class="w-4 h-4"></i> Home
-            </a>
-        </div>
-    </nav>
+    <script type="text/babel">
+        // --- ICON SYSTEM SETUP ---
+        const IconWrapper = ({ name, className = "", size = 24 }) => {
+            const ref = React.useRef(null);
+            React.useLayoutEffect(() => {
+                if (ref.current && window.lucide && window.lucide.icons[name]) {
+                    const iconElement = window.lucide.createElement(window.lucide.icons[name]);
+                    if (className) {
+                        const existingClass = iconElement.getAttribute('class') || '';
+                        iconElement.setAttribute('class', `${existingClass} ${className}`);
+                    }
+                    iconElement.setAttribute('width', size);
+                    iconElement.setAttribute('height', size);
+                    ref.current.innerHTML = '';
+                    ref.current.appendChild(iconElement);
+                }
+            }, [name, className, size]);
+            return <span ref={ref} style={{ display: 'inline-flex', verticalAlign: 'middle' }} />;
+        };
 
-    <main class="max-w-6xl mx-auto px-4 py-10">
-        <div class="mb-8">
-            <h2 class="text-3xl font-extrabold text-slate-800">Lectures Index</h2>
-            <p class="text-slate-500 mt-2">Select a module to begin your interactive learning session.</p>
-        </div>
+        // --- LOGOS ---
+        const DepartmentLogo = ({ className = "w-10 h-10" }) => (
+            <svg viewBox="0 0 100 120" className={className} xmlns="http://www.w3.org/2000/svg">
+                <path d="M 5 80 C 15 100 40 110 60 105 C 80 100 95 85 95 75 C 95 70 85 65 75 75 C 65 85 50 90 35 85 C 25 80 15 75 5 80 Z" fill="#004a8f" />
+                <path d="M 30 85 C 45 92 60 90 75 80" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                <path d="M 40 78 C 55 85 70 80 85 70" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                <path d="M 50 65 L 53 72 L 58 67 L 58 57 C 58 52 64 50 64 45 C 64 43 60 41 60 39 L 68 37 C 70 36 70 34 68 32 C 65 31 62 32 60 29 C 60 15 48 5 35 10" stroke="#004a8f" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                <g stroke="#1e1b4b" strokeWidth="1.5" fill="none"><circle cx="35" cy="22" r="9" /><circle cx="28" cy="35" r="9" /><circle cx="42" cy="35" r="9" /></g>
+                <text x="35" y="24.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">C</text>
+                <text x="28" y="37.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">C</text>
+                <text x="42" y="37.5" fontSize="7" fill="#1e1b4b" textAnchor="middle" fontWeight="bold" fontFamily="sans-serif">A</text>
+            </svg>
+        );
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            
-            <div id="lectures-container" class="contents"></div>
+        const FacultyLogo = ({ className = "w-24 h-28" }) => (
+            <svg viewBox="0 0 100 130" className={className} xmlns="http://www.w3.org/2000/svg">
+                <path d="M 2 2 L 98 2 L 98 65 C 98 110 50 128 50 128 C 50 128 2 110 2 65 Z" fill="#24335c" />
+                <path d="M 4 4 L 96 4 L 96 65 C 96 108 50 125 50 125 C 50 125 4 108 4 65 Z" fill="#ffffff" />
+                <path d="M 6 6 L 94 6 L 94 65 C 94 106 50 122 50 122 C 50 122 6 106 6 65 Z" fill="#66c5f4" />
+                <path d="M 6 75 L 94 75 C 94 106 50 122 50 122 C 50 122 6 106 6 75 Z" fill="#1da2d8" />
+                <g stroke="#1a2f57" strokeWidth="0.8">
+                    <line x1="50" y1="18" x2="15" y2="12" /><line x1="50" y1="18" x2="10" y2="20" /><line x1="50" y1="18" x2="10" y2="28" /><line x1="50" y1="18" x2="15" y2="35" /><line x1="50" y1="18" x2="85" y2="12" /><line x1="50" y1="18" x2="90" y2="20" /><line x1="50" y1="18" x2="90" y2="28" /><line x1="50" y1="18" x2="85" y2="35" />
+                </g>
+                <g fill="#c49341" stroke="#1a2f57" strokeWidth="1.2" strokeLinejoin="round">
+                    <polygon points="12,60 10,75 22,75 20,60" /><rect x="10" y="56" width="12" height="4" /><rect x="11" y="53" width="10" height="3" /><rect x="20" y="63" width="18" height="12" />
+                    <polygon points="80,60 78,75 90,75 88,60" /><rect x="78" y="56" width="12" height="4" /><rect x="79" y="53" width="10" height="3" /><rect x="62" y="63" width="18" height="12" />
+                    <polygon points="40,40 33,75 67,75 60,40" /><rect x="38" y="38" width="24" height="4" /><rect x="42" y="24" width="16" height="14" /><rect x="40" y="22" width="20" height="3" /><rect x="45" y="14" width="10" height="8" /><rect x="44" y="12" width="12" height="2" /><polygon points="47,12 48,7 52,7 53,12" />
+                </g>
+                <g fill="none" stroke="#1a2f57" strokeWidth="1.2">
+                    <rect x="22" y="66" width="3" height="4" /><rect x="27" y="66" width="3" height="4" /><rect x="32" y="66" width="3" height="4" />
+                    <rect x="65" y="66" width="3" height="4" /><rect x="70" y="66" width="3" height="4" /><rect x="75" y="66" width="3" height="4" />
+                    <rect x="47" y="64" width="6" height="11" /><rect x="48" y="54" width="4" height="5" /><rect x="48" y="46" width="4" height="5" />
+                    <rect x="44" y="27" width="4" height="4" /><rect x="52" y="27" width="4" height="4" />
+                </g>
+            </svg>
+        );
 
-        </div>
-    </main>
-
-    <script>
-        // تفعيل الأيقونات
-        lucide.createIcons();
-
-        // قائمة المحاضرات
-        const lectures = [
-            "Introduction to Psychiatric and Mental Health Nursing",
-            "General Principles of Psychiatric Nursing",
-            "General Symptomatology",
-            "Psychiatric Mental Health Nursing Theoretical Framework",
-            "Anxiety and Defense Mechanisms",
-            "Ethical and Legal Aspects of Psychiatric Care",
-            "Therapeutic Communication",
-            "Therapeutic Nurse-Client Relationship",
-            "Nursing Process in Psychiatric Mental Health Nursing",
-            "Schizophrenia Spectrum and Other Psychotic Disorders",
-            "Delusional Disorder",
-            "Mood Disorders",
-            "Anxiety, Obsessive-Compulsive, and Trauma-Related Disorders",
-            "Somatic Symptom and Related Disorders",
-            "Dissociative Disorders",
-            "Personality Disorders",
-            "Substance-Related and Addictive Disorders",
-            "Anti-Psychotics",
-            "Anti-Depressants/Lithium/Anti-Anxiety",
-            "ECT",
-            "Psychotherapy",
-            "Milieu Therapy",
-            "Community Mental Health Services (C.M.H.S)"
+        // --- LECTURES DATA WITH ICONS & COLORS ---
+        const LECTURES = [
+            { title: "Introduction to Psychiatric and Mental Health Nursing", file: "Intro.html", ready: true, icon: "BookOpen", color: "text-blue-600 bg-blue-100" },
+            { title: "General Principles of Psychiatric Nursing", file: "Principles.html", ready: true, icon: "Compass", color: "text-indigo-600 bg-indigo-100" },
+            { title: "General Symptomatology", file: "Symptomatology.html", ready: true, icon: "Activity", color: "text-rose-600 bg-rose-100" },
+            { title: "Psychiatric Mental Health Nursing Theoretical Framework", file: "Theoretical-Framework.html", ready: true, icon: "Network", color: "text-purple-600 bg-purple-100" },
+            { title: "Anxiety and Defense Mechanisms", file: "Anxiety-and-Defense-Mech.html", ready: true, icon: "Shield", color: "text-emerald-600 bg-emerald-100" },
+            { title: "Ethical and Legal Aspects of Psychiatric Care", file: "Ethics.html", ready: true, icon: "Scale", color: "text-amber-600 bg-amber-100" },
+            { title: "Therapeutic Communication", file: "Communication.html", ready: true, icon: "MessageCircle", color: "text-cyan-600 bg-cyan-100" },
+            { title: "Therapeutic Nurse-Client Relationship", file: "Nurse-Client-Relationship.html", ready: true, icon: "Users", color: "text-pink-600 bg-pink-100" },
+            { title: "Nursing Process in Psychiatric Mental Health Nursing", file: "Nursing-Process.html", ready: true, icon: "ClipboardList", color: "text-teal-600 bg-teal-100" },
+            { title: "Schizophrenia Spectrum and Other Psychotic Disorders", file: "Schizo.html", ready: true, icon: "Brain", color: "text-fuchsia-600 bg-fuchsia-100" },
+            { title: "Delusional Disorder", file: "Delusional.html", ready: true, icon: "EyeOff", color: "text-orange-600 bg-orange-100" },
+            { title: "Mood Disorders", file: "Mood.html", ready: true, icon: "SunMoon", color: "text-yellow-600 bg-yellow-100" },
+            { title: "Anxiety, Obsessive-Compulsive, and Trauma-Related Disorders", file: "Anxiety-OCD.html", ready: true, icon: "Repeat", color: "text-red-600 bg-red-100" },
+            { title: "Somatic Symptom and Related Disorders", file: "Somatic.html", ready: true, icon: "Stethoscope", color: "text-sky-600 bg-sky-100" },
+            { title: "Dissociative Disorders", file: "Dissociative.html", ready: true, icon: "UserMinus", color: "text-stone-600 bg-stone-100" },
+            { title: "Personality Disorders", file: "Personality-Disorders.html", ready: true, icon: "Puzzle", color: "text-lime-600 bg-lime-100" },
+            { title: "Substance-Related and Addictive Disorders", file: "Substance.html", ready: true, icon: "Wine", color: "text-red-700 bg-red-200" },
+            { title: "Anti-Psychotics", file: "Anti-Psychotics.html", ready: true, icon: "Beaker", color: "text-violet-600 bg-violet-100" },
+            { title: "Anti-Depressants/Lithium/Anti-Anxiety", file: "anti-dep-lithium-anti-anxi.html", ready: true, icon: "Pill", color: "text-emerald-500 bg-emerald-100" },
+            { title: "ECT", file: "ECT.html", ready: true, icon: "Zap", color: "text-amber-500 bg-amber-100" },
+            { title: "Psychotherapy", file: "Psychotherapy.html", ready: true, icon: "Ear", color: "text-pink-500 bg-pink-100" },
+            { title: "Milieu Therapy", file: "Milieu.html", ready: true, icon: "Home", color: "text-teal-500 bg-teal-100" },
+            { title: "Community Mental Health Services (C.M.H.S)", file: "CMHS.html", ready: true, icon: "Map", color: "text-blue-500 bg-blue-100" }
         ];
 
-        const container = document.getElementById('lectures-container');
+        function IndexApp() {
+            return (
+                <div className="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col">
+                    {/* Top Navigation */}
+                    <nav className="bg-white shadow-sm sticky top-0 z-50">
+                        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+                            <div className="flex items-center gap-2 font-bold text-sm md:text-lg text-indigo-800">
+                                <DepartmentLogo className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 drop-shadow-sm" />
+                                <span className="hidden sm:inline">Psychiatric and Mental Health Nursing Department</span>
+                                <span className="sm:hidden">Course Modules</span>
+                            </div>
+                            <a href="index.html" className="text-sm font-bold text-slate-500 hover:text-indigo-600 transition flex items-center gap-1">
+                                <IconWrapper name="ArrowLeft" size={16} /> Home
+                            </a>
+                        </div>
+                    </nav>
 
-        lectures.forEach((title, index) => {
-            const lectureNumber = index + 1;
-            // محاضرة الـ ECT هي رقم 20
-            const isReady = title === "ECT"; 
-            
-            const card = document.createElement('div');
-            card.className = `p-5 rounded-xl border transition-all duration-300 flex flex-col justify-between ${
-                isReady 
-                ? 'bg-white border-indigo-200 shadow-sm hover:shadow-md hover:border-indigo-400' 
-                : 'bg-slate-100/50 border-slate-200 opacity-75'
-            }`;
+                    {/* Main Content Area */}
+                    <main className="max-w-6xl mx-auto px-4 py-10 flex-grow w-full">
+                        <div className="mb-10 text-center md:text-left border-b border-slate-200 pb-6 flex items-center gap-3">
+                            <div className="bg-indigo-100 p-3 rounded-xl text-indigo-700 hidden md:block">
+                                <IconWrapper name="Library" size={32} />
+                            </div>
+                            <div>
+                                <h2 className="text-3xl font-extrabold text-slate-800">Lectures Index</h2>
+                                <p className="text-slate-500 mt-2">Select a module to begin your interactive learning session.</p>
+                            </div>
+                        </div>
 
-            card.innerHTML = `
-                <div>
-                    <span class="text-xs font-bold px-2 py-1 rounded mb-3 inline-block ${isReady ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-200 text-slate-600'}">
-                        Lecture ${lectureNumber}
-                    </span>
-                    <h3 class="text-lg font-bold text-slate-800 leading-tight mb-4">${title}</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {LECTURES.map((lecture, index) => (
+                                <div key={index} className={`p-6 rounded-2xl border transition-all duration-300 flex flex-col justify-between group ${
+                                    lecture.ready 
+                                    ? 'bg-white border-slate-200 shadow-sm hover:shadow-lg hover:border-indigo-300' 
+                                    : 'bg-slate-100/50 border-slate-200 opacity-75'
+                                }`}>
+                                    <div>
+                                        <div className="flex justify-between items-start mb-5">
+                                            <span className={`text-xs font-bold px-3 py-1.5 rounded-lg inline-block ${lecture.ready ? 'bg-slate-100 text-slate-600 border border-slate-200' : 'bg-slate-200 text-slate-500'}`}>
+                                                Lecture {index + 1}
+                                            </span>
+                                            <div className={`p-2.5 rounded-xl shadow-sm group-hover:scale-110 transition-transform ${lecture.color}`}>
+                                                <IconWrapper name={lecture.icon} size={24} />
+                                            </div>
+                                        </div>
+                                        <h3 className="text-lg font-bold text-slate-800 leading-tight mb-6">{lecture.title}</h3>
+                                    </div>
+                                    <div>
+                                        {lecture.ready ? (
+                                            <a href={`pages/${lecture.file}`} className="w-full flex justify-center items-center gap-2 bg-indigo-50 text-indigo-700 border border-indigo-100 font-bold py-3 rounded-xl hover:bg-indigo-600 hover:text-white transition shadow-sm">
+                                                Start Lecture <IconWrapper name="PlayCircle" size={18} />
+                                            </a>
+                                        ) : (
+                                            <button disabled className="w-full flex justify-center items-center gap-2 bg-slate-200 text-slate-400 font-bold py-3 rounded-xl cursor-not-allowed">
+                                                Coming Soon <IconWrapper name="Lock" size={16} />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </main>
+
+                    {/* Footer */}
+                    <footer className="bg-slate-900 text-slate-300 py-10 mt-12 border-t-4 border-indigo-600">
+                        <div className="max-w-5xl mx-auto px-6 flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
+                                <FacultyLogo className="w-24 h-28 flex-shrink-0 drop-shadow-md" />
+                                <div className="mt-2">
+                                    <p className="mb-1 text-lg font-bold text-white">Psychiatric Nursing & Mental Health</p>
+                                    <p className="text-sm text-slate-400 max-w-xs">Educational Material Hub</p>
+                                </div>
+                            </div>
+                            
+                            <div className="text-center md:text-right space-y-2 text-sm border-t md:border-t-0 border-slate-700 pt-6 md:pt-0 w-full md:w-auto">
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Dean of The Faculty:</span> <span className="text-slate-200">Prof. Dr. Hanan Hosny El-Sherbiny</span></p>
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Acting Head of Department:</span> <span className="text-slate-200">Asst. Prof. Dr. Mayar Ezz-Eldin El-Naqeeb</span></p>
+                                <p className="flex flex-col sm:block"><span className="text-slate-500 text-xs uppercase tracking-wider block sm:inline sm:mr-2">Created by:</span> <span className="font-semibold text-white">M.Abdallah Abozaid</span></p>
+                            </div>
+                        </div>
+                    </footer>
                 </div>
-                <div>
-                    ${isReady 
-                        ? `<a href="pages/ect-lecture.html" class="w-full block text-center bg-indigo-600 text-white font-bold py-2.5 rounded-lg hover:bg-indigo-700 transition shadow-sm">Start Lecture</a>` 
-                        : `<button disabled class="w-full text-center bg-slate-200 text-slate-400 font-bold py-2.5 rounded-lg cursor-not-allowed">Coming Soon</button>`
-                    }
-                </div>
-            `;
-            container.appendChild(card);
-        });
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<IndexApp />);
     </script>
 </body>
 </html>
